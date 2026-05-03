@@ -51,18 +51,11 @@ const icons = {
 
         <!-- Mobile backdrop -->
         <Transition name="fade">
-            <div
-                v-if="mobileSidebarOpen"
-                class="mobile-backdrop"
-                @click="mobileSidebarOpen = false"
-            />
+            <div v-if="mobileSidebarOpen" class="mobile-backdrop" @click="mobileSidebarOpen = false" />
         </Transition>
 
         <!-- Sidebar -->
-        <aside
-            class="sidebar"
-            :class="{ 'sidebar--collapsed': sidebarCollapsed, 'sidebar--open': mobileSidebarOpen }"
-        >
+        <aside class="sidebar" :class="{ 'sidebar--collapsed': sidebarCollapsed, 'sidebar--open': mobileSidebarOpen }">
             <!-- Ambient gradient -->
             <div class="sidebar__ambient"></div>
 
@@ -70,14 +63,19 @@ const icons = {
             <div class="sidebar__brand">
                 <Link :href="route('dashboard')" class="sidebar__logo">
                     <div class="sidebar__logo-icon">
-                        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2" />
+                        </svg>
                     </div>
                     <Transition name="fade">
                         <span v-if="!sidebarCollapsed" class="sidebar__logo-text">ShortLink</span>
                     </Transition>
                 </Link>
-                <button class="sidebar__toggle" @click="toggleSidebar" :aria-label="sidebarCollapsed ? 'Expand' : 'Collapse'">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="toggle-icon" :class="{ 'toggle-icon--flipped': sidebarCollapsed }" v-html="icons['chevron-left']" />
+                <button class="sidebar__toggle" @click="toggleSidebar"
+                    :aria-label="sidebarCollapsed ? 'Expand' : 'Collapse'">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="toggle-icon"
+                        :class="{ 'toggle-icon--flipped': sidebarCollapsed }" v-html="icons['chevron-left']" />
                 </button>
             </div>
 
@@ -88,15 +86,11 @@ const icons = {
                         <span v-if="!sidebarCollapsed" class="nav-section__label">Main</span>
                     </Transition>
                     <div class="nav-section__items">
-                        <Link
-                            v-for="item in mainNavItems"
-                            :key="item.route"
-                            :href="route(item.route)"
-                            class="nav-item"
-                            :class="{ 'nav-item--active': route().current(item.route) || (item.route === 'links.index' && route().current('links.*') && !route().current('links.create') && !route().current('links.bulk')) }"
-                        >
+                        <Link v-for="item in mainNavItems" :key="item.route" :href="route(item.route)" class="nav-item"
+                            :class="{ 'nav-item--active': route().current(item.route) || (item.route === 'links.index' && route().current('links.*') && !route().current('links.create') && !route().current('links.bulk')) }">
                             <span class="nav-item__icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="icons[item.icon]" />
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    v-html="icons[item.icon]" />
                             </span>
                             <Transition name="fade">
                                 <span v-if="!sidebarCollapsed" class="nav-item__label">{{ item.label }}</span>
@@ -110,15 +104,11 @@ const icons = {
                         <span v-if="!sidebarCollapsed" class="nav-section__label">Tools</span>
                     </Transition>
                     <div class="nav-section__items">
-                        <Link
-                            v-for="item in toolsNavItems"
-                            :key="item.route"
-                            :href="route(item.route)"
-                            class="nav-item"
-                            :class="{ 'nav-item--active': route().current(item.route) }"
-                        >
+                        <Link v-for="item in toolsNavItems" :key="item.route" :href="route(item.route)" class="nav-item"
+                            :class="{ 'nav-item--active': route().current(item.route) }">
                             <span class="nav-item__icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="icons[item.icon]" />
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    v-html="icons[item.icon]" />
                             </span>
                             <Transition name="fade">
                                 <span v-if="!sidebarCollapsed" class="nav-item__label">{{ item.label }}</span>
@@ -132,15 +122,11 @@ const icons = {
                         <span v-if="!sidebarCollapsed" class="nav-section__label">Support</span>
                     </Transition>
                     <div class="nav-section__items">
-                        <Link
-                            v-for="item in supportNavItems"
-                            :key="item.route"
-                            :href="route(item.route)"
-                            class="nav-item"
-                            :class="{ 'nav-item--active': route().current(item.route) }"
-                        >
+                        <Link v-for="item in supportNavItems" :key="item.route" :href="route(item.route)"
+                            class="nav-item" :class="{ 'nav-item--active': route().current(item.route) }">
                             <span class="nav-item__icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="icons[item.icon]" />
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    v-html="icons[item.icon]" />
                             </span>
                             <Transition name="fade">
                                 <span v-if="!sidebarCollapsed" class="nav-item__label">{{ item.label }}</span>
@@ -163,15 +149,11 @@ const icons = {
                         </div>
                     </Transition>
                 </div>
-                <Link
-                    :href="route('logout')"
-                    method="post"
-                    as="button"
-                    class="logout-btn"
-                    :class="{ 'logout-btn--collapsed': sidebarCollapsed }"
-                >
+                <Link :href="route('logout')" method="post" as="button" class="logout-btn"
+                    :class="{ 'logout-btn--collapsed': sidebarCollapsed }">
                     <span class="logout-btn__icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="icons.logout" />
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                            v-html="icons.logout" />
                     </span>
                     <Transition name="fade">
                         <span v-if="!sidebarCollapsed" class="logout-btn__text">Sign Out</span>
@@ -186,7 +168,8 @@ const icons = {
             <!-- Mobile Top Bar -->
             <header class="topbar">
                 <button class="topbar__menu-btn" @click="toggleMobileSidebar">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon" v-html="icons['menu']" />
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon"
+                        v-html="icons['menu']" />
                 </button>
                 <div class="topbar__title">
                     <slot name="header" />
@@ -202,39 +185,34 @@ const icons = {
 </template>
 
 <style>
-/* ── Sophisticated Swiss Design System ──────────── */
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap');
+/* ── Editorial Design System — Light ──────────── */
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Oswald:wght@400;500;600;700&display=swap');
 
 :root {
     /* Dimensions */
-    --sidebar-width: 280px;
-    --sidebar-collapsed: 76px;
-    
-    /* Colors - Sophisticated Navy & Coral */
-    --navy-900: #0a1628;
-    --navy-800: #111d32;
-    --navy-700: #1a2942;
-    --coral-500: #e85d4e;
-    --coral-400: #f07062;
-    --coral-300: #f5958a;
-    --cream-50: #faf9f7;
-    --cream-100: #f5f3f0;
-    --gray-400: #9ca3af;
-    --gray-500: #6b7280;
-    --gray-600: #4b5563;
-    --gray-900: #111827;
-    
+    --sidebar-width: 240px;
+    --sidebar-collapsed: 60px;
+
+    /* Editorial Palette */
+    --red: #e74c3c;
+    --red-dark: #c0392b;
+    --gold: #d4af37;
+    --ink: #1a1a1a;
+    --ink-soft: #444;
+    --muted: #888;
+    --border: #e8e5e0;
+    --bg: #fafafa;
+    --surface: #fff;
+    --surface-2: #f5f3ef;
+
     /* Typography */
-    --font-display: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-body: 'Newsreader', Georgia, serif;
-    
+    --font-display: 'Oswald', sans-serif;
+    --font-body: 'Crimson Pro', serif;
+
     /* Effects */
-    --shadow-soft: 0 4px 20px rgba(10, 22, 40, 0.08);
-    --shadow-medium: 0 8px 30px rgba(10, 22, 40, 0.12);
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow: 0 2px 12px rgba(26, 26, 26, 0.07);
+    --radius: 4px;
+    --transition: all 0.2s ease;
 }
 </style>
 
@@ -243,9 +221,9 @@ const icons = {
 .app-shell {
     display: flex;
     min-height: 100vh;
-    background: var(--cream-50);
-    font-family: var(--font-display);
-    color: var(--gray-900);
+    background: var(--bg);
+    font-family: var(--font-body);
+    color: var(--ink);
 }
 
 /* ── Sidebar ────────────────────────────────────── */
@@ -255,10 +233,11 @@ const icons = {
     left: 0;
     height: 100vh;
     width: var(--sidebar-width);
-    background: var(--navy-900);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.3s ease;
     z-index: 100;
     overflow: hidden;
 }
@@ -271,15 +250,8 @@ const icons = {
     transform: translateX(0);
 }
 
-/* Ambient gradient glow */
 .sidebar__ambient {
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(ellipse at top right, rgba(232, 93, 78, 0.15) 0%, transparent 60%);
-    pointer-events: none;
+    display: none;
 }
 
 /* ── Brand Section ──────────────────────────────── */
@@ -287,7 +259,8 @@ const icons = {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 28px 24px 24px;
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--border);
     position: relative;
     z-index: 1;
 }
@@ -295,21 +268,20 @@ const icons = {
 .sidebar__logo {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
     text-decoration: none;
-    color: #fff;
+    color: var(--ink);
 }
 
 .sidebar__logo-icon {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, var(--coral-500) 0%, var(--coral-400) 100%);
-    border-radius: 10px;
+    width: 28px;
+    height: 28px;
+    background: var(--red);
+    border-radius: var(--radius);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(232, 93, 78, 0.3);
 }
 
 .sidebar__logo-icon svg {
@@ -321,29 +293,31 @@ const icons = {
 .sidebar__logo-text {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 18px;
-    color: #fff;
+    font-size: 15px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ink);
     white-space: nowrap;
 }
 
 .sidebar__toggle {
-    width: 32px;
-    height: 32px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    color: var(--gray-400);
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--muted);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: var(--transition-smooth);
+    transition: var(--transition);
 }
 
 .sidebar__toggle:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border-color: rgba(255, 255, 255, 0.2);
+    background: var(--surface-2);
+    color: var(--ink);
+    border-color: #ccc;
 }
 
 .toggle-icon {
@@ -359,12 +333,12 @@ const icons = {
 /* ── Navigation Content ─────────────────────────── */
 .sidebar__content {
     flex: 1;
-    padding: 16px 16px 24px;
+    padding: 12px 10px 16px;
     overflow-y: auto;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 20px;
     position: relative;
     z-index: 1;
 }
@@ -379,7 +353,7 @@ const icons = {
 }
 
 .sidebar__content::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--border);
     border-radius: 2px;
 }
 
@@ -387,15 +361,18 @@ const icons = {
 .nav-section {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 }
 
 .nav-section__label {
-    font-size: 10px;
+    font-family: var(--font-display);
+    font-size: 9px;
     font-weight: 600;
     text-transform: uppercase;
-    color: var(--gray-500);
-    padding: 0 12px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    padding: 0 8px;
+    margin-bottom: 2px;
     white-space: nowrap;
 }
 
@@ -409,43 +386,45 @@ const icons = {
 .nav-item {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 12px 14px;
-    border-radius: var(--radius-sm);
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--radius);
     text-decoration: none;
-    color: var(--gray-400);
-    font-size: 14px;
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-size: 12px;
     font-weight: 500;
-    transition: var(--transition-smooth);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: var(--transition);
     position: relative;
-    overflow: hidden;
 }
 
 .nav-item::before {
     content: '';
     position: absolute;
     left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: var(--coral-500);
+    top: 20%;
+    bottom: 20%;
+    width: 2px;
+    background: var(--red);
     border-radius: 0 2px 2px 0;
     transform: scaleY(0);
-    transition: transform 0.3s ease;
+    transition: transform 0.2s ease;
 }
 
 .nav-item:hover {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.04);
+    color: var(--ink);
+    background: var(--surface-2);
 }
 
 .nav-item:hover::before {
-    transform: scaleY(0.5);
+    transform: scaleY(0.6);
 }
 
 .nav-item--active {
-    color: #fff;
-    background: rgba(232, 93, 78, 0.12);
+    color: var(--ink);
+    background: #fef2f2;
 }
 
 .nav-item--active::before {
@@ -467,21 +446,20 @@ const icons = {
 }
 
 .nav-item--active .nav-item__icon {
-    color: var(--coral-400);
+    color: var(--red);
 }
 
 .nav-item__label {
     white-space: nowrap;
-    font-weight: 500;
 }
 
 /* ── User Section ───────────────────────────────── */
 .sidebar__user {
-    padding: 20px 16px 24px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 12px 10px 16px;
+    border-top: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     position: relative;
     z-index: 1;
 }
@@ -489,17 +467,16 @@ const icons = {
 .user-card {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: var(--radius-md);
-    transition: var(--transition-smooth);
+    gap: 10px;
+    padding: 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: var(--transition);
 }
 
 .user-card:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
+    background: #eeeae4;
 }
 
 .user-card--collapsed {
@@ -508,14 +485,15 @@ const icons = {
 }
 
 .user-card__avatar {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, var(--coral-500) 0%, var(--coral-400) 100%);
-    border-radius: 10px;
+    width: 30px;
+    height: 30px;
+    background: var(--red);
+    border-radius: var(--radius);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-family: var(--font-display);
+    font-size: 13px;
     font-weight: 600;
     color: #fff;
     flex-shrink: 0;
@@ -529,9 +507,11 @@ const icons = {
 }
 
 .user-card__name {
-    font-size: 14px;
+    font-family: var(--font-display);
+    font-size: 12px;
     font-weight: 600;
-    color: #fff;
+    letter-spacing: 0.3px;
+    color: var(--ink);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -539,7 +519,7 @@ const icons = {
 
 .user-card__email {
     font-size: 11px;
-    color: var(--gray-500);
+    color: var(--muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -550,23 +530,26 @@ const icons = {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    padding: 10px 14px;
+    gap: 8px;
+    padding: 8px 12px;
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-sm);
-    color: var(--gray-400);
-    font-size: 13px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--muted);
+    font-family: var(--font-display);
+    font-size: 11px;
     font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
     cursor: pointer;
-    transition: var(--transition-smooth);
+    transition: var(--transition);
     width: 100%;
 }
 
 .logout-btn:hover {
-    background: rgba(232, 93, 78, 0.1);
-    border-color: rgba(232, 93, 78, 0.3);
-    color: var(--coral-400);
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: var(--red);
 }
 
 .logout-btn__icon {
@@ -589,7 +572,7 @@ const icons = {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: margin-left 0.3s ease;
 }
 
 .main-content--expanded {
@@ -598,14 +581,14 @@ const icons = {
 
 /* ── Topbar ────────────────────────────────────── */
 .topbar {
-    height: 72px;
-    background: rgba(250, 249, 247, 0.8);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(10, 22, 40, 0.06);
+    height: 56px;
+    background: rgba(250, 250, 250, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
-    padding: 0 40px;
-    gap: 16px;
+    padding: 0 32px;
+    gap: 14px;
     position: sticky;
     top: 0;
     z-index: 50;
@@ -613,37 +596,38 @@ const icons = {
 
 .topbar__menu-btn {
     display: none;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     background: transparent;
-    border: none;
-    border-radius: 10px;
-    color: var(--gray-500);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--muted);
     cursor: pointer;
     align-items: center;
     justify-content: center;
-    transition: var(--transition-smooth);
+    transition: var(--transition);
 }
 
 .topbar__menu-btn:hover {
-    background: rgba(10, 22, 40, 0.04);
-    color: var(--gray-900);
+    background: var(--surface-2);
+    color: var(--ink);
 }
 
 .topbar__title {
-    font-family: var(--font-body);
-    font-size: 22px;
+    font-family: var(--font-display);
+    font-size: 13px;
     font-weight: 500;
-    font-style: italic;
-    color: var(--gray-900);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
 }
 
 /* ── Page Content ───────────────────────────────── */
 .page-content {
     flex: 1;
-    padding: 32px 40px 48px;
-    background: var(--cream-50);
-    min-height: calc(100vh - 72px);
+    padding: 28px 32px 48px;
+    background: var(--bg);
+    min-height: calc(100vh - 56px);
 }
 
 /* ── Transitions ───────────────────────────────── */
@@ -662,8 +646,8 @@ const icons = {
 .mobile-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(10, 22, 40, 0.6);
-    backdrop-filter: blur(4px);
+    background: rgba(26, 26, 26, 0.4);
+    backdrop-filter: blur(2px);
     z-index: 90;
 }
 
@@ -672,7 +656,7 @@ const icons = {
     .sidebar {
         transform: translateX(-100%);
         width: var(--sidebar-width) !important;
-        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: transform 0.3s ease;
     }
 
     .sidebar--open {
@@ -685,7 +669,7 @@ const icons = {
     }
 
     .topbar {
-        padding: 0 20px;
+        padding: 0 16px;
     }
 
     .topbar__menu-btn {
@@ -693,7 +677,7 @@ const icons = {
     }
 
     .page-content {
-        padding: 24px 20px 32px;
+        padding: 20px 16px 32px;
     }
 }
 
