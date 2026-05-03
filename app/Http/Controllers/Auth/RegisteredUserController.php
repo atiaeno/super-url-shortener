@@ -1,9 +1,12 @@
 <?php
+// © Atia Hegazy — atiaeno.com
 
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Rules\NotDisposableEmail;
+use App\Services\CaptchaService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,9 +36,18 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class, new NotDisposableEmail],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'recaptcha_token' => ['nullable', 'string'],
         ]);
+
+        // Story 2.1: Verify CAPTCHA token server-side if enabled
+        $captcha = app(CaptchaService::class);
+        if (!$captcha->verify($request->input('recaptcha_token'), $request->ip())) {
+            throw ValidationException::withMessages([
+                'recaptcha_token' => 'CAPTCHA verification failed. Please try again.',
+            ]);
+        }
 
         $user = User::create([
             'name' => $request->name,

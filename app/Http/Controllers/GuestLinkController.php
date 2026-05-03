@@ -3,6 +3,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\FetchOgTagsJob;
 use App\Models\Link;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,22 +44,25 @@ class GuestLinkController extends Controller
 
         if ($existing) {
             return response()->json([
-                'id'         => $existing->id,
-                'short_url'  => $existing->short_url,
+                'id' => $existing->id,
+                'short_url' => $existing->short_url,
                 'short_code' => $existing->short_code,
             ]);
         }
 
         $link = Link::create([
-            'user_id'         => null,
-            'short_code'      => $this->generateCode(),
+            'user_id' => null,
+            'short_code' => $this->generateCode(),
             'destination_url' => $url,
-            'is_active'       => true,
+            'is_active' => true,
         ]);
 
+        // Story 1.7: Fetch OG tags asynchronously
+        FetchOgTagsJob::dispatch($link->id)->onQueue('default');
+
         return response()->json([
-            'id'         => $link->id,
-            'short_url'  => $link->short_url,
+            'id' => $link->id,
+            'short_url' => $link->short_url,
             'short_code' => $link->short_code,
         ]);
     }
@@ -77,7 +81,7 @@ class GuestLinkController extends Controller
         $blocked = Cache::remember(
             self::BLOCKED_DOMAINS_CACHE_KEY,
             self::BLOCKED_DOMAINS_TTL,
-            fn () => $this->getBlockedDomains()
+            fn() => $this->getBlockedDomains()
         );
 
         if (in_array($domain, $blocked, true)) {
@@ -91,17 +95,17 @@ class GuestLinkController extends Controller
                 $response = Http::timeout(5)->post(
                     "https://safebrowsing.googleapis.com/v4/threatMatches:find?key={$apiKey}",
                     [
-                        'client'    => ['clientId' => 'shortlink', 'clientVersion' => '1.0'],
+                        'client' => ['clientId' => 'shortlink', 'clientVersion' => '1.0'],
                         'threatInfo' => [
-                            'threatTypes'      => ['MALWARE', 'SOCIAL_ENGINEERING', 'UNWANTED_SOFTWARE'],
-                            'platformTypes'    => ['ANY_PLATFORM'],
+                            'threatTypes' => ['MALWARE', 'SOCIAL_ENGINEERING', 'UNWANTED_SOFTWARE'],
+                            'platformTypes' => ['ANY_PLATFORM'],
                             'threatEntryTypes' => ['URL'],
-                            'threatEntries'    => [['url' => $url]],
+                            'threatEntries' => [['url' => $url]],
                         ],
                     ]
                 );
 
-                if ($response->successful() && ! empty($response->json('matches'))) {
+                if ($response->successful() && !empty($response->json('matches'))) {
                     return true;
                 }
             } catch (\Throwable) {
@@ -118,7 +122,10 @@ class GuestLinkController extends Controller
     private function getBlockedDomains(): array
     {
         return [
-            'malware.com', 'phishing.com', 'bit.ly', 'tinyurl.com',
+            'malware.com',
+            'phishing.com',
+            'bit.ly',
+            'tinyurl.com',
         ];
     }
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Affiliate;
 use App\Models\Payout;
 use App\Models\PayoutAuditLog;
+use App\Notifications\PayoutStatusNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,12 +40,15 @@ class PayoutController extends Controller
 
         $oldStatus = $payout->status;
         $payout->update([
-            'status'       => Payout::STATUS_APPROVED,
+            'status' => Payout::STATUS_APPROVED,
             'processed_by' => Auth::id(),
             'processed_at' => now(),
         ]);
 
         $this->logAudit($payout, $oldStatus, Payout::STATUS_APPROVED, $request->note);
+
+        // Story 4.7: Notify affiliate of approval
+        $payout->affiliate->user->notify(new PayoutStatusNotification($payout));
 
         return back()->with('success', 'Payout approved.');
     }
@@ -62,13 +66,16 @@ class PayoutController extends Controller
 
         $oldStatus = $payout->status;
         $payout->update([
-            'status'       => Payout::STATUS_REJECTED,
-            'admin_note'   => $validated['note'],
+            'status' => Payout::STATUS_REJECTED,
+            'admin_note' => $validated['note'],
             'processed_by' => Auth::id(),
             'processed_at' => now(),
         ]);
 
         $this->logAudit($payout, $oldStatus, Payout::STATUS_REJECTED, $validated['note']);
+
+        // Story 4.7: Notify affiliate of rejection with reason
+        $payout->affiliate->user->notify(new PayoutStatusNotification($payout, $validated['note']));
 
         return back()->with('success', 'Payout rejected.');
     }
@@ -82,7 +89,7 @@ class PayoutController extends Controller
 
         $oldStatus = $payout->status;
         $payout->update([
-            'status'       => Payout::STATUS_PAID,
+            'status' => Payout::STATUS_PAID,
             'processed_by' => Auth::id(),
             'processed_at' => now(),
         ]);
@@ -93,6 +100,9 @@ class PayoutController extends Controller
 
         $this->logAudit($payout, $oldStatus, Payout::STATUS_PAID, $request->note);
 
+        // Story 4.7: Notify affiliate that payment has been sent
+        $payout->affiliate->user->notify(new PayoutStatusNotification($payout));
+
         return back()->with('success', 'Payout marked as paid.');
     }
 
@@ -101,14 +111,15 @@ class PayoutController extends Controller
      */
     public function auditLog(Payout $payout): Response
     {
-        $logs = $payout->auditLogs()
+        $logs = $payout
+            ->auditLogs()
             ->with('actor:id,name')
             ->orderBy('created_at')
             ->get();
 
         return Inertia::render('Admin/Payouts/AuditLog', [
             'payout' => $payout->load('affiliate.user:id,name,email'),
-            'logs'   => $logs,
+            'logs' => $logs,
         ]);
     }
 
@@ -118,11 +129,11 @@ class PayoutController extends Controller
     private function logAudit(Payout $payout, string $oldStatus, string $newStatus, ?string $note): void
     {
         PayoutAuditLog::create([
-            'payout_id'  => $payout->id,
-            'actor_id'   => Auth::id(),
+            'payout_id' => $payout->id,
+            'actor_id' => Auth::id(),
             'old_status' => $oldStatus,
             'new_status' => $newStatus,
-            'note'       => $note,
+            'note' => $note,
             'created_at' => now(),
         ]);
     }

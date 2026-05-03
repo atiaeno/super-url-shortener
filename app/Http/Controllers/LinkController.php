@@ -3,6 +3,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\FetchOgTagsJob;
 use App\Models\Ad;
 use App\Models\Link;
 use App\Services\ShortCodeService;
@@ -69,7 +70,11 @@ class LinkController extends Controller
         // Cache the redirect
         Cache::put("redirect:{$link->short_code}", $link->destination_url, now()->addHours(24));
 
-        return redirect()->route('links.index')
+        // Story 1.7: Fetch OG tags asynchronously
+        FetchOgTagsJob::dispatch($link->id)->onQueue('default');
+
+        return redirect()
+            ->route('links.index')
             ->with('success', 'Link created successfully.');
     }
 
@@ -86,49 +91,44 @@ class LinkController extends Controller
         $clicksQuery = $link->clicks();
 
         $clicksQuery = match ($period) {
-            'today'  => $clicksQuery->whereDate('created_at', today()),
-            'week'   => $clicksQuery->where('created_at', '>=', now()->subDays(7)),
-            'month'  => $clicksQuery->where('created_at', '>=', now()->subDays(30)),
-            default  => $clicksQuery,
+            'today' => $clicksQuery->whereDate('created_at', today()),
+            'week' => $clicksQuery->where('created_at', '>=', now()->subDays(7)),
+            'month' => $clicksQuery->where('created_at', '>=', now()->subDays(30)),
+            default => $clicksQuery,
         };
 
         // Clone the base filtered query for each aggregate
         $base = clone $clicksQuery;
 
         $analytics = [
-            'total_clicks'  => (clone $base)->count(),
-            'period'        => $period,
-
+            'total_clicks' => (clone $base)->count(),
+            'period' => $period,
             'clicks_by_device' => (clone $base)
                 ->selectRaw('device_type, COUNT(*) as total')
                 ->groupBy('device_type')
                 ->orderByDesc('total')
                 ->get(),
-
             'clicks_by_country' => (clone $base)
                 ->selectRaw('country_code, COUNT(*) as total')
                 ->groupBy('country_code')
                 ->orderByDesc('total')
                 ->limit(10)
                 ->get()
-                ->map(fn ($row) => array_merge($row->toArray(), [
+                ->map(fn($row) => array_merge($row->toArray(), [
                     'flag' => $this->countryFlag($row->country_code),
                 ])),
-
             'clicks_by_browser' => (clone $base)
                 ->selectRaw('browser, COUNT(*) as total')
                 ->groupBy('browser')
                 ->orderByDesc('total')
                 ->limit(6)
                 ->get(),
-
             'clicks_by_referrer' => (clone $base)
                 ->selectRaw('referrer_domain, COUNT(*) as total')
                 ->groupBy('referrer_domain')
                 ->orderByDesc('total')
                 ->limit(6)
                 ->get(),
-
             'clicks_over_time' => (clone $base)
                 ->selectRaw('DATE(created_at) as date, COUNT(*) as total')
                 ->groupBy('date')
@@ -137,7 +137,7 @@ class LinkController extends Controller
         ];
 
         return Inertia::render('Links/Show', [
-            'link'      => array_merge($link->toArray(), [
+            'link' => array_merge($link->toArray(), [
                 'short_url' => $link->short_url,
             ]),
             'analytics' => $analytics,
@@ -149,7 +149,7 @@ class LinkController extends Controller
      */
     private function countryFlag(?string $code): string
     {
-        if (! $code || strlen($code) !== 2) {
+        if (!$code || strlen($code) !== 2) {
             return '🌐';
         }
 
@@ -203,7 +203,8 @@ class LinkController extends Controller
         // Update cache
         Cache::put("redirect:{$link->short_code}", $link->destination_url, now()->addHours(24));
 
-        return redirect()->route('links.index')
+        return redirect()
+            ->route('links.index')
             ->with('success', 'Link updated successfully.');
     }
 
@@ -219,7 +220,8 @@ class LinkController extends Controller
 
         $link->delete();
 
-        return redirect()->route('links.index')
+        return redirect()
+            ->route('links.index')
             ->with('success', 'Link deleted successfully.');
     }
 }

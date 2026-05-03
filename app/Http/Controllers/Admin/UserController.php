@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\User;
 use App\Notifications\UserBannedNotification;
+use App\Notifications\UserUnbannedNotification;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -26,8 +27,9 @@ class UserController extends Controller
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                $q
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -159,6 +161,9 @@ class UserController extends Controller
                 'target_type' => 'user',
                 'target_id' => $user->id,
             ]);
+
+            // Story 8.3: Notify user their ban has been lifted
+            $user->notify(new UserUnbannedNotification());
         }
 
         return redirect()->back()->with('success', 'User has been unbanned.');
