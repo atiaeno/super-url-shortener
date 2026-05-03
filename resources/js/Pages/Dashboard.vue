@@ -21,15 +21,27 @@ const props = defineProps({
 });
 
 const statItems = computed(() => [
-    { num: '01', label: 'Total Links', value: props.stats.total_links },
-    { num: '02', label: 'Total Clicks', value: props.stats.total_clicks },
-    { num: '03', label: 'Clicks Today', value: props.stats.clicks_today },
-    { num: '04', label: 'Active Links', value: props.stats.active_links },
+    { id: 'links', label: 'Total Links', value: props.stats.total_links, icon: 'link' },
+    { id: 'clicks', label: 'Total Clicks', value: props.stats.total_clicks, icon: 'activity' },
+    { id: 'today', label: 'Clicks Today', value: props.stats.clicks_today, icon: 'clock' },
+    { id: 'active', label: 'Active Links', value: props.stats.active_links, icon: 'check' },
 ]);
 
 const formatDate = (dateStr) => {
     if (!dateStr) return '—';
     return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+const icons = {
+    link: `<path d="M9.5 14.5a4.5 4.5 0 0 1 6.36-6.36l3.5 3.5a4.5 4.5 0 0 1-6.36 6.36l-1.5-1.5"/><path d="M14.5 9.5a4.5 4.5 0 0 0-6.36 6.36l3.5 3.5a4.5 4.5 0 0 0 6.36-6.36l-1.5-1.5"/>`,
+    activity: `<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>`,
+    clock: `<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
+    check: `<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>`,
+    plus: `<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>`,
+    external: `<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>`,
+    chart: `<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>`,
+    edit: `<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>`,
+    arrow: `<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>`,
 };
 </script>
 
@@ -39,446 +51,696 @@ const formatDate = (dateStr) => {
     <AuthenticatedLayout>
         <template #header>Dashboard</template>
 
-        <div class="dashboard-editorial">
-            <!-- Editorial Masthead -->
-            <div class="dashboard-masthead">
-                <span class="masthead-label">Vol. 01 — Control Panel</span>
-                <h1 class="masthead-title">Overview</h1>
-            </div>
+        <div class="dashboard">
+            <!-- Welcome Section -->
+            <section class="welcome-section">
+                <h1 class="welcome-title">Welcome back</h1>
+                <p class="welcome-subtitle">Here's what's happening with your links today.</p>
+            </section>
 
-            <!-- Stat Cards - Editorial Specifications -->
-            <div class="specs-section">
-                <h3 class="section-heading">Specifications</h3>
-                <div class="specs-grid">
+            <!-- Stats Grid -->
+            <section class="stats-section">
+                <div class="stats-grid">
                     <div
                         v-for="item in statItems"
-                        :key="item.num"
-                        class="spec-card"
+                        :key="item.id"
+                        class="stat-card"
                     >
-                        <span class="spec-number">{{ item.num }}</span>
-                        <span class="spec-label-text">{{ item.label }}</span>
-                        <span class="spec-value">{{ item.value.toLocaleString() }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Create - Editorial Form -->
-            <div class="editorial-form-section">
-                <label class="form-label">Shorten a URL</label>
-                <div class="editorial-input-wrap">
-                    <input
-                        type="url"
-                        placeholder="https://your-long-url.com/paste-here"
-                        class="editorial-input"
-                        readonly
-                        @focus="$inertia.visit(route('links.create'))"
-                    />
-                    <Link :href="route('links.create')" class="editorial-submit">
-                        Create
-                    </Link>
-                </div>
-            </div>
-
-            <!-- Recent Links - Typography Forward Table -->
-            <div class="links-section">
-                <div class="links-header">
-                    <h3 class="section-heading">Recent Links</h3>
-                    <Link :href="route('links.index')" class="view-all-link">View all archive →</Link>
-                </div>
-
-                <div v-if="recentLinks.length === 0" class="empty-state">
-                    <p class="empty-text">No entries recorded. Create your first short link above.</p>
-                </div>
-
-                <div v-else class="editorial-table">
-                    <div class="table-head">
-                        <span class="col-dest">Destination</span>
-                        <span class="col-short">Short URL</span>
-                        <span class="col-clicks">Clicks</span>
-                        <span class="col-date">Created</span>
-                        <span class="col-actions"></span>
-                    </div>
-                    <div
-                        v-for="link in recentLinks"
-                        :key="link.id"
-                        class="table-row"
-                    >
-                        <span class="cell-dest">{{ link.destination_url }}</span>
-                        <a
-                            :href="`/${link.short_code}`"
-                            target="_blank"
-                            class="cell-short"
-                        >{{ link.short_code }}</a>
-                        <span class="cell-clicks">{{ link.clicks_count }}</span>
-                        <span class="cell-date">{{ formatDate(link.created_at) }}</span>
-                        <div class="cell-actions">
-                            <Link :href="route('links.show', link.id)" class="table-action">Stats</Link>
-                            <Link :href="route('links.edit', link.id)" class="table-action">Edit</Link>
+                        <div class="stat-card__icon" :class="`stat-card__icon--${item.id}`">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="icons[item.icon]" />
+                        </div>
+                        <div class="stat-card__content">
+                            <span class="stat-card__value">{{ item.value.toLocaleString() }}</span>
+                            <span class="stat-card__label">{{ item.label }}</span>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- Quick Create CTA -->
+            <section class="cta-section">
+                <div class="cta-card">
+                    <div class="cta-card__content">
+                        <div class="cta-card__icon-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="icons.plus" />
+                        </div>
+                        <div class="cta-card__text">
+                            <h3 class="cta-card__title">Create a new short link</h3>
+                            <p class="cta-card__desc">Transform long URLs into memorable, trackable links.</p>
+                        </div>
+                    </div>
+                    <Link :href="route('links.create')" class="cta-card__btn">
+                        Get Started
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.arrow" />
+                    </Link>
+                </div>
+            </section>
+
+            <!-- Recent Links -->
+            <section class="links-section">
+                <div class="section-header">
+                    <div class="section-title-wrap">
+                        <h2 class="section-title">Recent Links</h2>
+                        <p class="section-subtitle">Your latest created short URLs</p>
+                    </div>
+                    <Link :href="route('links.index')" class="section-link">
+                        View all links
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.arrow" />
+                    </Link>
+                </div>
+
+                <div v-if="recentLinks.length === 0" class="empty-state">
+                    <div class="empty-state__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="icons.link" />
+                    </div>
+                    <h3 class="empty-state__title">No links yet</h3>
+                    <p class="empty-state__text">Create your first short link and start tracking clicks.</p>
+                    <Link :href="route('links.create')" class="empty-state__btn">
+                        Create your first link
+                    </Link>
+                </div>
+
+                <div v-else class="links-table">
+                    <div class="links-table__header">
+                        <span class="links-table__col links-table__col--url">Short URL</span>
+                        <span class="links-table__col links-table__col--dest">Destination</span>
+                        <span class="links-table__col links-table__col--clicks">Clicks</span>
+                        <span class="links-table__col links-table__col--date">Created</span>
+                        <span class="links-table__col links-table__col--actions"></span>
+                    </div>
+                    <div class="links-table__body">
+                        <div
+                            v-for="link in recentLinks"
+                            :key="link.id"
+                            class="link-row"
+                        >
+                            <div class="link-row__col link-row__col--url">
+                                <a :href="`/${link.short_code}`" target="_blank" class="short-url">
+                                    <span class="short-url__domain">short.link</span>
+                                    <span class="short-url__slash">/</span>
+                                    <span class="short-url__code">{{ link.short_code }}</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.external" />
+                                </a>
+                            </div>
+                            <div class="link-row__col link-row__col--dest">
+                                <span class="dest-url" :title="link.destination_url">{{ link.destination_url }}</span>
+                            </div>
+                            <div class="link-row__col link-row__col--clicks">
+                                <span class="click-count">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.chart" />
+                                    {{ link.clicks_count.toLocaleString() }}
+                                </span>
+                            </div>
+                            <div class="link-row__col link-row__col--date">
+                                <span class="created-date">{{ formatDate(link.created_at) }}</span>
+                            </div>
+                            <div class="link-row__col link-row__col--actions">
+                                <div class="action-btns">
+                                    <Link :href="route('links.show', link.id)" class="action-btn action-btn--primary" title="Analytics">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.chart" />
+                                    </Link>
+                                    <Link :href="route('links.edit', link.id)" class="action-btn" title="Edit">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.edit" />
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     </AuthenticatedLayout>
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@500;700&display=swap');
+/* ── Dashboard: Swiss Sophistication ──────────────── */
 
-/* ── EDITORIAL DASHBOARD ─────────────────────────── */
-
-.dashboard-editorial {
-    font-family: 'Crimson Pro', serif;
-    color: #1a1a1a;
+.dashboard {
+    max-width: 960px;
 }
 
-/* ── Masthead ──────────────────────────────────── */
-.dashboard-masthead {
-    margin-bottom: 48px;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 32px;
+/* ── Welcome Section ─────────────────────────────── */
+.welcome-section {
+    margin-bottom: 32px;
 }
 
-.masthead-label {
-    display: block;
-    font-family: 'Oswald', sans-serif;
-    font-size: 11px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: #999;
-    margin-bottom: 16px;
+.welcome-title {
+    font-family: var(--font-display, 'Sora', sans-serif);
+    font-size: 32px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 8px 0;
 }
 
-.masthead-title {
-    font-family: 'Oswald', sans-serif;
-    font-size: 48px;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: -1px;
-    color: #1a1a1a;
+.welcome-subtitle {
+    font-family: var(--font-body, 'Newsreader', serif);
+    font-size: 17px;
+    font-style: italic;
+    color: #6b7280;
     margin: 0;
 }
 
-/* ── Section Heading ───────────────────────────── */
-.section-heading {
-    font-family: 'Oswald', sans-serif;
-    font-size: 12px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: #666;
-    margin: 0 0 24px 0;
+/* ── Stats Section ──────────────────────────────── */
+.stats-section {
+    margin-bottom: 32px;
 }
 
-/* ── Specifications Grid ──────────────────────── */
-.specs-section {
-    margin-bottom: 48px;
-}
-
-.specs-grid {
+.stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    background: #1a1a1a;
+    gap: 20px;
 }
 
-.spec-card {
+.stat-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 4px 20px rgba(10, 22, 40, 0.06);
+    transform: translateY(-2px);
+}
+
+.stat-card__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-card__icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.stat-card__icon--links {
+    background: linear-gradient(135deg, #fef3f2 0%, #fee4e2 100%);
+    color: #e85d4e;
+}
+
+.stat-card__icon--clicks {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    color: #3b82f6;
+}
+
+.stat-card__icon--today {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    color: #22c55e;
+}
+
+.stat-card__icon--active {
+    background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+    color: #a855f7;
+}
+
+.stat-card__content {
     display: flex;
     flex-direction: column;
-    padding: 32px 28px;
-    border-right: 1px solid #2a2a2a;
-    position: relative;
 }
 
-.spec-card:last-child {
-    border-right: none;
+.stat-card__value {
+    font-family: var(--font-display, 'Sora', sans-serif);
+    font-size: 28px;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.2;
 }
 
-.spec-number {
-    font-family: 'Oswald', sans-serif;
-    font-size: 11px;
-    color: #555;
-    letter-spacing: 2px;
-    margin-bottom: 12px;
+.stat-card__label {
+    font-size: 13px;
+    color: #9ca3af;
+    margin-top: 4px;
 }
 
-.spec-label-text {
-    font-family: 'Oswald', sans-serif;
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #888;
-    margin-bottom: 8px;
+/* ── CTA Section ──────────────────────────────── */
+.cta-section {
+    margin-bottom: 40px;
 }
 
-.spec-value {
-    font-family: 'Oswald', sans-serif;
-    font-size: 36px;
-    font-weight: 700;
-    color: #d4af37;
-    letter-spacing: 1px;
-    line-height: 1;
-}
-
-/* ── Editorial Form ─────────────────────────────── */
-.editorial-form-section {
-    margin-bottom: 48px;
-    padding-bottom: 48px;
-    border-bottom: 1px solid #ddd;
-}
-
-.form-label {
-    display: block;
-    font-family: 'Oswald', sans-serif;
-    font-size: 11px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: #999;
-    margin-bottom: 16px;
-}
-
-.editorial-input-wrap {
+.cta-card {
+    background: linear-gradient(135deg, #0a1628 0%, #111d32 100%);
+    border-radius: 20px;
+    padding: 32px;
     display: flex;
-    border: 1px solid rgba(0,0,0,0.2);
-    background: #fff;
-    padding: 4px;
-}
-
-.editorial-input {
-    flex: 1;
-    border: none;
-    padding: 20px 24px;
-    font-family: 'Crimson Pro', serif;
-    font-size: 18px;
-    outline: none;
-    color: #1a1a1a;
-    background: transparent;
-    cursor: pointer;
-}
-
-.editorial-input::placeholder {
-    color: #bbb;
-    font-style: italic;
-}
-
-.editorial-submit {
-    background: #e74c3c;
-    color: #fff;
-    border: none;
-    padding: 20px 40px;
-    font-family: 'Oswald', sans-serif;
-    font-size: 12px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background 0.3s;
-    display: inline-flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    position: relative;
+    overflow: hidden;
 }
 
-.editorial-submit:hover {
-    background: #c0392b;
+.cta-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(ellipse at center, rgba(232, 93, 78, 0.2) 0%, transparent 70%);
+    pointer-events: none;
 }
 
-/* ── Links Section ─────────────────────────────── */
+.cta-card__content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.cta-card__icon-wrap {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #e85d4e 0%, #f07062 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 8px 24px rgba(232, 93, 78, 0.3);
+}
+
+.cta-card__icon-wrap svg {
+    width: 28px;
+    height: 28px;
+    color: #fff;
+}
+
+.cta-card__text {
+    display: flex;
+    flex-direction: column;
+}
+
+.cta-card__title {
+    font-family: var(--font-display, 'Sora', sans-serif);
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 4px 0;
+}
+
+.cta-card__desc {
+    font-size: 14px;
+    color: #9ca3af;
+    margin: 0;
+}
+
+.cta-card__btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    background: #fff;
+    color: #0a1628;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+}
+
+.cta-card__btn:hover {
+    background: #f5f5f5;
+    transform: translateX(4px);
+}
+
+.cta-card__btn svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.3s ease;
+}
+
+.cta-card__btn:hover svg {
+    transform: translateX(2px);
+}
+
+/* ── Links Section ──────────────────────────────── */
 .links-section {
     margin-bottom: 32px;
 }
 
-.links-header {
+.section-header {
     display: flex;
+    align-items: flex-end;
     justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
-.view-all-link {
-    font-family: 'Oswald', sans-serif;
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #666;
+.section-title-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.section-title {
+    font-family: var(--font-display, 'Sora', sans-serif);
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+
+.section-subtitle {
+    font-family: var(--font-body, 'Newsreader', serif);
+    font-size: 14px;
+    font-style: italic;
+    color: #9ca3af;
+    margin: 0;
+}
+
+.section-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #e85d4e;
     text-decoration: none;
-    transition: color 0.2s;
+    transition: all 0.2s ease;
 }
 
-.view-all-link:hover {
-    color: #e74c3c;
+.section-link:hover {
+    color: #f07062;
+    gap: 10px;
 }
 
-/* ── Editorial Table ───────────────────────────── */
-.editorial-table {
+.section-link svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* ── Links Table ──────────────────────────────── */
+.links-table {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.links-table__header {
+    display: grid;
+    grid-template-columns: 140px 1fr 100px 100px 100px;
+    gap: 16px;
+    padding: 16px 24px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.links-table__col {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #9ca3af;
+}
+
+.links-table__body {
     display: flex;
     flex-direction: column;
 }
 
-.table-head {
+.link-row {
     display: grid;
-    grid-template-columns: 3fr 1.5fr 100px 120px 160px;
-    padding: 12px 0;
-    border-bottom: 1px solid #1a1a1a;
-    font-family: 'Oswald', sans-serif;
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #666;
-}
-
-.table-row {
-    display: grid;
-    grid-template-columns: 3fr 1.5fr 100px 120px 160px;
+    grid-template-columns: 140px 1fr 100px 100px 100px;
+    gap: 16px;
+    padding: 16px 24px;
+    border-bottom: 1px solid #f3f4f6;
     align-items: center;
-    padding: 20px 0;
-    border-bottom: 1px solid #e0e0e0;
-    transition: background 0.2s;
+    transition: background 0.2s ease;
 }
 
-.table-row:hover {
-    background: #f5f5f5;
+.link-row:last-child {
+    border-bottom: none;
 }
 
-.cell-dest {
-    font-size: 15px;
-    color: #444;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding-right: 16px;
-    font-style: italic;
+.link-row:hover {
+    background: #fafafa;
 }
 
-.cell-short {
-    font-family: 'Oswald', sans-serif;
+.link-row__col {
+    min-width: 0;
+}
+
+.short-url {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     font-size: 14px;
-    color: #e74c3c;
-    text-decoration: none;
-    letter-spacing: 1px;
     font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
 }
 
-.cell-short:hover {
+.short-url__domain {
+    color: #9ca3af;
+}
+
+.short-url__slash {
+    color: #d1d5db;
+}
+
+.short-url__code {
+    color: #e85d4e;
+}
+
+.short-url:hover .short-url__code {
     text-decoration: underline;
 }
 
-.cell-clicks {
-    font-family: 'Oswald', sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    color: #1a1a1a;
-    letter-spacing: 1px;
+.short-url svg {
+    width: 14px;
+    height: 14px;
+    color: #d1d5db;
+    opacity: 0;
+    transition: opacity 0.2s ease;
 }
 
-.cell-date {
+.short-url:hover svg {
+    opacity: 1;
+}
+
+.dest-url {
     font-size: 14px;
-    color: #888;
+    color: #6b7280;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
 }
 
-.cell-actions {
+.click-count {
     display: flex;
-    gap: 12px;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #111827;
 }
 
-.table-action {
-    font-family: 'Oswald', sans-serif;
-    font-size: 10px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: #666;
-    text-decoration: none;
-    padding: 6px 12px;
-    border: 1px solid #ddd;
-    transition: all 0.2s;
+.click-count svg {
+    width: 16px;
+    height: 16px;
+    color: #22c55e;
 }
 
-.table-action:hover {
-    color: #1a1a1a;
-    border-color: #1a1a1a;
+.created-date {
+    font-size: 14px;
+    color: #9ca3af;
 }
 
-/* ── Empty State ───────────────────────────────── */
+.action-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    color: #6b7280;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.action-btn--primary {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.action-btn--primary:hover {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.action-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* ── Empty State ──────────────────────────────── */
 .empty-state {
-    padding: 60px 0;
+    background: #fff;
+    border: 1px dashed #d1d5db;
+    border-radius: 16px;
+    padding: 64px 32px;
     text-align: center;
-    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.empty-text {
+.empty-state__icon {
+    width: 64px;
+    height: 64px;
+    background: #f3f4f6;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.empty-state__icon svg {
+    width: 32px;
+    height: 32px;
+    color: #9ca3af;
+}
+
+.empty-state__title {
+    font-family: var(--font-display, 'Sora', sans-serif);
     font-size: 18px;
-    color: #999;
-    font-style: italic;
-    margin: 0;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 8px 0;
+}
+
+.empty-state__text {
+    font-size: 14px;
+    color: #9ca3af;
+    margin: 0 0 24px 0;
+}
+
+.empty-state__btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 24px;
+    background: #e85d4e;
+    color: #fff;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.empty-state__btn:hover {
+    background: #f07062;
+    transform: translateY(-2px);
 }
 
 /* ── Responsive ────────────────────────────────── */
 @media (max-width: 1024px) {
-    .specs-grid {
+    .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .spec-card:nth-child(2) {
-        border-right: none;
-    }
-
-    .spec-card:nth-child(1),
-    .spec-card:nth-child(2) {
-        border-bottom: 1px solid #2a2a2a;
-    }
-
-    .table-head,
-    .table-row {
-        grid-template-columns: 2fr 1fr 80px 100px 120px;
+    .links-table__header,
+    .link-row {
+        grid-template-columns: 120px 1fr 80px 80px 90px;
     }
 }
 
 @media (max-width: 768px) {
-
-    .masthead-title {
-        font-size: 36px;
+    .welcome-title {
+        font-size: 24px;
     }
 
-    .specs-grid {
+    .stats-grid {
         grid-template-columns: 1fr;
+        gap: 12px;
     }
 
-    .spec-card {
-        border-right: none;
-        border-bottom: 1px solid #2a2a2a;
+    .stat-card {
+        padding: 20px;
     }
 
-    .spec-card:last-child {
-        border-bottom: none;
+    .stat-card__value {
+        font-size: 24px;
     }
 
-    .editorial-input-wrap {
+    .cta-card {
         flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+        padding: 24px;
     }
 
-    .editorial-submit {
+    .cta-card__btn {
+        width: 100%;
         justify-content: center;
     }
 
-    .table-head {
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .links-table {
+        border-radius: 12px;
+    }
+
+    .links-table__header {
         display: none;
     }
 
-    .table-row {
-        grid-template-columns: 1fr 1fr;
+    .link-row {
+        display: flex;
+        flex-direction: column;
         gap: 12px;
-        padding: 20px 0;
+        padding: 20px;
     }
 
-    .cell-dest {
-        grid-column: 1 / -1;
-        padding-right: 0;
-        margin-bottom: 8px;
+    .link-row__col--url,
+    .link-row__col--dest {
+        width: 100%;
     }
 
-    .cell-clicks {
-        text-align: right;
+    .link-row__col--clicks,
+    .link-row__col--date,
+    .link-row__col--actions {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        justify-content: space-between;
     }
 
-    .cell-actions {
-        justify-content: flex-end;
+    .link-row__col--clicks::before,
+    .link-row__col--date::before {
+        content: attr(data-label);
+        font-size: 12px;
+        color: #9ca3af;
+        font-weight: 500;
     }
 }
 </style>
