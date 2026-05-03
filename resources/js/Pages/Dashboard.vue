@@ -157,6 +157,44 @@ const icons = {
                 </Link>
             </section>
 
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-card__header">
+                            <span class="chart-card__marker">V.</span>
+                            <span class="chart-card__title">Clicks Over Time</span>
+                        </div>
+                        <div class="chart-card__body">
+                            <div class="chart-placeholder">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                                    <polyline points="17 6 23 6 23 12" />
+                                </svg>
+                                <span>7-day click trend</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-card__header">
+                            <span class="chart-card__marker">VI.</span>
+                            <span class="chart-card__title">Top Countries</span>
+                        </div>
+                        <div class="chart-card__body">
+                            <div class="chart-placeholder">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="2" y1="12" x2="22" y2="12" />
+                                    <path
+                                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                                </svg>
+                                <span>Geographic distribution</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Recent Links -->
             <section class="links-section">
                 <div class="section-header">
@@ -230,11 +268,7 @@ const icons = {
 </template>
 
 <style scoped>
-/* ── Dashboard: Editorial Light ──────────────── */
-.dashboard {
-    max-width: 1000px;
-    animation: fadeUp 0.4s ease both;
-}
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
 
 @keyframes fadeUp {
     from {
@@ -246,6 +280,22 @@ const icons = {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+:root {
+    --font-display: 'Oswald', sans-serif;
+    --font-body: 'Crimson Pro', serif;
+    --red: #e74c3c;
+    --red-dark: #c0392b;
+    --gold: #d4af37;
+    --ink: #1a1a1a;
+    --ink-soft: #444;
+    --muted: #888;
+    --border: #e8e5e0;
+    --surface: #fff;
+    --surface-2: #f5f3ef;
+    --radius: 4px;
+    --transition: all 0.2s ease;
 }
 
 /* ── Page Header ──────────────────────────── */
@@ -261,7 +311,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 10px;
     font-weight: 700;
-    letter-spacing: 3px;
+    
     text-transform: uppercase;
     color: var(--red);
     display: block;
@@ -272,7 +322,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 24px;
     font-weight: 600;
-    letter-spacing: -0.3px;
+    
     color: var(--ink);
     margin: 0 0 4px;
 }
@@ -296,7 +346,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 12px;
     font-weight: 500;
-    letter-spacing: 1px;
+   
     text-transform: uppercase;
     text-decoration: none;
     transition: var(--transition);
@@ -366,7 +416,7 @@ const icons = {
     font-size: 10px;
     font-weight: 700;
     color: var(--red);
-    letter-spacing: 1px;
+    
 }
 
 .stat-card__icon-wrap {
@@ -416,7 +466,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 10px;
     font-weight: 500;
-    letter-spacing: 1px;
+    
     text-transform: uppercase;
     color: var(--muted);
 }
@@ -476,7 +526,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 12px;
     font-weight: 600;
-    letter-spacing: 0.3px;
+   
     text-transform: uppercase;
     color: var(--ink);
     white-space: nowrap;
@@ -510,6 +560,80 @@ const icons = {
     margin: 10px 0;
 }
 
+/* ── Charts Section ─────────────────────────── */
+.charts-section {
+    margin-bottom: 24px;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.chart-card {
+    background: var(--surface);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-card__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.chart-card__marker {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--red);
+    
+}
+
+.chart-card__title {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    
+    text-transform: uppercase;
+    color: var(--ink);
+}
+
+.chart-card__body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+}
+
+.chart-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+}
+
+.chart-placeholder svg {
+    width: 36px;
+    height: 36px;
+    opacity: 0.4;
+}
+
+.chart-placeholder span {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-style: italic;
+}
+
 /* ── Links Section ────────────────────────── */
 .links-section {
     margin-bottom: 32px;
@@ -526,7 +650,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 13px;
     font-weight: 600;
-    letter-spacing: 1.5px;
+ 
     text-transform: uppercase;
     color: var(--ink);
     display: block;
@@ -548,7 +672,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 11px;
     font-weight: 500;
-    letter-spacing: 1px;
+    
     text-transform: uppercase;
     color: var(--red);
     text-decoration: none;
@@ -602,7 +726,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 14px;
     font-weight: 600;
-    letter-spacing: 0.5px;
+    
     text-transform: uppercase;
     color: var(--ink);
     margin: 0 0 6px;
@@ -636,7 +760,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 9px;
     font-weight: 600;
-    letter-spacing: 1.5px;
+   
     text-transform: uppercase;
     color: var(--muted);
 }
@@ -677,7 +801,7 @@ const icons = {
     font-weight: 600;
     color: var(--red);
     text-decoration: none;
-    letter-spacing: 0.3px;
+  
     transition: color 0.15s;
 }
 
@@ -734,7 +858,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 11px;
     color: var(--muted);
-    letter-spacing: 0.3px;
+  
     text-align: center;
 }
 

@@ -4,9 +4,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Link;
 use App\Models\Report;
-use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,8 +18,6 @@ class ModerationController extends Controller
      */
     public function index(): Response
     {
-        $this->authorize('admin');
-
         $pendingReports = Report::with('link')
             ->pending()
             ->latest()
@@ -47,8 +45,6 @@ class ModerationController extends Controller
      */
     public function review(Request $request, Report $report)
     {
-        $this->authorize('admin');
-
         $validated = $request->validate([
             'action' => 'required|in:dismiss,deactivate,delete',
             'notes' => 'nullable|string|max:1000',
@@ -64,7 +60,7 @@ class ModerationController extends Controller
             case 'deactivate':
                 $link->update(['is_active' => false]);
                 $report->markReviewed(auth()->id(), 'actioned', $validated['notes']);
-                
+
                 // Close all pending reports for this link
                 $link->reports()->pending()->update([
                     'status' => 'actioned',
@@ -100,8 +96,6 @@ class ModerationController extends Controller
      */
     public function activityLog(): Response
     {
-        $this->authorize('admin');
-
         $logs = ActivityLog::with('actor')
             ->where('action', 'like', 'report_%')
             ->orWhere('action', 'like', 'link_%')
@@ -118,8 +112,6 @@ class ModerationController extends Controller
      */
     public function batchReview(Request $request)
     {
-        $this->authorize('admin');
-
         $validated = $request->validate([
             'report_ids' => 'required|array',
             'report_ids.*' => 'exists:reports,id',
@@ -133,10 +125,9 @@ class ModerationController extends Controller
             if ($validated['action'] === 'deactivate') {
                 $report->link->update(['is_active' => false]);
             }
-            $report->markReviewed(auth()->id(), 
+            $report->markReviewed(auth()->id(),
                 $validated['action'] === 'dismiss' ? 'dismissed' : 'actioned',
-                $validated['notes']
-            );
+                $validated['notes']);
         }
 
         return redirect()->back()->with('success', count($reports) . ' reports processed.');

@@ -1,18 +1,18 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 
 const props = defineProps({
     payout: { type: Object, required: true },
-    logs:   { type: Array,  default: () => [] },
+    logs: { type: Array, default: () => [] },
 });
 
 const statusColor = {
-    pending:  '#F59E0B',
+    pending: '#F59E0B',
     approved: '#22D3EE',
     rejected: '#EF4444',
-    paid:     '#22C55E',
+    paid: '#22C55E',
 };
 
 const formatDate = (d) => new Date(d).toLocaleString('en-US', {
@@ -22,81 +22,130 @@ const formatDate = (d) => new Date(d).toLocaleString('en-US', {
 </script>
 
 <template>
+
     <Head :title="`Payout #${payout.id} — Audit Log`" />
+    <AdminLayout>
+        <div class="admin-page">
+            <h1 class="admin-page__title">Payout Audit Log</h1>
 
-    <AuthenticatedLayout>
-        <template #header>Payout Audit Log</template>
-
-        <!-- Payout summary -->
-        <div class="summary-card">
-            <div class="summary-row">
-                <div class="summary-item">
-                    <span class="summary-item__label">Affiliate</span>
-                    <span class="summary-item__val">{{ payout.affiliate?.user?.name }}</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-item__label">Amount</span>
-                    <span class="summary-item__val summary-item__val--green">${{ parseFloat(payout.amount).toFixed(2) }}</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-item__label">PayPal Email</span>
-                    <span class="summary-item__val">{{ payout.paypal_email }}</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-item__label">Current Status</span>
-                    <span class="summary-item__val" :style="{ color: statusColor[payout.status] }">
-                        {{ payout.status.charAt(0).toUpperCase() + payout.status.slice(1) }}
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Timeline -->
-        <div class="timeline-card">
-            <h3 class="section-title">Change History</h3>
-
-            <div v-if="!logs.length" class="empty">No audit entries yet.</div>
-
-            <div v-else class="timeline">
-                <div v-for="log in logs" :key="log.id" class="timeline-item">
-                    <div class="timeline-item__dot" :style="{ background: statusColor[log.new_status] ?? '#52525B' }" />
-                    <div class="timeline-item__body">
-                        <div class="timeline-item__header">
-                            <span class="timeline-item__change">
-                                <span v-if="log.old_status" class="status-pill" :style="{ color: statusColor[log.old_status] }">
-                                    {{ log.old_status }}
-                                </span>
-                                <span v-if="log.old_status" class="arrow">→</span>
-                                <span class="status-pill" :style="{ color: statusColor[log.new_status] }">
-                                    {{ log.new_status }}
-                                </span>
-                            </span>
-                            <span class="timeline-item__meta">
-                                by {{ log.actor?.name ?? 'System' }} · {{ formatDate(log.created_at) }}
-                            </span>
-                        </div>
-                        <p v-if="log.note" class="timeline-item__note">{{ log.note }}</p>
+            <!-- Payout summary -->
+            <div class="admin-section">
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span class="summary-item__label">Affiliate</span>
+                        <span class="summary-item__val">{{ payout.user?.name }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-item__label">Amount</span>
+                        <span class="summary-item__val summary-item__val--amount">${{ Number(payout.amount)?.toFixed(2)
+                            || '0.00' }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-item__label">PayPal Email</span>
+                        <span class="summary-item__val">{{ payout.paypal_email }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-item__label">Current Status</span>
+                        <span class="summary-item__val" :style="{ color: statusColor[payout.status] }">
+                            {{ payout.status.charAt(0).toUpperCase() + payout.status.slice(1) }}
+                        </span>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="back-row">
-            <Link :href="route('admin.payouts.index')" class="btn-ghost">← Back to Payout Queue</Link>
+            <!-- Timeline -->
+            <div class="admin-section">
+                <h2 class="section-title">Change History</h2>
+
+                <div v-if="!logs.length" class="empty-state">
+                    <p>No audit entries yet.</p>
+                </div>
+
+                <div v-else class="timeline">
+                    <div v-for="log in logs" :key="log.id" class="timeline-item">
+                        <div class="timeline-item__dot"
+                            :style="{ background: statusColor[log.new_status] ?? '#888' }" />
+                        <div class="timeline-item__body">
+                            <div class="timeline-item__header">
+                                <span class="timeline-item__change">
+                                    <span v-if="log.old_status" class="status-pill"
+                                        :style="{ color: statusColor[log.old_status] }">
+                                        {{ log.old_status }}
+                                    </span>
+                                    <span v-if="log.old_status" class="arrow">→</span>
+                                    <span class="status-pill" :style="{ color: statusColor[log.new_status] }">
+                                        {{ log.new_status }}
+                                    </span>
+                                </span>
+                                <span class="timeline-item__meta">
+                                    by {{ log.actor?.name ?? 'System' }} · {{ formatDate(log.created_at) }}
+                                </span>
+                            </div>
+                            <p v-if="log.note" class="timeline-item__note">{{ log.note }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="back-row">
+                <Link :href="route('admin.payouts.index')" class="btn-ghost">← Back to Payout Queue</Link>
+            </div>
         </div>
-    </AuthenticatedLayout>
+    </AdminLayout>
 </template>
 
 <style scoped>
-.summary-card {
-    background: #141414;
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    padding: 20px 24px;
-    margin-bottom: 20px;
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
+
+:root {
+    --font-display: 'Oswald', sans-serif;
+    --font-body: 'Crimson Pro', serif;
+    --red: #e74c3c;
+    --red-dark: #c0392b;
+    --gold: #d4af37;
+    --ink: #1a1a1a;
+    --ink-soft: #444;
+    --muted: #888;
+    --border: #e8e5e0;
+    --surface: #fff;
+    --surface-2: #f5f3ef;
+    --radius: 4px;
+    --transition: all 0.2s ease;
 }
 
-.summary-row {
+.admin-page {
+    max-width: 1200px;
+}
+
+.admin-page__title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-page__title::before {
+    content: 'ADMIN';
+    font-size: 10px;
+    color: var(--red);
+    letter-spacing: 1px;
+}
+
+.admin-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.summary-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
@@ -105,44 +154,49 @@ const formatDate = (d) => new Date(d).toLocaleString('en-US', {
 .summary-item {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
 }
 
 .summary-item__label {
-    font-size: 11px;
+    font-family: var(--font-display);
+    font-size: 9px;
     font-weight: 600;
-    color: #52525B;
+    color: var(--muted);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 1px;
 }
 
 .summary-item__val {
+    font-family: var(--font-body);
     font-size: 14px;
     font-weight: 600;
-    color: #FAFAFA;
+    color: var(--ink);
 }
 
-.summary-item__val--green { color: #22C55E; }
-
-/* ── Timeline ─────────────────────────────── */
-.timeline-card {
-    background: #141414;
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 20px;
+.summary-item__val--amount {
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: #22C55E;
 }
 
 .section-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px;
+    font-family: var(--font-display);
+    font-size: 11px;
     font-weight: 600;
-    color: #A1A1AA;
+    color: var(--muted);
     text-transform: uppercase;
-    letter-spacing: 0.07em;
+    letter-spacing: 2px;
     margin-bottom: 20px;
 }
 
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-style: italic;
+}
+
+/* Timeline Styles */
 .timeline {
     display: flex;
     flex-direction: column;
@@ -158,7 +212,7 @@ const formatDate = (d) => new Date(d).toLocaleString('en-US', {
     top: 8px;
     bottom: 8px;
     width: 1px;
-    background: rgba(255,255,255,0.06);
+    background: var(--border);
 }
 
 .timeline-item {
@@ -168,7 +222,9 @@ const formatDate = (d) => new Date(d).toLocaleString('en-US', {
     padding-bottom: 24px;
 }
 
-.timeline-item:last-child { padding-bottom: 0; }
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
 
 .timeline-item__dot {
     position: absolute;
@@ -177,14 +233,14 @@ const formatDate = (d) => new Date(d).toLocaleString('en-US', {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    border: 2px solid #0A0A0A;
+    border: 2px solid var(--surface);
     flex-shrink: 0;
 }
 
 .timeline-item__body {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     flex: 1;
 }
 
@@ -202,41 +258,61 @@ const formatDate = (d) => new Date(d).toLocaleString('en-US', {
 }
 
 .status-pill {
-    font-size: 13px;
+    font-family: var(--font-display);
+    font-size: 12px;
     font-weight: 600;
     text-transform: capitalize;
 }
 
-.arrow { color: #52525B; font-size: 12px; }
+.arrow {
+    color: var(--muted);
+    font-size: 12px;
+}
 
 .timeline-item__meta {
     font-size: 12px;
-    color: #52525B;
+    color: var(--muted);
 }
 
 .timeline-item__note {
+    font-family: var(--font-body);
     font-size: 13px;
-    color: #71717A;
-    background: rgba(255,255,255,0.02);
-    border-left: 2px solid rgba(255,255,255,0.08);
+    color: var(--ink-soft);
+    background: var(--surface-2);
+    border-left: 2px solid var(--border);
     padding: 8px 12px;
-    border-radius: 0 6px 6px 0;
+    border-radius: 0 var(--radius) var(--radius) 0;
     margin: 0;
+    font-style: italic;
 }
 
-.empty { font-size: 13px; color: #3F3F46; text-align: center; padding: 30px 0; }
-
-.back-row { display: flex; }
+.back-row {
+    display: flex;
+}
 
 .btn-ghost {
-    display: inline-flex; align-items: center;
-    padding: 8px 16px; border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px; color: #71717A; font-size: 13px;
-    text-decoration: none; transition: all 200ms;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: var(--transition);
 }
-.btn-ghost:hover { color: #FAFAFA; border-color: rgba(255,255,255,0.2); }
+
+.btn-ghost:hover {
+    color: var(--ink);
+    border-color: #ccc;
+    background: var(--surface-2);
+}
 
 @media (max-width: 768px) {
-    .summary-row { grid-template-columns: 1fr 1fr; }
+    .summary-grid {
+        grid-template-columns: 1fr 1fr;
+    }
 }
 </style>

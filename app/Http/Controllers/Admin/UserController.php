@@ -19,8 +19,6 @@ class UserController extends Controller
      */
     public function index(Request $request): Response
     {
-        $this->authorize('admin');
-
         $query = User::query();
 
         // Filters
@@ -57,8 +55,6 @@ class UserController extends Controller
      */
     public function updateRole(Request $request, User $user)
     {
-        $this->authorize('admin');
-
         $validated = $request->validate([
             'role' => 'required|in:admin,user,affiliate',
         ]);
@@ -86,8 +82,6 @@ class UserController extends Controller
      */
     public function ban(Request $request, User $user)
     {
-        $this->authorize('admin');
-
         $validated = $request->validate([
             'ban_type' => 'required|in:soft,hard',
             'ban_reason' => 'required|string|max:1000',
@@ -142,8 +136,6 @@ class UserController extends Controller
      */
     public function unban(User $user)
     {
-        $this->authorize('admin');
-
         $wasBanned = $user->ban_type !== 'none';
 
         $user->update([
@@ -174,8 +166,6 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        $this->authorize('admin');
-
         // Don't allow self-deletion
         if ($user->id === auth()->id()) {
             return redirect()->back()->withErrors(['error' => 'Cannot delete your own account from here.']);

@@ -41,8 +41,6 @@ class SettingsController extends Controller
 
     public function index(): Response
     {
-        $this->authorize('admin');
-
         $settings = Setting::whereIn('key', self::SETTING_KEYS)
             ->pluck('value', 'key')
             ->toArray();
@@ -78,8 +76,6 @@ class SettingsController extends Controller
 
     public function update(Request $request)
     {
-        $this->authorize('admin');
-
         $validated = $request->validate([
             'app_name' => 'nullable|string|max:255',
             'app_tagline' => 'nullable|string|max:255',
@@ -123,8 +119,6 @@ class SettingsController extends Controller
 
     public function purgeCache(Request $request)
     {
-        $this->authorize('admin');
-
         $validated = $request->validate([
             'type' => 'required|in:redirect,analytics,all',
         ]);
@@ -159,9 +153,7 @@ class SettingsController extends Controller
 
     public function export(): \Symfony\Component\HttpFoundation\BinaryFileResponse
     {
-        $this->authorize('admin');
-
-        $settings = Setting::all()->map(fn ($s) => [
+        $settings = Setting::all()->map(fn($s) => [
             'key' => $s->key,
             'value' => $s->value,
             'group' => $s->group,
@@ -182,8 +174,6 @@ class SettingsController extends Controller
 
     public function import(Request $request)
     {
-        $this->authorize('admin');
-
         $validated = $request->validate([
             'file' => 'required|file|mimes:json',
         ]);
@@ -206,8 +196,6 @@ class SettingsController extends Controller
 
     public function backup()
     {
-        $this->authorize('admin');
-
         $filename = 'backup-' . now()->format('Y-m-d-His') . '.sql';
         $path = storage_path('app/' . $filename);
 

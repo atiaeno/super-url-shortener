@@ -13,8 +13,6 @@ class AdController extends Controller
 {
     public function index(): Response
     {
-        $this->authorize('admin');
-        
         return Inertia::render('Admin/Ads/Index', [
             'ads' => Ad::latest()->get(),
         ]);
@@ -22,8 +20,6 @@ class AdController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorize('admin');
-        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'format' => 'required|in:banner,interstitial',
@@ -45,8 +41,6 @@ class AdController extends Controller
 
     public function update(Request $request, Ad $ad)
     {
-        $this->authorize('admin');
-        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'content' => 'nullable|string',
@@ -68,8 +62,6 @@ class AdController extends Controller
 
     public function destroy(Ad $ad)
     {
-        $this->authorize('admin');
-        
         $ad->delete();
 
         return redirect()->back()->with('success', 'Ad deleted successfully.');

@@ -1,6 +1,6 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
@@ -37,166 +37,481 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
 </script>
 
 <template>
-    <Head title="Admin — Payout Queue" />
 
-    <AuthenticatedLayout>
-        <template #header>Payout Queue</template>
+    <Head title="Payout Queue" />
+    <AdminLayout>
+        <div class="admin-page">
+            <h1 class="admin-page__title">Payout Queue</h1>
 
-        <div v-if="!payouts.data?.length" class="empty">
-            <p>No pending payout requests.</p>
-        </div>
-
-        <div v-else class="table-card">
-            <div class="table-head">
-                <span>Affiliate</span>
-                <span>Tier</span>
-                <span>Amount</span>
-                <span>PayPal Email</span>
-                <span>Requested</span>
-                <span>Actions</span>
-            </div>
-
-            <div v-for="payout in payouts.data" :key="payout.id" class="table-row">
-                <div class="cell-user">
-                    <span class="cell-user__name">{{ payout.affiliate?.user?.name }}</span>
-                    <span class="cell-user__email">{{ payout.affiliate?.user?.email }}</span>
-                </div>
-                <span class="cell-tier">{{ payout.affiliate?.tier?.name ?? '—' }}</span>
-                <span class="cell-amount">${{ parseFloat(payout.amount).toFixed(2) }}</span>
-                <span class="cell-paypal">{{ payout.paypal_email }}</span>
-                <span class="cell-date">{{ formatDate(payout.created_at) }}</span>
-                <div class="cell-actions">
-                    <button @click="approve(payout.id)" class="action-btn action-btn--approve" :disabled="approveForm.processing">
-                        Approve
-                    </button>
-                    <button @click="openReject(payout)" class="action-btn action-btn--reject">
-                        Reject
-                    </button>
-                    <Link :href="route('admin.payouts.audit-log', payout.id)" class="action-btn">
-                        Log
-                    </Link>
+            <div v-if="!payouts.data?.length" class="admin-section">
+                <div class="empty-state">
+                    <p>No pending payout requests.</p>
                 </div>
             </div>
-        </div>
 
-        <!-- Pagination -->
-        <div v-if="payouts.last_page > 1" class="pagination">
-            <Link v-if="payouts.prev_page_url" :href="payouts.prev_page_url" class="page-btn">← Prev</Link>
-            <span class="page-info">{{ payouts.current_page }} / {{ payouts.last_page }}</span>
-            <Link v-if="payouts.next_page_url" :href="payouts.next_page_url" class="page-btn">Next →</Link>
-        </div>
-
-        <!-- Reject Modal -->
-        <div v-if="rejectModal" class="modal-overlay" @click.self="rejectModal = null">
-            <div class="modal">
-                <div class="modal__header">
-                    <h3 class="modal__title">Reject Payout — ${{ parseFloat(rejectModal.amount).toFixed(2) }}</h3>
-                    <button @click="rejectModal = null" class="modal__close">✕</button>
+            <div v-else class="admin-section">
+                <div class="table-wrapper">
+                    <table class="payouts-table">
+                        <thead>
+                            <tr>
+                                <th>Affiliate</th>
+                                <th>Amount</th>
+                                <th>Requested</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="payout in payouts.data" :key="payout.id">
+                                <td>
+                                    <div class="affiliate-cell">
+                                        <div class="affiliate-avatar">
+                                            {{ payout.user?.name?.charAt(0)?.toUpperCase() }}
+                                        </div>
+                                        <div class="affiliate-info">
+                                            <div class="affiliate-name">{{ payout.user?.name }}</div>
+                                            <div class="affiliate-email">{{ payout.user?.email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="amount">${{ Number(payout.amount)?.toFixed(2) || '0.00' }}</span>
+                                </td>
+                                <td class="date-cell">{{ formatDate(payout.created_at) }}</td>
+                                <td>
+                                    <span class="status-badge" :class="{
+                                        'status-pending': payout.status === 'pending',
+                                        'status-approved': payout.status === 'approved',
+                                        'status-paid': payout.status === 'paid',
+                                        'status-rejected': payout.status === 'rejected'
+                                    }">
+                                        {{ payout.status?.charAt(0)?.toUpperCase() + payout.status?.slice(1) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="actions-cell">
+                                        <button v-if="payout.status === 'pending'" @click="approve(payout.id)"
+                                            class="btn-success-sm" :disabled="approveForm.processing">
+                                            Approve
+                                        </button>
+                                        <button v-if="payout.status === 'approved'" @click="markPaid(payout.id)"
+                                            class="btn-primary-sm" :disabled="paidForm.processing">
+                                            Mark Paid
+                                        </button>
+                                        <button v-if="payout.status === 'pending'" @click="openReject(payout)"
+                                            class="btn-danger-sm">
+                                            Reject
+                                        </button>
+                                        <Link :href="route('admin.payouts.audit-log', payout.id)" class="btn-ghost-sm">
+                                            Audit
+                                        </Link>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <form @submit.prevent="submitReject" class="modal__body">
-                    <div class="field">
-                        <label class="field__label">Rejection Reason <span style="color:#EF4444">*</span></label>
-                        <textarea
-                            v-model="rejectForm.note"
-                            rows="4"
-                            class="field__input field__textarea"
-                            placeholder="Explain why this payout is being rejected…"
-                            required
-                        />
-                        <span v-if="rejectForm.errors.note" class="field__error">{{ rejectForm.errors.note }}</span>
+            </div>
+
+            <!-- Reject Modal -->
+            <div v-if="rejectModal" class="modal-backdrop">
+                <div class="modal">
+                    <div class="modal__header">
+                        <h3 class="modal__title">Reject Payout</h3>
+                        <button @click="rejectModal = null" class="modal__close">×</button>
                     </div>
-                    <div class="modal__footer">
-                        <button type="button" @click="rejectModal = null" class="btn-ghost">Cancel</button>
-                        <button type="submit" class="btn-danger" :disabled="rejectForm.processing">Reject Payout</button>
-                    </div>
-                </form>
+                    <form @submit.prevent="submitReject">
+                        <div class="modal__body">
+                            <p class="mb-4">Reject payout request from <strong>{{ rejectModal.user?.name }}</strong>?
+                            </p>
+
+                            <div class="field">
+                                <label class="field__label">Reason for rejection</label>
+                                <textarea v-model="rejectForm.note" class="field__input" rows="3"
+                                    placeholder="Please provide a reason..." required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal__footer">
+                            <button type="button" @click="rejectModal = null" class="btn-ghost">Cancel</button>
+                            <button type="submit" class="btn-danger" :disabled="rejectForm.processing">
+                                Reject Payout
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </AuthenticatedLayout>
+    </AdminLayout>
 </template>
 
 <style scoped>
-.table-card {
-    background: #141414;
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    overflow: hidden;
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
+
+:root {
+    --font-display: 'Oswald', sans-serif;
+    --font-body: 'Crimson Pro', serif;
+    --red: #e74c3c;
+    --red-dark: #c0392b;
+    --gold: #d4af37;
+    --ink: #1a1a1a;
+    --ink-soft: #444;
+    --muted: #888;
+    --border: #e8e5e0;
+    --surface: #fff;
+    --surface-2: #f5f3ef;
+    --radius: 4px;
+    --transition: all 0.2s ease;
 }
 
-.table-head {
-    display: grid;
-    grid-template-columns: 1.5fr 100px 100px 1fr 110px 200px;
-    padding: 10px 20px;
-    font-size: 11px; font-weight: 600; color: #52525B;
-    text-transform: uppercase; letter-spacing: 0.07em;
-    background: rgba(255,255,255,0.02);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+.admin-page {
+    max-width: 1200px;
 }
 
-.table-row {
-    display: grid;
-    grid-template-columns: 1.5fr 100px 100px 1fr 110px 200px;
+.admin-page__title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 24px;
+    display: flex;
     align-items: center;
-    padding: 14px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    transition: background 200ms;
+    gap: 12px;
 }
 
-.table-row:last-child { border-bottom: none; }
-.table-row:hover { background: rgba(255,255,255,0.02); }
-
-.cell-user { display: flex; flex-direction: column; gap: 2px; }
-.cell-user__name { font-size: 13px; font-weight: 600; color: #FAFAFA; }
-.cell-user__email { font-size: 11px; color: #52525B; }
-
-.cell-tier { font-size: 12px; color: #A1A1AA; }
-.cell-amount { font-size: 14px; font-weight: 700; color: #22C55E; }
-.cell-paypal { font-size: 12px; color: #A1A1AA; }
-.cell-date { font-size: 12px; color: #52525B; }
-.cell-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-
-.action-btn {
-    font-size: 11px; color: #71717A;
-    padding: 4px 10px; border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.08);
-    background: none; cursor: pointer;
-    transition: all 200ms; white-space: nowrap;
-    text-decoration: none; display: inline-flex; align-items: center;
+.admin-page__title::before {
+    content: 'ADMIN';
+    font-size: 10px;
+    color: var(--red);
+    letter-spacing: 1px;
 }
-.action-btn:hover { color: #FAFAFA; border-color: rgba(255,255,255,0.2); }
-.action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.action-btn--approve { color: #22C55E; border-color: rgba(34,197,94,0.2); }
-.action-btn--approve:hover { background: rgba(34,197,94,0.08); }
-.action-btn--reject { color: #EF4444; border-color: rgba(239,68,68,0.2); }
-.action-btn--reject:hover { background: rgba(239,68,68,0.08); }
 
-.empty { text-align: center; padding: 60px; font-size: 14px; color: #52525B; }
+.admin-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+}
 
-.pagination { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 24px; }
-.page-btn { font-size: 13px; color: #71717A; text-decoration: none; padding: 7px 16px; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; transition: all 200ms; }
-.page-btn:hover { color: #FAFAFA; border-color: rgba(255,255,255,0.2); }
-.page-info { font-size: 13px; color: #52525B; }
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-style: italic;
+}
 
-/* ── Modal ──────────────────────────────────── */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 50; display: flex; align-items: center; justify-content: center; }
-.modal { background: #1A1A1A; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; width: 440px; max-width: 95vw; }
-.modal__header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.07); }
-.modal__title { font-size: 15px; font-weight: 600; color: #FAFAFA; }
-.modal__close { background: none; border: none; color: #52525B; font-size: 16px; cursor: pointer; }
-.modal__body { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
-.modal__footer { display: flex; justify-content: flex-end; gap: 10px; }
+.table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
 
-.field { display: flex; flex-direction: column; gap: 6px; }
-.field__label { font-size: 13px; font-weight: 500; color: #A1A1AA; }
-.field__input { background: #0A0A0A; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 14px; font-size: 14px; color: #FAFAFA; outline: none; transition: border-color 200ms; font-family: inherit; width: 100%; }
-.field__input:focus { border-color: #22D3EE; }
-.field__textarea { resize: vertical; min-height: 100px; }
-.field__error { font-size: 12px; color: #EF4444; }
+.payouts-table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
-.btn-ghost { display: inline-flex; align-items: center; padding: 9px 16px; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #71717A; font-size: 13px; background: none; cursor: pointer; transition: all 200ms; }
-.btn-ghost:hover { color: #FAFAFA; border-color: rgba(255,255,255,0.2); }
+.payouts-table th {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+}
 
-.btn-danger { display: inline-flex; align-items: center; padding: 9px 18px; background: rgba(239,68,68,0.1); color: #EF4444; font-size: 13px; font-weight: 600; border-radius: 8px; border: 1px solid rgba(239,68,68,0.25); cursor: pointer; transition: all 200ms; }
-.btn-danger:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn-danger:not(:disabled):hover { background: rgba(239,68,68,0.2); }
+.payouts-table td {
+    padding: 16px 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.affiliate-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.affiliate-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--gold);
+    color: var(--ink);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.affiliate-info {
+    flex: 1;
+}
+
+.affiliate-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+}
+
+.affiliate-email {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.amount {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.date-cell {
+    font-size: 13px;
+    color: var(--ink-soft);
+}
+
+.status-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: var(--radius);
+    font-weight: 600;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-approved {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-paid {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.actions-cell {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn-success-sm {
+    padding: 4px 8px;
+    background: #10b981;
+    border: 1px solid #10b981;
+    border-radius: var(--radius);
+    color: var(--surface);
+    font-size: 11px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-success-sm:hover {
+    background: #059669;
+    border-color: #059669;
+}
+
+.btn-primary-sm {
+    padding: 4px 8px;
+    background: #3b82f6;
+    border: 1px solid #3b82f6;
+    border-radius: var(--radius);
+    color: var(--surface);
+    font-size: 11px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-primary-sm:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.btn-danger-sm {
+    padding: 4px 8px;
+    background: var(--red);
+    border: 1px solid var(--red);
+    border-radius: var(--radius);
+    color: var(--surface);
+    font-size: 11px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-danger-sm:hover {
+    background: var(--red-dark);
+    border-color: var(--red-dark);
+}
+
+.btn-ghost-sm {
+    padding: 4px 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink-soft);
+    font-size: 11px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-ghost-sm:hover {
+    background: var(--surface-2);
+    color: var(--ink);
+}
+
+/* Modal Styles */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 26, 26, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.modal__title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.modal__close {
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    transition: var(--transition);
+}
+
+.modal__close:hover {
+    background: var(--surface-2);
+    color: var(--ink);
+}
+
+.modal__body {
+    padding: 24px;
+}
+
+.modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+}
+
+.field {
+    margin-bottom: 16px;
+}
+
+.field__label {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+}
+
+.field__input {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 14px;
+    transition: var(--transition);
+    width: 100%;
+}
+
+.field__input:focus {
+    outline: none;
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.btn-ghost {
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-ghost:hover {
+    background: var(--surface-2);
+}
+
+.btn-danger {
+    padding: 8px 16px;
+    background: var(--red);
+    border: 1px solid var(--red);
+    border-radius: var(--radius);
+    color: var(--surface);
+    font-family: var(--font-display);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-danger:hover {
+    background: var(--red-dark);
+    border-color: var(--red-dark);
+}
 </style>

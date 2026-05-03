@@ -2,7 +2,7 @@
 <script setup>
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
     reports: Object,
@@ -49,210 +49,645 @@ const toggleSelectAll = () => {
     }
 };
 
-const openReview = (report) => {
+const openReviewModal = (report) => {
     reviewingReport.value = report;
-    batchMode.value = false;
     reviewForm.reset();
     showReviewModal.value = true;
 };
 
-const openBatchReview = () => {
-    if (selectedReports.value.length === 0) return;
-    batchMode.value = true;
-    batchForm.report_ids = selectedReports.value;
-    batchForm.reset();
-    showReviewModal.value = true;
-};
-
 const submitReview = () => {
-    if (batchMode.value) {
-        batchForm.post(route('admin.moderation.batch'), {
-            onSuccess: () => {
-                showReviewModal.value = false;
-                selectedReports.value = [];
-            },
-        });
-    } else {
-        reviewForm.post(route('admin.moderation.review', reviewingReport.value.id), {
-            onSuccess: () => {
-                showReviewModal.value = false;
-                reviewingReport.value = null;
-            },
-        });
-    }
+    reviewForm.post(route('admin.moderation.review', reviewingReport.value.id), {
+        onSuccess: () => {
+            showReviewModal.value = false;
+            reviewingReport.value = null;
+        }
+    });
 };
 
-const dismissLink = (link) => {
-    if (!confirm(`Dismiss all pending reports for /${link.short_code}?`)) return;
-    
-    // Find all reports for this link
-    const linkReports = props.reports.data.filter(r => r.link_id === link.id);
-    
-    batchForm.report_ids = linkReports.map(r => r.id);
-    batchForm.action = 'dismiss';
-    batchForm.notes = 'Batch dismissed by link';
-    
+const submitBatch = () => {
+    batchForm.report_ids = selectedReports.value;
     batchForm.post(route('admin.moderation.batch'), {
         onSuccess: () => {
             selectedReports.value = [];
-        },
+            batchMode.value = false;
+        }
     });
 };
+
+const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 </script>
 
 <template>
-    <Head title="Moderation Queue" />
-    <AuthenticatedLayout>
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <!-- Stats -->
-                <div class="grid grid-cols-3 gap-4 mb-6">
-                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                        <div class="text-2xl font-bold text-yellow-600">{{ stats.pending }}</div>
-                        <div class="text-sm text-gray-500">Pending Reports</div>
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                        <div class="text-2xl font-bold text-blue-600">{{ stats.today }}</div>
-                        <div class="text-sm text-gray-500">Today's Reports</div>
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                        <div class="text-2xl font-bold text-red-600">{{ stats.auto_suspended }}</div>
-                        <div class="text-sm text-gray-500">Auto-Suspended</div>
+    <Head title="Content Moderation" />
+    <AdminLayout>
+        <div class="admin-page">
+            <h1 class="admin-page__title">Content Moderation</h1>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-card__value">{{ stats.pending || 0 }}</span>
+                    <span class="stat-card__label">Pending Reports</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-card__value">{{ stats.reviewed || 0 }}</span>
+                    <span class="stat-card__label">Reviewed Today</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-card__value">{{ stats.actioned || 0 }}</span>
+                    <span class="stat-card__label">Action Taken</span>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2 class="section-title">Report Queue</h2>
+                    <div class="section-actions">
+                        <button v-if="selectedReports.length" 
+                            @click="batchMode = true" 
+                            class="btn-ghost-sm">
+                            Batch Review ({{ selectedReports.length }})
+                        </button>
+                        <button @click="toggleSelectAll" class="btn-ghost-sm">
+                            {{ selectedReports.length === reports.data.length ? 'Deselect All' : 'Select All' }}
+                        </button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Reports Queue -->
-                    <div class="lg:col-span-2">
-                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                            <div class="p-6">
-                                <div class="flex justify-between items-center mb-4">
-                                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Moderation Queue</h2>
-                                    <div class="flex gap-2">
-                                        <button v-if="selectedReports.length > 0" @click="openBatchReview" class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
-                                            Batch Review ({{ selectedReports.length }})
-                                        </button>
-                                        <Link :href="route('admin.moderation.activity-log')" class="px-3 py-1 border rounded text-sm text-gray-600 hover:bg-gray-50">
-                                            Activity Log
-                                        </Link>
-                                    </div>
-                                </div>
+                <div v-if="!reports.data?.length" class="empty-state">
+                    <p>No reports to review.</p>
+                </div>
 
-                                <div class="overflow-x-auto">
-                                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                        <thead>
-                                            <tr>
-                                                <th class="px-4 py-3">
-                                                    <input type="checkbox" :checked="selectedReports.length === reports.data.length" @change="toggleSelectAll" class="rounded">
-                                                </th>
-                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Link</th>
-                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Reason</th>
-                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Details</th>
-                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
-                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Time</th>
-                                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                            <tr v-for="report in reports.data" :key="report.id" :class="{ 'bg-yellow-50 dark:bg-yellow-900/10': report.link?.auto_suspended_at }">
-                                                <td class="px-4 py-3">
-                                                    <input type="checkbox" :value="report.id" v-model="selectedReports" class="rounded">
-                                                </td>
-                                                <td class="px-4 py-3 text-sm">
-                                                    <a :href="`/${report.link?.short_code}`" target="_blank" class="text-blue-600 hover:underline">
-                                                        /{{ report.link?.short_code }}
-                                                    </a>
-                                                    <span v-if="report.link?.auto_suspended_at" class="ml-2 px-2 py-0.5 text-xs bg-red-100 text-red-800 rounded">Auto-suspended</span>
-                                                </td>
-                                                <td class="px-4 py-3 text-sm">{{ reasonLabels[report.reason] }}</td>
-                                                <td class="px-4 py-3 text-sm text-gray-500 max-w-xs truncate">{{ report.details || '-' }}</td>
-                                                <td class="px-4 py-3">
-                                                    <span :class="statusColors[report.status]" class="px-2 py-1 text-xs rounded-full">{{ report.status }}</span>
-                                                </td>
-                                                <td class="px-4 py-3 text-sm text-gray-500">{{ new Date(report.created_at).toLocaleString() }}</td>
-                                                <td class="px-4 py-3 text-right">
-                                                    <button v-if="report.status === 'pending'" @click="openReview(report)" class="text-blue-600 hover:text-blue-900 text-sm">Review</button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <div v-if="reports.data.length === 0" class="text-center py-12 text-gray-500">
-                                    No pending reports. Great job!
-                                </div>
-                            </div>
+                <div v-else class="reports-list">
+                    <div v-for="report in reports.data" :key="report.id" class="report-card">
+                        <div class="report-card__checkbox">
+                            <input 
+                                type="checkbox" 
+                                :value="report.id" 
+                                v-model="selectedReports"
+                                class="checkbox" />
                         </div>
-                    </div>
 
-                    <!-- Flagged Links -->
-                    <div>
-                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                            <div class="p-6">
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Most Flagged Links</h3>
-                                <div class="space-y-3">
-                                    <div v-for="link in flaggedLinks" :key="link.id" class="border dark:border-gray-700 rounded p-3">
-                                        <div class="flex justify-between items-start">
-                                            <a :href="`/${link.short_code}`" target="_blank" class="text-blue-600 hover:underline font-mono text-sm">
-                                                /{{ link.short_code }}
-                                            </a>
-                                            <span class="px-2 py-0.5 text-xs bg-red-100 text-red-800 rounded">
-                                                {{ link.reports_count }} reports
-                                            </span>
-                                        </div>
-                                        <div class="text-xs text-gray-500 truncate mt-1">{{ link.destination_url }}</div>
-                                        <div class="flex gap-2 mt-2">
-                                            <button @click="dismissLink(link)" class="text-xs text-gray-600 hover:text-blue-600">Dismiss All</button>
-                                            <span class="text-gray-300">|</span>
-                                            <button @click="() => { link.is_active = false; }" class="text-xs text-red-600 hover:text-red-800">Deactivate</button>
-                                        </div>
-                                    </div>
+                        <div class="report-card__content">
+                            <div class="report-card__header">
+                                <div class="report-info">
+                                    <span class="report-reason">{{ reasonLabels[report.reason] }}</span>
+                                    <span class="report-status" :class="statusColors[report.status]">
+                                        {{ report.status.charAt(0).toUpperCase() + report.status.slice(1) }}
+                                    </span>
                                 </div>
+                                <span class="report-date">{{ formatDate(report.created_at) }}</span>
+                            </div>
+
+                            <div class="report-card__details">
+                                <div class="link-info">
+                                    <strong>{{ report.link?.short_code }}</strong>
+                                    <span class="link-url">{{ report.link?.original_url }}</span>
+                                </div>
+                                <p v-if="report.description" class="report-description">
+                                    {{ report.description }}
+                                </p>
+                            </div>
+
+                            <div class="report-card__actions">
+                                <button @click="openReviewModal(report)" class="btn-primary-sm">
+                                    Review
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Review Modal -->
-        <div v-if="showReviewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white dark:bg-gray-800 rounded-lg max-w-lg w-full mx-4">
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        {{ batchMode ? `Batch Review (${selectedReports.length} reports)` : 'Review Report' }}
-                    </h3>
-                    
-                    <div v-if="!batchMode && reviewingReport" class="mb-4 p-3 bg-gray-100 dark:bg-gray-700 rounded text-sm">
-                        <div><strong>Link:</strong> /{{ reviewingReport.link?.short_code }}</div>
-                        <div><strong>Reason:</strong> {{ reasonLabels[reviewingReport.reason] }}</div>
-                        <div v-if="reviewingReport.details"><strong>Details:</strong> {{ reviewingReport.details }}</div>
+            <!-- Flagged Links Section -->
+            <div v-if="flaggedLinks?.length" class="admin-section">
+                <h2 class="section-title">Flagged Links</h2>
+                <div class="flagged-list">
+                    <div v-for="link in flaggedLinks" :key="link.id" class="flagged-item">
+                        <div class="flagged-info">
+                            <strong>{{ link.short_code }}</strong>
+                            <span class="link-url">{{ link.original_url }}</span>
+                            <span class="flag-reason">Auto-flagged: {{ link.flag_reason }}</span>
+                        </div>
                     </div>
+                </div>
+            </div>
 
+            <!-- Review Modal -->
+            <div v-if="showReviewModal" class="modal-backdrop">
+                <div class="modal">
+                    <div class="modal__header">
+                        <h3 class="modal__title">Review Report</h3>
+                        <button @click="showReviewModal = false" class="modal__close">×</button>
+                    </div>
                     <form @submit.prevent="submitReview">
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Action</label>
-                                <select v-model="reviewForm.action" class="mt-1 block w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700">
-                                    <option value="dismiss">Dismiss (No action)</option>
-                                    <option value="deactivate">Deactivate Link</option>
-                                    <option v-if="!batchMode" value="delete">Delete Link</option>
+                        <div class="modal__body">
+                            <div class="report-summary">
+                                <div class="report-summary__item">
+                                    <span class="report-summary__label">Reason:</span>
+                                    <span>{{ reasonLabels[reviewingReport?.reason] }}</span>
+                                </div>
+                                <div class="report-summary__item">
+                                    <span class="report-summary__label">Link:</span>
+                                    <span>{{ reviewingReport?.link?.short_code }}</span>
+                                </div>
+                                <div v-if="reviewingReport?.description" class="report-summary__item">
+                                    <span class="report-summary__label">Description:</span>
+                                    <span>{{ reviewingReport.description }}</span>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label">Action</label>
+                                <select v-model="reviewForm.action" class="field__input" required>
+                                    <option value="dismiss">Dismiss Report</option>
+                                    <option value="remove_link">Remove Link</option>
+                                    <option value="ban_user">Ban User</option>
                                 </select>
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Admin Notes</label>
-                                <textarea v-model="reviewForm.notes" rows="3" class="mt-1 block w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" placeholder="Optional notes..."></textarea>
+
+                            <div class="field">
+                                <label class="field__label">Notes (optional)</label>
+                                <textarea v-model="reviewForm.notes" class="field__input" rows="3"
+                                    placeholder="Add notes about this decision..."></textarea>
                             </div>
                         </div>
-                        <div class="flex justify-end gap-3 mt-6">
-                            <button type="button" @click="showReviewModal = false" class="px-4 py-2 border rounded text-gray-700 dark:text-gray-300">Cancel</button>
-                            <button type="submit" :disabled="reviewForm.processing || batchForm.processing" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50">
-                                {{ batchMode ? 'Process Batch' : 'Submit Review' }}
+                        <div class="modal__footer">
+                            <button type="button" @click="showReviewModal = false" class="btn-ghost">Cancel</button>
+                            <button type="submit" class="btn-primary" :disabled="reviewForm.processing">
+                                Submit Review
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Batch Review Modal -->
+            <div v-if="batchMode" class="modal-backdrop">
+                <div class="modal">
+                    <div class="modal__header">
+                        <h3 class="modal__title">Batch Review ({{ selectedReports.length }} reports)</h3>
+                        <button @click="batchMode = false" class="modal__close">×</button>
+                    </div>
+                    <form @submit.prevent="submitBatch">
+                        <div class="modal__body">
+                            <div class="field">
+                                <label class="field__label">Action</label>
+                                <select v-model="batchForm.action" class="field__input" required>
+                                    <option value="dismiss">Dismiss All</option>
+                                    <option value="remove_links">Remove All Links</option>
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label">Notes (optional)</label>
+                                <textarea v-model="batchForm.notes" class="field__input" rows="3"
+                                    placeholder="Add notes about this batch decision..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal__footer">
+                            <button type="button" @click="batchMode = false" class="btn-ghost">Cancel</button>
+                            <button type="submit" class="btn-primary" :disabled="batchForm.processing">
+                                Apply to All
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-    </AuthenticatedLayout>
+    </AdminLayout>
 </template>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
+
+:root {
+    --font-display: 'Oswald', sans-serif;
+    --font-body: 'Crimson Pro', serif;
+    --red: #e74c3c;
+    --red-dark: #c0392b;
+    --gold: #d4af37;
+    --ink: #1a1a1a;
+    --ink-soft: #444;
+    --muted: #888;
+    --border: #e8e5e0;
+    --surface: #fff;
+    --surface-2: #f5f3ef;
+    --radius: 4px;
+    --transition: all 0.2s ease;
+}
+
+.admin-page {
+    max-width: 1200px;
+}
+
+.admin-page__title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-page__title::before {
+    content: 'ADMIN';
+    font-size: 10px;
+    color: var(--red);
+    letter-spacing: 1px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.stat-card__value {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+}
+
+.stat-card__label {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-style: italic;
+    color: var(--muted);
+}
+
+.admin-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+}
+
+.section-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-style: italic;
+}
+
+.reports-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.report-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: flex;
+    gap: 16px;
+    transition: var(--transition);
+}
+
+.report-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.report-card__checkbox {
+    display: flex;
+    align-items: flex-start;
+    padding-top: 2px;
+}
+
+.checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--red);
+}
+
+.report-card__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.report-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.report-info {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.report-reason {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+    text-transform: uppercase;
+}
+
+.report-status {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: var(--radius);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.report-date {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.report-card__details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.link-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.link-url {
+    color: var(--ink-soft);
+    font-family: var(--font-body);
+    font-size: 12px;
+}
+
+.report-description {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0;
+    font-style: italic;
+}
+
+.report-card__actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-primary-sm {
+    padding: 4px 12px;
+    background: var(--red);
+    border: 1px solid var(--red);
+    border-radius: var(--radius);
+    color: var(--surface);
+    font-size: 11px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-primary-sm:hover {
+    background: var(--red-dark);
+    border-color: var(--red-dark);
+}
+
+.btn-ghost-sm {
+    padding: 4px 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink-soft);
+    font-size: 11px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-ghost-sm:hover {
+    background: var(--surface-2);
+    color: var(--ink);
+}
+
+.flagged-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.flagged-item {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+}
+
+.flagged-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+}
+
+.flag-reason {
+    font-size: 11px;
+    color: var(--red);
+    font-style: italic;
+}
+
+/* Modal Styles */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 26, 26, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.modal__title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.modal__close {
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    transition: var(--transition);
+}
+
+.modal__close:hover {
+    background: var(--surface-2);
+    color: var(--ink);
+}
+
+.modal__body {
+    padding: 24px;
+}
+
+.modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+}
+
+.report-summary {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.report-summary__item {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.report-summary__item:last-child {
+    margin-bottom: 0;
+}
+
+.report-summary__label {
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.field {
+    margin-bottom: 16px;
+}
+
+.field__label {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+}
+
+.field__input {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 14px;
+    transition: var(--transition);
+    width: 100%;
+}
+
+.field__input:focus {
+    outline: none;
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.btn-ghost {
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-ghost:hover {
+    background: var(--surface-2);
+}
+
+.btn-primary {
+    padding: 8px 16px;
+    background: var(--red);
+    border: 1px solid var(--red);
+    border-radius: var(--radius);
+    color: var(--surface);
+    font-family: var(--font-display);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-primary:hover {
+    background: var(--red-dark);
+    border-color: var(--red-dark);
+}
+</style>

@@ -9,37 +9,26 @@ const user = computed(() => page.props.auth.user);
 const sidebarCollapsed = ref(false);
 const mobileSidebarOpen = ref(false);
 
-const mainNavItems = [
-    { label: 'Dashboard', icon: 'dashboard', route: 'dashboard' },
-    { label: 'My Links', icon: 'links', route: 'links.index' },
-    { label: 'Create Link', icon: 'create', route: 'links.create' },
-    { label: 'Bulk Create', icon: 'bulk', route: 'links.bulk' },
+const adminNavItems = [
+    { label: 'Dashboard', icon: 'dashboard', route: 'admin.dashboard' },
+    { label: 'Users', icon: 'users', route: 'admin.users.index' },
+    { label: 'Payouts', icon: 'payouts', route: 'admin.payouts.index' },
+    { label: 'Affiliate Tiers', icon: 'tiers', route: 'admin.affiliate-tiers.index' },
+    { label: 'Ads', icon: 'ads', route: 'admin.ads.index' },
+    { label: 'Moderation', icon: 'moderation', route: 'admin.moderation.index' },
+    { label: 'Settings', icon: 'settings', route: 'admin.settings.index' },
 ];
-
-const toolsNavItems = [
-    { label: 'Analytics', icon: 'analytics', route: 'dashboard' },
-    { label: 'Affiliate', icon: 'affiliate', route: 'affiliate.index' },
-];
-
-const supportNavItems = [
-    { label: 'Help Center', icon: 'help', route: 'help.center' },
-    { label: 'API Docs', icon: 'api', route: 'api.docs' },
-    { label: 'Settings', icon: 'settings', route: 'profile.edit' },
-];
-
 
 const toggleSidebar = () => { sidebarCollapsed.value = !sidebarCollapsed.value; };
 const toggleMobileSidebar = () => { mobileSidebarOpen.value = !mobileSidebarOpen.value; };
 
 const icons = {
     dashboard: `<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>`,
-    links: `<path d="M9.5 14.5a4.5 4.5 0 0 1 6.36-6.36l3.5 3.5a4.5 4.5 0 0 1-6.36 6.36l-1.5-1.5"/><path d="M14.5 9.5a4.5 4.5 0 0 0-6.36 6.36l3.5 3.5a4.5 4.5 0 0 0 6.36-6.36l-1.5-1.5"/>`,
-    create: `<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>`,
-    bulk: `<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>`,
-    analytics: `<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>`,
-    affiliate: `<path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>`,
-    help: `<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5"/>`,
-    api: `<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>`,
+    users: `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
+    payouts: `<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>`,
+    tiers: `<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>`,
+    ads: `<rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>`,
+    moderation: `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>`,
     settings: `<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15.32 4.68l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z"/>`,
     logout: `<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>`,
     menu: `<line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/>`,
@@ -62,15 +51,17 @@ const icons = {
 
             <!-- Logo -->
             <div class="sidebar__brand">
-                <Link :href="route('dashboard')" class="sidebar__logo">
+                <Link :href="route('admin.dashboard')" class="sidebar__logo">
                     <div class="sidebar__logo-icon">
                         <svg viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                            <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2" />
+                            <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="#fff" stroke-width="2"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="#fff" stroke-width="2"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="#fff" stroke-width="2"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="#fff" stroke-width="2"/>
                         </svg>
                     </div>
                     <Transition name="fade">
-                        <span v-if="!sidebarCollapsed" class="sidebar__logo-text">ShortLink</span>
+                        <span v-if="!sidebarCollapsed" class="sidebar__logo-text">Admin</span>
                     </Transition>
                 </Link>
                 <button class="sidebar__toggle" @click="toggleSidebar"
@@ -84,47 +75,11 @@ const icons = {
             <div class="sidebar__content">
                 <nav class="nav-section">
                     <Transition name="fade">
-                        <span v-if="!sidebarCollapsed" class="nav-section__label">Main</span>
+                        <span v-if="!sidebarCollapsed" class="nav-section__label">Admin</span>
                     </Transition>
                     <div class="nav-section__items">
-                        <Link v-for="item in mainNavItems" :key="item.route" :href="route(item.route)" class="nav-item"
-                            :class="{ 'nav-item--active': route().current(item.route) || (item.route === 'links.index' && route().current('links.*') && !route().current('links.create') && !route().current('links.bulk')) }">
-                            <span class="nav-item__icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                                    v-html="icons[item.icon]" />
-                            </span>
-                            <Transition name="fade">
-                                <span v-if="!sidebarCollapsed" class="nav-item__label">{{ item.label }}</span>
-                            </Transition>
-                        </Link>
-                    </div>
-                </nav>
-
-                <nav class="nav-section">
-                    <Transition name="fade">
-                        <span v-if="!sidebarCollapsed" class="nav-section__label">Tools</span>
-                    </Transition>
-                    <div class="nav-section__items">
-                        <Link v-for="item in toolsNavItems" :key="item.route" :href="route(item.route)" class="nav-item"
-                            :class="{ 'nav-item--active': route().current(item.route) }">
-                            <span class="nav-item__icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                                    v-html="icons[item.icon]" />
-                            </span>
-                            <Transition name="fade">
-                                <span v-if="!sidebarCollapsed" class="nav-item__label">{{ item.label }}</span>
-                            </Transition>
-                        </Link>
-                    </div>
-                </nav>
-
-                <nav class="nav-section">
-                    <Transition name="fade">
-                        <span v-if="!sidebarCollapsed" class="nav-section__label">Support</span>
-                    </Transition>
-                    <div class="nav-section__items">
-                        <Link v-for="item in supportNavItems" :key="item.route" :href="route(item.route)"
-                            class="nav-item" :class="{ 'nav-item--active': route().current(item.route) }">
+                        <Link v-for="item in adminNavItems" :key="item.route" :href="route(item.route)" class="nav-item"
+                            :class="{ 'nav-item--active': route().current(item.route) || route().current('admin.*') }">
                             <span class="nav-item__icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                                     v-html="icons[item.icon]" />
@@ -147,18 +102,18 @@ const icons = {
                     <Transition name="fade">
                         <div v-if="!sidebarCollapsed" class="user-card__info">
                             <span class="user-card__name">{{ user?.name }}</span>
-                            <span class="user-card__email">{{ user?.email }}</span>
+                            <span class="user-card__email">Administrator</span>
                         </div>
                     </Transition>
                 </div>
-                <Link :href="route('logout')" method="post" as="button" class="logout-btn"
+                <Link :href="route('dashboard')" class="logout-btn"
                     :class="{ 'logout-btn--collapsed': sidebarCollapsed }">
                     <span class="logout-btn__icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                             v-html="icons.logout" />
                     </span>
                     <Transition name="fade">
-                        <span v-if="!sidebarCollapsed" class="logout-btn__text">Sign Out</span>
+                        <span v-if="!sidebarCollapsed" class="logout-btn__text">Back to User</span>
                     </Transition>
                 </Link>
             </div>
@@ -676,20 +631,6 @@ const icons = {
 
     .topbar__menu-btn {
         display: flex;
-    }
-
-    .page-content {
-        padding: 20px 16px 32px;
-    }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-    .sidebar {
-        width: var(--sidebar-collapsed);
-    }
-
-    .main-content {
-        margin-left: var(--sidebar-collapsed);
     }
 }
 </style>
