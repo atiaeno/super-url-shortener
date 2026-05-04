@@ -1,7 +1,7 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Head, useForm, Link } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 
 const props = defineProps({
@@ -10,14 +10,13 @@ const props = defineProps({
 
 const icons = {
     tiers: `<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>`,
-    dollar: `<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>`,
     users: `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
-    eye: `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`,
-    arrow: `<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>`,
     edit: `<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>`,
     globe: `<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>`,
     trash: `<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>`,
     plus: `<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>`,
+    x: `<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>`,
+    check: `<polyline points="20 6 9 17 4 12"/>`,
 };
 
 const stats = computed(() => ({
@@ -32,86 +31,56 @@ const statItems = computed(() => [
     { id: 'affiliates', label: 'Total Affiliates', value: stats.value.affiliates, roman: 'III.', icon: icons.users, color: 'blue' },
 ]);
 
-// Create modal and form
+// Format helpers
+const fRate = (v) => parseFloat(v) || 0;
+const fMult = (v) => parseInt(v) || 1000;
+const fmtMult = (v) => { const m = fMult(v); return m >= 1000 ? `${m / 1000}k` : m; };
+
+// Create modal
 const createModal = ref(false);
 const createForm = useForm({
     name: '',
     visit_threshold: 0,
     view_rate: 3.00,
-    view_multiplier: 1000,
+    view_multiplier: 10000,
     commission_rate: null,
 });
+const openCreateModal = () => { createModal.value = true; createForm.reset(); createForm.view_rate = 3.00; createForm.view_multiplier = 10000; };
+const closeCreateModal = () => { createModal.value = false; createForm.reset(); };
+const submitCreate = () => { createForm.post(route('admin.affiliate-tiers.store'), { onSuccess: () => closeCreateModal() }); };
 
-const openCreateModal = () => {
-    createModal.value = true;
-    createForm.reset();
-    createForm.view_rate = 3.00;
-    createForm.view_multiplier = 1000;
-};
-
-const closeCreateModal = () => {
-    createModal.value = false;
-    createForm.reset();
-};
-
-const submitCreate = () => {
-    createForm.post(route('admin.affiliate-tiers.store'), {
-        onSuccess: () => closeCreateModal(),
-    });
-};
-
-const editingId = ref(null);
+// Edit modal
+const editModal = ref(null);
 const editForm = useForm({
     name: '',
     visit_threshold: 0,
     view_rate: 0,
-    view_multiplier: 1000,
+    view_multiplier: 10000,
     commission_rate: null,
     is_active: true,
 });
-
-const startEdit = (tier) => {
-    editingId.value = tier.id;
+const openEditModal = (tier) => {
+    editModal.value = tier;
     editForm.name = tier.name;
     editForm.visit_threshold = tier.visit_threshold;
-    editForm.view_rate = tier.view_rate || 0;
-    editForm.view_multiplier = tier.view_multiplier || 1000;
+    editForm.view_rate = fRate(tier.view_rate);
+    editForm.view_multiplier = fMult(tier.view_multiplier);
     editForm.commission_rate = tier.commission_rate;
     editForm.is_active = tier.is_active;
 };
-
-const cancelEdit = () => { editingId.value = null; editForm.reset(); };
-
-const submitEdit = (id) => {
-    editForm.patch(route('admin.affiliate-tiers.update', id), {
-        onSuccess: () => cancelEdit(),
-    });
-};
+const closeEditModal = () => { editModal.value = null; editForm.reset(); };
+const submitEdit = () => { editForm.patch(route('admin.affiliate-tiers.update', editModal.value.id), { onSuccess: () => closeEditModal() }); };
 
 // Country rates modal
 const ratesModal = ref(null);
 const ratesForm = useForm({ rates: [] });
-
 const openRatesModal = (tier) => {
     ratesModal.value = tier;
-    ratesForm.rates = tier.country_rates?.map(r => ({ country_code: r.country_code, commission_rate: r.commission_rate })) ?? [];
+    ratesForm.rates = tier.country_rates?.map(r => ({ country_code: r.country_code, commission_rate: parseFloat(r.commission_rate) || 0 })) ?? [];
 };
-
 const addRate = () => ratesForm.rates.push({ country_code: '', commission_rate: '' });
 const removeRate = (i) => ratesForm.rates.splice(i, 1);
-
-const submitRates = () => {
-    ratesForm.post(route('admin.affiliate-tiers.country-rates', ratesModal.value.id), {
-        onSuccess: () => { ratesModal.value = null; },
-    });
-};
-
-// Helper to format rate display
-const formatRate = (tier) => {
-    const rate = tier.view_rate || 0;
-    const mult = tier.view_multiplier || 1000;
-    return `$${rate.toFixed(2)} per ${mult.toLocaleString()} views`;
-};
+const submitRates = () => { ratesForm.post(route('admin.affiliate-tiers.country-rates', ratesModal.value.id), { onSuccess: () => { ratesModal.value = null; } }); };
 </script>
 
 <template>
@@ -133,14 +102,17 @@ const formatRate = (tier) => {
                 <div class="page-header__left">
                     <span class="page-header__marker">Affiliate Program</span>
                     <h1 class="page-header__title">Tier Management</h1>
-                    <p class="page-header__sub">Configure view-based earnings for each tier</p>
+                    <p class="page-header__sub">Configure view-based earnings per unique views</p>
                 </div>
+                <button @click="openCreateModal" class="btn-create">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.plus" />
+                    Create Tier
+                </button>
             </header>
 
-            <!-- Divider -->
             <div class="section-rule"></div>
 
-            <!-- Stats Grid -->
+            <!-- Stats -->
             <section class="stats-section">
                 <div class="stats-grid">
                     <div v-for="item in statItems" :key="item.id" class="stat-card" :class="`stat-card--${item.color}`">
@@ -157,15 +129,7 @@ const formatRate = (tier) => {
                 </div>
             </section>
 
-            <!-- Create Tier Button -->
-            <section class="create-section">
-                <button @click="openCreateModal" class="btn-create">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.plus" />
-                    Create New Tier
-                </button>
-            </section>
-
-            <!-- Tiers Table -->
+            <!-- Tiers List -->
             <section class="table-section">
                 <div class="section-header">
                     <h2 class="section-header__title">All Tiers</h2>
@@ -182,8 +146,7 @@ const formatRate = (tier) => {
 
                     <div v-else class="tiers-list">
                         <div v-for="tier in tiers" :key="tier.id" class="tier-item">
-                            <!-- View Mode -->
-                            <div v-if="editingId !== tier.id" class="tier-row">
+                            <div class="tier-row">
                                 <div class="tier-main">
                                     <div class="tier-info">
                                         <div class="tier-icon"
@@ -199,16 +162,19 @@ const formatRate = (tier) => {
                                     </div>
                                     <div class="tier-rate">
                                         <div class="rate-display">
-                                            <span class="rate-icon">$</span>
-                                            <span class="rate-amount">{{ (tier.view_rate || 0).toFixed(2) }}</span>
-                                            <span class="rate-divider">/</span>
-                                            <span class="rate-views">{{ (tier.view_multiplier || 1000).toLocaleString()
-                                            }}
+                                            <span class="rate-amount">${{ fRate(tier.view_rate).toFixed(2) }}</span>
+                                            <span class="rate-slash">/</span>
+                                            <span class="rate-views">{{ fmtMult(tier.view_multiplier) }} unique
                                                 views</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="tier-side">
+                                    <div class="tier-countries" v-if="tier.country_rates?.length">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            v-html="icons.globe" />
+                                        {{ tier.country_rates.length }} countries
+                                    </div>
                                     <div class="tier-affiliates">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                                             v-html="icons.users" />
@@ -219,7 +185,7 @@ const formatRate = (tier) => {
                                         {{ tier.is_active ? 'Active' : 'Inactive' }}
                                     </span>
                                     <div class="tier-actions">
-                                        <button @click="startEdit(tier)" class="btn-icon btn-icon--edit"
+                                        <button @click="openEditModal(tier)" class="btn-icon btn-icon--edit"
                                             title="Edit Tier">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                 v-html="icons.edit" />
@@ -232,103 +198,62 @@ const formatRate = (tier) => {
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Edit Mode -->
-                            <div v-else class="tier-row tier-row--edit">
-                                <div class="tier-main tier-main--edit">
-                                    <div class="edit-fields">
-                                        <div class="field field--compact">
-                                            <label class="field__label">Name</label>
-                                            <input v-model="editForm.name" class="field__input"
-                                                placeholder="Tier name" />
-                                        </div>
-                                        <div class="field field--compact">
-                                            <label class="field__label">Threshold</label>
-                                            <input v-model="editForm.visit_threshold" type="number"
-                                                class="field__input" />
-                                        </div>
-                                        <div class="field field--compact">
-                                            <label class="field__label">Rate ($)</label>
-                                            <input v-model="editForm.view_rate" type="number" step="0.01"
-                                                class="field__input" />
-                                        </div>
-                                        <div class="field field--compact">
-                                            <label class="field__label">Per</label>
-                                            <select v-model="editForm.view_multiplier" class="field__input">
-                                                <option :value="100">100 views</option>
-                                                <option :value="1000">1,000 views</option>
-                                                <option :value="10000">10,000 views</option>
-                                            </select>
-                                        </div>
-                                        <label class="toggle">
-                                            <input type="checkbox" v-model="editForm.is_active" class="toggle__input" />
-                                            <span class="toggle__track"><span class="toggle__thumb" /></span>
-                                            <span class="toggle__label">{{ editForm.is_active ? 'Active' : 'Inactive'
-                                            }}</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="tier-side tier-side--edit">
-                                    <button @click="submitEdit(tier.id)" class="btn-icon btn-icon--save"
-                                        :disabled="editForm.processing" title="Save">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                    </button>
-                                    <button @click="cancelEdit" class="btn-icon btn-icon--cancel" title="Cancel">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <line x1="18" y1="6" x2="6" y2="18" />
-                                            <line x1="6" y1="6" x2="18" y2="18" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
             </section>
-
         </div>
 
         <!-- Country Rates Modal -->
         <Teleport to="body">
             <div v-if="ratesModal" class="modal-overlay" @click="ratesModal = null">
-                <div class="modal" @click.stop>
+                <div class="modal modal--wide" @click.stop>
                     <div class="modal__header">
                         <div class="modal__icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 v-html="icons.globe" />
                         </div>
-                        <h3 class="modal__title">Country Rates — {{ ratesModal.name }}</h3>
+                        <div>
+                            <h3 class="modal__title">Country Rates — {{ ratesModal.name }}</h3>
+                            <p class="modal__sub">Base: ${{ fRate(ratesModal.view_rate).toFixed(2) }} / {{
+                                fmtMult(ratesModal.view_multiplier) }} views · Override rates for specific countries</p>
+                        </div>
                     </div>
 
                     <form @submit.prevent="submitRates" class="modal__body">
-                        <div class="rates-list">
-                            <div v-for="(rate, i) in ratesForm.rates" :key="i" class="rate-row">
-                                <div class="field field--compact">
-                                    <label class="field__label">Country</label>
-                                    <input v-model="rate.country_code" type="text" placeholder="US" maxlength="2"
-                                        class="field__input field__input--code" />
-                                </div>
-                                <div class="field field--compact">
-                                    <label class="field__label">Rate %</label>
-                                    <input v-model="rate.commission_rate" type="number" step="0.01" min="0" max="100"
-                                        placeholder="5.00" class="field__input field__input--rate" />
-                                </div>
-                                <button type="button" @click="removeRate(i)" class="btn-icon btn-icon--delete"
-                                    title="Remove">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        v-html="icons.trash" />
-                                </button>
+                        <div v-if="ratesForm.rates.length" class="rates-table">
+                            <div class="rates-table__head">
+                                <span class="rates-table__th rates-table__th--code">Country</span>
+                                <span class="rates-table__th rates-table__th--rate">$ / {{
+                                    fmtMult(ratesModal.view_multiplier)
+                                    }} views</span>
+                                <span class="rates-table__th rates-table__th--action"></span>
                             </div>
+                            <div class="rates-table__body">
+                                <div v-for="(rate, i) in ratesForm.rates" :key="i" class="rates-table__row">
+                                    <input v-model="rate.country_code" type="text" placeholder="US" maxlength="2"
+                                        class="rates-table__input rates-table__input--code" />
+                                    <div class="rates-table__rate-cell">
+                                        <span class="rates-table__dollar">$</span>
+                                        <input v-model="rate.commission_rate" type="number" step="0.01" min="0"
+                                            placeholder="3.00" class="rates-table__input rates-table__input--rate" />
+                                    </div>
+                                    <button type="button" @click="removeRate(i)" class="btn-icon btn-icon--delete"
+                                        title="Remove">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            v-html="icons.trash" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="rates-empty">
+                            <p>No country overrides — all countries use the base rate.</p>
                         </div>
 
                         <button type="button" @click="addRate" class="btn-add">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="5" x2="12" y2="19" />
-                                <line x1="5" y1="12" x2="19" y2="12" />
-                            </svg>
-                            Add Country Rate
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                v-html="icons.plus" />
+                            Add Country
                         </button>
 
                         <div class="modal__actions">
@@ -355,48 +280,102 @@ const formatRate = (tier) => {
                         </div>
                         <h3 class="modal__title">Create New Tier</h3>
                     </div>
-
                     <form @submit.prevent="submitCreate" class="modal__body">
-                        <div class="field">
-                            <label class="field__label">Tier Name <span class="required">*</span></label>
-                            <input v-model="createForm.name" type="text" placeholder="e.g., Bronze" class="field__input"
-                                required />
-                            <span v-if="createForm.errors.name" class="field__error">{{ createForm.errors.name }}</span>
-                        </div>
-
-                        <div class="field">
-                            <label class="field__label">Visit Threshold</label>
-                            <input v-model="createForm.visit_threshold" type="number" min="0" placeholder="0"
-                                class="field__input" />
-                            <span class="field__hint">Minimum visits required to qualify for this tier</span>
-                        </div>
-
-                        <div class="field">
-                            <label class="field__label">Earnings Per <span class="highlight">{{
-                                createForm.view_multiplier.toLocaleString() }}</span> Views <span
-                                    class="required">*</span></label>
-                            <div class="rate-inputs">
-                                <span class="currency">$</span>
-                                <input v-model="createForm.view_rate" type="number" step="0.01" min="0"
-                                    placeholder="3.00" class="field__input field__input--rate" required />
-                                <span class="per">per</span>
-                                <select v-model="createForm.view_multiplier"
-                                    class="field__input field__input--multiplier">
-                                    <option :value="100">100 views</option>
-                                    <option :value="1000">1,000 views</option>
-                                    <option :value="10000">10,000 views</option>
-                                </select>
+                        <div class="modal-fields">
+                            <div class="field">
+                                <label class="field__label">Tier Name <span class="required">*</span></label>
+                                <input v-model="createForm.name" type="text" placeholder="e.g., Elite"
+                                    class="field__input" required />
+                                <span v-if="createForm.errors.name" class="field__error">{{ createForm.errors.name
+                                    }}</span>
                             </div>
-                            <span v-if="createForm.errors.view_rate" class="field__error">{{ createForm.errors.view_rate
-                                }}</span>
+                            <div class="field">
+                                <label class="field__label">Visit Threshold</label>
+                                <input v-model="createForm.visit_threshold" type="number" min="0" placeholder="0"
+                                    class="field__input" />
+                                <span class="field__hint">Minimum visits to qualify</span>
+                            </div>
+                            <div class="field">
+                                <label class="field__label">Rate <span class="required">*</span></label>
+                                <div class="rate-inputs">
+                                    <span class="currency">$</span>
+                                    <input v-model="createForm.view_rate" type="number" step="0.01" min="0"
+                                        placeholder="3.00" class="field__input field__input--rate" required />
+                                    <span class="per">per</span>
+                                    <select v-model="createForm.view_multiplier"
+                                        class="field__input field__input--multiplier">
+                                        <option :value="1000">1k views</option>
+                                        <option :value="10000">10k views</option>
+                                    </select>
+                                </div>
+                                <span v-if="createForm.errors.view_rate" class="field__error">{{
+                                    createForm.errors.view_rate
+                                    }}</span>
+                            </div>
                         </div>
-
                         <div class="modal__actions">
                             <button type="button" @click="closeCreateModal"
                                 class="modal__btn modal__btn--ghost">Cancel</button>
                             <button type="submit" class="modal__btn modal__btn--primary"
                                 :disabled="createForm.processing">
                                 {{ createForm.processing ? 'Creating...' : 'Create Tier' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </Teleport>
+
+        <!-- Edit Tier Modal -->
+        <Teleport to="body">
+            <div v-if="editModal" class="modal-overlay" @click="closeEditModal">
+                <div class="modal" @click.stop>
+                    <div class="modal__header">
+                        <div class="modal__icon modal__icon--edit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                v-html="icons.edit" />
+                        </div>
+                        <h3 class="modal__title">Edit — {{ editModal.name }}</h3>
+                    </div>
+                    <form @submit.prevent="submitEdit" class="modal__body">
+                        <div class="modal-fields">
+                            <div class="field">
+                                <label class="field__label">Tier Name <span class="required">*</span></label>
+                                <input v-model="editForm.name" type="text" class="field__input" required />
+                                <span v-if="editForm.errors.name" class="field__error">{{ editForm.errors.name }}</span>
+                            </div>
+                            <div class="field">
+                                <label class="field__label">Visit Threshold</label>
+                                <input v-model="editForm.visit_threshold" type="number" min="0" class="field__input" />
+                            </div>
+                            <div class="field">
+                                <label class="field__label">Rate <span class="required">*</span></label>
+                                <div class="rate-inputs">
+                                    <span class="currency">$</span>
+                                    <input v-model="editForm.view_rate" type="number" step="0.01" min="0"
+                                        class="field__input field__input--rate" required />
+                                    <span class="per">per</span>
+                                    <select v-model="editForm.view_multiplier"
+                                        class="field__input field__input--multiplier">
+                                        <option :value="1000">1k views</option>
+                                        <option :value="10000">10k views</option>
+                                    </select>
+                                </div>
+                                <span v-if="editForm.errors.view_rate" class="field__error">{{ editForm.errors.view_rate
+                                    }}</span>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox" v-model="editForm.is_active" class="toggle__input" />
+                                <span class="toggle__track"><span class="toggle__thumb" /></span>
+                                <span class="toggle__label">{{ editForm.is_active ? 'Active' : 'Inactive' }}</span>
+                            </label>
+                        </div>
+                        <div class="modal__actions">
+                            <button type="button" @click="closeEditModal"
+                                class="modal__btn modal__btn--ghost">Cancel</button>
+                            <button type="submit" class="modal__btn modal__btn--primary"
+                                :disabled="editForm.processing">
+                                {{ editForm.processing ? 'Saving...' : 'Save Changes' }}
                             </button>
                         </div>
                     </form>
@@ -461,9 +440,33 @@ const formatRate = (tier) => {
     margin: 0;
 }
 
-.highlight {
-    color: var(--red);
+.btn-create {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--red);
+    border: 1px solid var(--red);
+    border-radius: var(--radius);
+    color: var(--surface);
+    font-family: var(--font-display);
+    font-size: 12px;
     font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.btn-create:hover {
+    background: var(--red-dark);
+    border-color: var(--red-dark);
+}
+
+.btn-create svg {
+    width: 16px;
+    height: 16px;
 }
 
 /* ── Section Rule ─────────────────────────── */
@@ -473,7 +476,6 @@ const formatRate = (tier) => {
     margin-bottom: 28px;
 }
 
-/* ── Section Headers ─────────────────────── */
 .section-header {
     display: flex;
     align-items: center;
@@ -508,7 +510,6 @@ const formatRate = (tier) => {
     padding: 20px;
     display: flex;
     flex-direction: column;
-    transition: var(--transition);
 }
 
 .stat-card--red {
@@ -579,179 +580,6 @@ const formatRate = (tier) => {
     font-size: 13px;
     font-style: italic;
     color: var(--muted);
-}
-
-/* ── Create Section ───────────────────────── */
-.create-section {
-    margin-bottom: 32px;
-}
-
-.btn-create {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 24px;
-    background: var(--red);
-    border: 1px solid var(--red);
-    border-radius: var(--radius);
-    color: var(--surface);
-    font-family: var(--font-display);
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: var(--transition);
-    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
-}
-
-.btn-create:hover {
-    background: var(--red-dark);
-    border-color: var(--red-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(231, 76, 60, 0.3);
-}
-
-.btn-create svg {
-    width: 18px;
-    height: 18px;
-}
-
-.create-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-}
-
-.create-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.form-row {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    flex: 1;
-    min-width: 200px;
-}
-
-.field--rate {
-    flex: 2;
-    min-width: 300px;
-}
-
-.field--compact {
-    min-width: auto;
-}
-
-.field__label {
-    font-family: var(--font-display);
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--ink);
-    text-transform: uppercase;
-}
-
-.required {
-    color: var(--red);
-}
-
-.field__input {
-    padding: 10px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--ink);
-    font-family: var(--font-body);
-    font-size: 14px;
-    transition: var(--transition);
-    outline: none;
-}
-
-.field__input:focus {
-    border-color: var(--red);
-    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
-}
-
-.rate-inputs {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.currency,
-.per {
-    font-family: var(--font-display);
-    font-size: 16px;
-    color: var(--muted);
-}
-
-.field__input--rate {
-    width: 100px;
-    text-align: center;
-}
-
-.field__input--multiplier {
-    width: auto;
-    min-width: 120px;
-}
-
-.field__input--code {
-    width: 70px;
-    text-align: center;
-    text-transform: uppercase;
-}
-
-.field__hint {
-    font-family: var(--font-body);
-    font-size: 12px;
-    font-style: italic;
-    color: var(--muted);
-}
-
-.field__error {
-    font-family: var(--font-body);
-    font-size: 12px;
-    color: var(--red);
-    font-style: italic;
-}
-
-.form-actions {
-    display: flex;
-    justify-content: flex-start;
-    padding-top: 8px;
-}
-
-.btn-primary {
-    padding: 10px 20px;
-    background: var(--red);
-    border: 1px solid var(--red);
-    border-radius: var(--radius);
-    color: var(--surface);
-    font-family: var(--font-display);
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.btn-primary:hover {
-    background: var(--red-dark);
-    border-color: var(--red-dark);
-}
-
-.btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }
 
 /* ── Table Section ───────────────────────── */
@@ -825,22 +653,10 @@ const formatRate = (tier) => {
     background: var(--surface-2);
 }
 
-.tier-row--edit {
-    background: #fffbeb;
-}
-
-.tier-row--edit:hover {
-    background: #fffbeb;
-}
-
 .tier-main {
     display: flex;
     align-items: center;
     gap: 24px;
-    flex: 1;
-}
-
-.tier-main--edit {
     flex: 1;
 }
 
@@ -907,20 +723,16 @@ const formatRate = (tier) => {
     font-family: var(--font-display);
 }
 
-.rate-icon {
-    font-size: 14px;
-    color: var(--muted);
-}
-
 .rate-amount {
     font-size: 20px;
     font-weight: 600;
     color: var(--red);
 }
 
-.rate-divider {
+.rate-slash {
     font-size: 14px;
     color: var(--muted);
+    margin: 0 2px;
 }
 
 .rate-views {
@@ -935,16 +747,18 @@ const formatRate = (tier) => {
     gap: 12px;
 }
 
+.tier-countries,
 .tier-affiliates {
     display: flex;
     align-items: center;
     gap: 4px;
     font-family: var(--font-display);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--ink-soft);
 }
 
+.tier-countries svg,
 .tier-affiliates svg {
     width: 14px;
     height: 14px;
@@ -986,7 +800,6 @@ const formatRate = (tier) => {
     color: var(--ink-soft);
     cursor: pointer;
     transition: var(--transition);
-    text-decoration: none;
 }
 
 .btn-icon:hover {
@@ -1021,26 +834,6 @@ const formatRate = (tier) => {
     color: #d97706;
 }
 
-.btn-icon--save {
-    background: #dcfce7;
-    color: #16a34a;
-    border-color: #86efac;
-}
-
-.btn-icon--save:hover {
-    background: #bbf7d0;
-}
-
-.btn-icon--cancel {
-    background: #fef2f2;
-    color: var(--red);
-    border-color: #fecaca;
-}
-
-.btn-icon--cancel:hover {
-    background: #fee2e2;
-}
-
 .btn-icon--delete {
     background: #fef2f2;
     color: var(--red);
@@ -1049,13 +842,6 @@ const formatRate = (tier) => {
 
 .btn-icon--delete:hover {
     background: #fee2e2;
-}
-
-.edit-fields {
-    display: flex;
-    align-items: flex-end;
-    gap: 12px;
-    flex-wrap: wrap;
 }
 
 /* ── Toggle ──────────────────────────────── */
@@ -1122,8 +908,15 @@ const formatRate = (tier) => {
     border-radius: var(--radius);
     width: 100%;
     max-width: 480px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     animation: modalEnter 0.2s ease;
+}
+
+.modal--wide {
+    max-width: 560px;
 }
 
 @keyframes modalEnter {
@@ -1143,6 +936,7 @@ const formatRate = (tier) => {
     align-items: center;
     gap: 12px;
     padding: 24px 24px 0;
+    flex-shrink: 0;
 }
 
 .modal__icon {
@@ -1154,11 +948,17 @@ const formatRate = (tier) => {
     background: #dbeafe;
     border-radius: var(--radius);
     color: #3b82f6;
+    flex-shrink: 0;
 }
 
 .modal__icon--create {
     background: #fef2f2;
     color: var(--red);
+}
+
+.modal__icon--edit {
+    background: #eff6ff;
+    color: #3b82f6;
 }
 
 .modal__icon svg {
@@ -1174,21 +974,202 @@ const formatRate = (tier) => {
     margin: 0;
 }
 
+.modal__sub {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-style: italic;
+    color: var(--muted);
+    margin: 4px 0 0;
+}
+
 .modal__body {
     padding: 16px 24px 24px;
+    overflow-y: auto;
+    flex: 1;
 }
 
-.rates-list {
+.modal-fields {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-bottom: 16px;
+    gap: 16px;
 }
 
-.rate-row {
+/* ── Form Fields ──────────────────────────── */
+.field {
     display: flex;
-    align-items: flex-end;
-    gap: 12px;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field__label {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink);
+    text-transform: uppercase;
+}
+
+.required {
+    color: var(--red);
+}
+
+.highlight {
+    color: var(--red);
+    font-weight: 600;
+}
+
+.field__input {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 14px;
+    transition: var(--transition);
+    outline: none;
+}
+
+.field__input:focus {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.field__hint {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-style: italic;
+    color: var(--muted);
+}
+
+.field__error {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--red);
+    font-style: italic;
+}
+
+.rate-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.currency,
+.per {
+    font-family: var(--font-display);
+    font-size: 16px;
+    color: var(--muted);
+}
+
+.field__input--rate {
+    width: 100px;
+    text-align: center;
+}
+
+.field__input--multiplier {
+    width: auto;
+    min-width: 110px;
+}
+
+/* ── Rates Table (Country Rates Modal) ────── */
+.rates-table {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.rates-table__head {
+    display: grid;
+    grid-template-columns: 80px 1fr 36px;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+}
+
+.rates-table__th {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.rates-table__body {
+    max-height: 340px;
+    overflow-y: auto;
+}
+
+.rates-table__row {
+    display: grid;
+    grid-template-columns: 80px 1fr 36px;
+    gap: 8px;
+    padding: 6px 12px;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+}
+
+.rates-table__row:last-child {
+    border-bottom: none;
+}
+
+.rates-table__input {
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 13px;
+    outline: none;
+    transition: var(--transition);
+}
+
+.rates-table__input:focus {
+    border-color: var(--red);
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
+}
+
+.rates-table__input--code {
+    text-transform: uppercase;
+    text-align: center;
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.rates-table__input--rate {
+    text-align: right;
+    width: 100%;
+}
+
+.rates-table__rate-cell {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.rates-table__dollar {
+    font-family: var(--font-display);
+    font-size: 13px;
+    color: var(--muted);
+    flex-shrink: 0;
+}
+
+.rates-empty {
+    text-align: center;
+    padding: 24px 16px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-style: italic;
+    color: var(--muted);
+    margin-bottom: 12px;
+}
+
+.rates-empty p {
+    margin: 0;
 }
 
 .btn-add {
@@ -1229,6 +1210,7 @@ const formatRate = (tier) => {
     border-top: 1px solid var(--border);
     margin: 24px -24px -24px;
     border-radius: 0 0 var(--radius) var(--radius);
+    flex-shrink: 0;
 }
 
 .modal__btn {
@@ -1264,6 +1246,11 @@ const formatRate = (tier) => {
     border-color: var(--red-dark);
 }
 
+.modal__btn--primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 /* ── Responsive ────────────────────────── */
 @media (max-width: 1024px) {
     .stats-grid {
@@ -1280,20 +1267,16 @@ const formatRate = (tier) => {
         width: 100%;
         justify-content: flex-start;
     }
-
-    .edit-fields {
-        flex-direction: column;
-        align-items: flex-start;
-    }
 }
 
 @media (max-width: 768px) {
-    .stats-grid {
-        grid-template-columns: 1fr;
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
-    .form-row {
-        flex-direction: column;
+    .stats-grid {
+        grid-template-columns: 1fr;
     }
 
     .rate-inputs {

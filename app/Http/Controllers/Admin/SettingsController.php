@@ -37,6 +37,9 @@ class SettingsController extends Controller
         'auto_suspend_threshold',
         'robots_txt',
         'sitemap_enabled',
+        'redirect_countdown',
+        'redirect_mode',
+        'redirect_captcha',
     ];
 
     public function index(): Response
@@ -61,6 +64,9 @@ class SettingsController extends Controller
             'auto_suspend_threshold' => '3',
             'sitemap_enabled' => 'true',
             'robots_txt' => "User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: /sitemap.xml",
+            'redirect_countdown' => '5',
+            'redirect_mode' => 'auto',
+            'redirect_captcha' => 'false',
         ];
 
         $settings = array_merge($defaults, $settings);
@@ -99,6 +105,9 @@ class SettingsController extends Controller
             'auto_suspend_threshold' => 'integer|min:1',
             'robots_txt' => 'nullable|string',
             'sitemap_enabled' => 'boolean',
+            'redirect_countdown' => 'integer|min:0|max:60',
+            'redirect_mode' => 'in:auto,click',
+            'redirect_captcha' => 'boolean',
         ]);
 
         foreach ($validated as $key => $value) {

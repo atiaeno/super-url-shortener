@@ -3,12 +3,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\LogClickJob;
 use App\Models\Ad;
 use App\Models\Link;
-use App\Jobs\LogClickJob;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Redirect;
 use Jenssegers\Agent\Agent;
 
 class RedirectController extends Controller
@@ -18,70 +18,105 @@ class RedirectController extends Controller
      */
     public function __invoke(string $shortCode, Request $request)
     {
-        // Try cache first (NFR-P1: <1s response)
-        $destinationUrl = Cache::get("redirect:{$shortCode}");
+        // Look up the link (including inactive/expired for proper error pages)
+        $link = Link::where('short_code', $shortCode)
+            ->orWhere('custom_alias', $shortCode)
+            ->first();
 
-        if (!$destinationUrl) {
-            // Fallback to database
-            $link = Link::where('short_code', $shortCode)
-                ->orWhere('custom_alias', $shortCode)
-                ->active()
-                ->first();
+        // Not found at all
+        if (!$link) {
+            return response()->view('redirect', [
+                'state' => 'not-found',
+                'shortCode' => $shortCode,
+            ], 404);
+        }
 
-            if (!$link) {
-                abort(404, 'Link not found or expired.');
-            }
+        // Expired
+        if ($link->expires_at && $link->expires_at->isPast()) {
+            return response()->view('redirect', [
+                'state' => 'expired',
+                'expiresAt' => $link->expires_at,
+            ], 410);
+        }
 
-            $destinationUrl = $link->destination_url;
+        // Deactivated
+        if (!$link->is_active) {
+            return response()->view('redirect', [
+                'state' => 'not-found',
+                'shortCode' => $shortCode,
+            ], 404);
+        }
 
-            // Cache for next time (24h TTL per architecture)
-            Cache::put("redirect:{$shortCode}", $destinationUrl, now()->addHours(24));
-        } else {
-            // Still need link ID for click logging
-            $link = Link::where('short_code', $shortCode)
-                ->orWhere('custom_alias', $shortCode)
-                ->active()
-                ->first();
-
-            if (!$link) {
-                abort(404, 'Link not found or expired.');
+        // Password protected — show password gate
+        if ($link->visibility === 'private' && $link->password) {
+            if ($request->isMethod('post')) {
+                if (password_verify($request->input('password', ''), $link->password)) {
+                    session(["unlocked:{$link->id}" => true]);
+                } else {
+                    return response()->view('redirect', [
+                        'state' => 'password',
+                        'shortCode' => $shortCode,
+                        'error' => true,
+                    ], 403);
+                }
+            } else {
+                if (!session("unlocked:{$link->id}")) {
+                    return response()->view('redirect', [
+                        'state' => 'password',
+                        'shortCode' => $shortCode,
+                        'error' => false,
+                    ], 403);
+                }
             }
         }
 
-        // Story 1.7: Serve OG meta page for social crawlers instead of redirecting
+        $destinationUrl = $link->destination_url;
+
+        // Cache destination for next time (24h TTL)
+        Cache::put("redirect:{$shortCode}", $destinationUrl, now()->addHours(24));
+
+        // Story 1.7: Serve OG meta page for social crawlers (instant redirect via meta refresh)
         if ($this->isSocialCrawler($request->userAgent() ?? '')) {
             return response($this->buildOgPage($link, $destinationUrl), 200)
                 ->header('Content-Type', 'text/html; charset=utf-8');
         }
 
-        // Story 5.4: Check for ad display
-        $ad = $this->getAdForLink($link, $request);
-        
-        if ($ad && $ad->format === 'interstitial' && !$this->hasSeenAd($request, $link->id)) {
-            // Queue click logging
-            LogClickJob::dispatch($link->id, $this->getClickData($request));
-            $link->incrementClicks();
-            
-            // Mark ad as seen in session
-            $this->markAdSeen($request, $link->id);
-            
-            // Show interstitial page
-            return response($this->buildInterstitialPage($link, $destinationUrl, $ad), 200);
-        }
-
-        // Queue click logging (async, doesn't block redirect)
+        // Queue click logging (async, doesn't block)
         LogClickJob::dispatch($link->id, $this->getClickData($request));
-
-        // Increment click count (lightweight, doesn't block)
         $link->incrementClicks();
 
-        // Story 5.4: If banner ad, pass to view or include in redirect
-        // For now, redirect with banner data in session for frontend if needed
-        if ($ad && $ad->format === 'banner') {
-            session(['banner_ad' => $ad]);
+        // Read redirect page settings
+        $redirectCountdown = (int) Setting::get('redirect_countdown', 5);
+        $redirectMode = Setting::get('redirect_mode', 'auto');
+        $redirectCaptcha = Setting::get('redirect_captcha', false);
+
+        // Story 5.4: Check for ad to display on the redirect page
+        $ad = $this->getAdForLink($link, $request);
+        $adContent = '';
+        $countdown = $redirectCountdown;
+
+        if ($ad && $ad->format === 'interstitial' && !$this->hasSeenAd($request, $link->id)) {
+            $adContent = $ad->content ?? '';
+            // Use ad's countdown if set, otherwise use global setting
+            $countdown = (int) $ad->countdown_seconds ?: $redirectCountdown;
+            $this->markAdSeen($request, $link->id);
         }
 
-        return Redirect::away($destinationUrl, 302);
+        // Always show the redirect page — user sees destination, timer, and optional ad
+        return response()->view('redirect', [
+            'state' => 'redirect',
+            'destination' => $destinationUrl,
+            'countdown' => $countdown,
+            'redirectMode' => $redirectMode,
+            'redirectCaptcha' => filter_var($redirectCaptcha, FILTER_VALIDATE_BOOLEAN),
+            'captchaSiteKey' => Setting::get('captcha_site_key', ''),
+            'adContent' => $adContent,
+            'title' => $link->og_title ?? 'Redirecting…',
+            'ogTitle' => $link->og_title,
+            'ogDescription' => $link->og_description,
+            'ogUrl' => $link->short_url,
+            'ogImage' => $link->og_image,
+        ]);
     }
 
     /**
@@ -90,9 +125,15 @@ class RedirectController extends Controller
     private function isSocialCrawler(string $ua): bool
     {
         $crawlers = [
-            'facebookexternalhit', 'twitterbot', 'linkedinbot',
-            'whatsapp', 'telegrambot', 'slackbot', 'discordbot',
-            'googlebot', 'bingbot',
+            'facebookexternalhit',
+            'twitterbot',
+            'linkedinbot',
+            'whatsapp',
+            'telegrambot',
+            'slackbot',
+            'discordbot',
+            'googlebot',
+            'bingbot',
         ];
 
         $ua = strtolower($ua);
@@ -108,48 +149,42 @@ class RedirectController extends Controller
 
     /**
      * Story 1.7: Build a minimal HTML page with OG/Schema meta tags for social crawlers.
+     * Kept as inline HTML — crawlers don't render CSS/JS, just need meta tags.
      */
     private function buildOgPage(Link $link, string $destinationUrl): string
     {
-        $shortUrl    = htmlspecialchars($link->short_url,    ENT_QUOTES, 'UTF-8');
-        $destination = htmlspecialchars($destinationUrl,     ENT_QUOTES, 'UTF-8');
-        $ogTitle     = htmlspecialchars($link->og_title     ?? 'Short Link', ENT_QUOTES, 'UTF-8');
-        $ogDesc      = htmlspecialchars($link->og_description ?? "Visit {$destinationUrl}", ENT_QUOTES, 'UTF-8');
-        $ogImage     = htmlspecialchars($link->og_image     ?? '', ENT_QUOTES, 'UTF-8');
-        $appName     = htmlspecialchars(config('app.name', 'ShortLink'), ENT_QUOTES, 'UTF-8');
+        $shortUrl = htmlspecialchars($link->short_url, ENT_QUOTES, 'UTF-8');
+        $destination = htmlspecialchars($destinationUrl, ENT_QUOTES, 'UTF-8');
+        $ogTitle = htmlspecialchars($link->og_title ?? 'Short Link', ENT_QUOTES, 'UTF-8');
+        $ogDesc = htmlspecialchars($link->og_description ?? "Visit {$destinationUrl}", ENT_QUOTES, 'UTF-8');
+        $ogImage = htmlspecialchars($link->og_image ?? '', ENT_QUOTES, 'UTF-8');
+        $appName = htmlspecialchars(config('app.name', 'ShortLink'), ENT_QUOTES, 'UTF-8');
+        $ogImageTag = $ogImage ? "<meta property=\"og:image\" content=\"{$ogImage}\">" : '';
+        $twImageTag = $ogImage ? "<meta property=\"twitter:image\" content=\"{$ogImage}\">" : '';
 
         return <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>{$ogTitle}</title>
-<meta http-equiv="refresh" content="0;url={$destination}">
-<meta property="og:title"       content="{$ogTitle}">
-<meta property="og:description" content="{$ogDesc}">
-<meta property="og:url"         content="{$shortUrl}">
-<meta property="og:type"        content="website">
-{$this->ogImageTag($ogImage)}
-<meta name="twitter:card"        content="summary_large_image">
-<meta name="twitter:title"       content="{$ogTitle}">
-<meta name="twitter:description" content="{$ogDesc}">
-{$this->ogImageTag($ogImage, 'twitter')}
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","name":"{$ogTitle}","url":"{$shortUrl}","description":"{$ogDesc}","publisher":{"@type":"Organization","name":"{$appName}"}}
-</script>
-</head>
-<body>Redirecting…</body>
-</html>
-HTML;
-    }
-
-    private function ogImageTag(string $url, string $prefix = 'og'): string
-    {
-        if (empty($url)) {
-            return '';
-        }
-
-        return "<meta property=\"{$prefix}:image\" content=\"{$url}\">";
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+            <meta charset="UTF-8">
+            <title>{$ogTitle}</title>
+            <meta http-equiv="refresh" content="0;url={$destination}">
+            <meta property="og:title" content="{$ogTitle}">
+            <meta property="og:description" content="{$ogDesc}">
+            <meta property="og:url" content="{$shortUrl}">
+            <meta property="og:type" content="website">
+            {$ogImageTag}
+            <meta name="twitter:card" content="summary_large_image">
+            <meta name="twitter:title" content="{$ogTitle}">
+            <meta name="twitter:description" content="{$ogDesc}">
+            {$twImageTag}
+            <script type="application/ld+json">
+            {"@context":"https://schema.org","@type":"WebPage","name":"{$ogTitle}","url":"{$shortUrl}","description":"{$ogDesc}","publisher":{"@type":"Organization","name":"{$appName}"}}
+            </script>
+            </head>
+            <body>Redirecting…</body>
+            </html>
+            HTML;
     }
 
     /**
@@ -185,7 +220,6 @@ HTML;
 
         return Cache::remember("geo:{$ip}", now()->addHours(24), function () use ($ip) {
             // TODO: Integrate with geolocation service (MaxMind, IP-API, etc.)
-            // For now, return null or a default
             return null;
         });
     }
@@ -195,7 +229,6 @@ HTML;
      */
     private function getAdForLink(Link $link, Request $request): ?Ad
     {
-        // Check link override
         if ($link->ad_override === 'disable') {
             return null;
         }
@@ -204,11 +237,10 @@ HTML;
             return Ad::active()->find($link->ad_id);
         }
 
-        // Default: find active ad matching visitor country
         $countryCode = $this->getCountryCode($request->ip());
-        
+
         return Ad::active()
-            ->when($countryCode, fn ($q) => $q->forCountry($countryCode))
+            ->when($countryCode, fn($q) => $q->forCountry($countryCode))
             ->inRandomOrder()
             ->first();
     }
@@ -230,109 +262,5 @@ HTML;
         $seen = session('seen_ads', []);
         $seen[] = $linkId;
         session(['seen_ads' => array_unique($seen)]);
-    }
-
-    /**
-     * Build interstitial page with countdown.
-     */
-    private function buildInterstitialPage(Link $link, string $destinationUrl, Ad $ad): string
-    {
-        $destination = htmlspecialchars($destinationUrl, ENT_QUOTES, 'UTF-8');
-        $shortCode = htmlspecialchars($link->short_code, ENT_QUOTES, 'UTF-8');
-        $countdown = (int) $ad->countdown_seconds;
-        $adContent = $ad->content ?? '';
-        
-        return <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0a0a0a;
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .countdown {
-            font-size: 48px;
-            font-weight: 700;
-            color: #22d3ee;
-            margin-bottom: 20px;
-        }
-        .message {
-            color: #a1a1aa;
-            margin-bottom: 40px;
-        }
-        .ad-container {
-            max-width: 800px;
-            width: 100%;
-            background: #141414;
-            border-radius: 12px;
-            padding: 40px;
-            margin-bottom: 40px;
-        }
-        .skip-btn {
-            padding: 12px 32px;
-            background: #22d3ee;
-            color: #0a0a0a;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            opacity: 0.5;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-        .skip-btn.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .skip-btn:hover.active {
-            background: #06b6d4;
-        }
-    </style>
-</head>
-<body>
-    <div class="countdown" id="countdown">{$countdown}</div>
-    <p class="message">You'll be redirected in <span id="seconds">{$countdown}</span> seconds</p>
-    <div class="ad-container">
-        {$adContent}
-    </div>
-    <a href="{$destination}" class="skip-btn" id="skipBtn">Skip Ad</a>
-    <script>
-        let seconds = {$countdown};
-        const countdownEl = document.getElementById('countdown');
-        const secondsEl = document.getElementById('seconds');
-        const skipBtn = document.getElementById('skipBtn');
-        
-        const timer = setInterval(() => {
-            seconds--;
-            countdownEl.textContent = seconds;
-            secondsEl.textContent = seconds;
-            
-            if (seconds <= 0) {
-                clearInterval(timer);
-                countdownEl.style.display = 'none';
-                skipBtn.classList.add('active');
-                skipBtn.textContent = 'Continue to destination';
-                window.location.href = '{$destination}';
-            }
-        }, 1000);
-    </script>
-</body>
-</html>
-HTML;
     }
 }

@@ -172,7 +172,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 });
 
 // Public redirect endpoint (short URLs) — MUST BE LAST
-Route::get('/{shortCode}', RedirectController::class)
+Route::match(['get', 'post'], '/{shortCode}', RedirectController::class)
     ->where('shortCode', '[a-zA-Z0-9]+')
     ->middleware(\App\Http\Middleware\RateLimitRedirects::class)
     ->name('redirect');
