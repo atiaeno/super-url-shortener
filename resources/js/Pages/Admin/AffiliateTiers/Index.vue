@@ -152,22 +152,41 @@ const submitRates = () => {
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
+
+:root {
+    --font-display: 'Oswald', sans-serif;
+    --font-body: 'Crimson Pro', serif;
+    --red: #e74c3c;
+    --red-dark: #c0392b;
+    --gold: #d4af37;
+    --ink: #1a1a1a;
+    --ink-soft: #444;
+    --muted: #888;
+    --border: #e8e5e0;
+    --bg: #fafafa;
+    --surface: #fff;
+    --surface-2: #f5f3ef;
+    --radius: 4px;
+    --transition: all 0.2s ease;
+}
+
 .mb {
     margin-bottom: 20px;
 }
 
 .card {
-    background: #141414;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     padding: 24px;
 }
 
 .card-title {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: var(--font-display);
     font-size: 13px;
     font-weight: 600;
-    color: #A1A1AA;
+    color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.07em;
     margin-bottom: 16px;
@@ -188,22 +207,22 @@ const submitRates = () => {
 
 .field__label {
     font-size: 12px;
-    color: #71717A;
+    color: var(--muted);
 }
 
 .field__input {
-    background: #0A0A0A;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     padding: 9px 12px;
     font-size: 13px;
-    color: #FAFAFA;
+    color: var(--ink);
     outline: none;
     transition: border-color 200ms;
 }
 
 .field__input:focus {
-    border-color: #22D3EE;
+    border-color: var(--red);
 }
 
 .field__input--sm {
@@ -213,9 +232,9 @@ const submitRates = () => {
 
 /* ── Table ─────────────────────────────────── */
 .table-card {
-    background: #141414;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     overflow: hidden;
 }
 
@@ -225,11 +244,11 @@ const submitRates = () => {
     padding: 10px 20px;
     font-size: 11px;
     font-weight: 600;
-    color: #52525B;
+    color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.07em;
-    background: rgba(255, 255, 255, 0.02);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
 }
 
 .table-row,
@@ -238,12 +257,12 @@ const submitRates = () => {
     grid-template-columns: 1fr 140px 120px 100px 90px 200px;
     align-items: center;
     padding: 14px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid var(--border);
     transition: background 200ms;
 }
 
 .table-row:hover {
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--surface-2);
 }
 
 .table-row:last-child,
@@ -254,18 +273,18 @@ const submitRates = () => {
 .cell-name {
     font-size: 14px;
     font-weight: 600;
-    color: #FAFAFA;
+    color: var(--ink);
 }
 
 .cell-num {
     font-size: 13px;
-    color: #A1A1AA;
+    color: var(--ink-soft);
 }
 
 .cell-rate {
     font-size: 14px;
     font-weight: 600;
-    color: #22D3EE;
+    color: var(--red);
 }
 
 .badge {
@@ -295,25 +314,22 @@ const submitRates = () => {
 
 .action-btn {
     font-size: 11px;
-    color: #71717A;
+    color: var(--muted);
     text-decoration: none;
     padding: 4px 10px;
     border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: none;
-    cursor: pointer;
-    transition: all 200ms;
-    white-space: nowrap;
+    border: 1px solid var(--border);
+    transition: var(--transition);
 }
 
 .action-btn:hover {
-    color: #FAFAFA;
-    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--ink);
+    border-color: var(--red);
 }
 
 .action-btn--primary {
-    color: #22D3EE;
-    border-color: rgba(34, 211, 238, 0.2);
+    color: var(--red);
+    border-color: var(--red);
 }
 
 .action-btn--primary:hover {
@@ -321,8 +337,8 @@ const submitRates = () => {
 }
 
 .action-btn--danger:hover {
-    color: #EF4444;
-    border-color: rgba(239, 68, 68, 0.3);
+    color: var(--red);
+    border-color: var(--red);
 }
 
 /* ── Toggle ──────────────────────────────────── */
@@ -339,7 +355,7 @@ const submitRates = () => {
 .toggle__track {
     width: 36px;
     height: 20px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--border);
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -348,13 +364,13 @@ const submitRates = () => {
 }
 
 .toggle__input:checked+.toggle__track {
-    background: #22D3EE;
+    background: var(--red);
 }
 
 .toggle__thumb {
     width: 16px;
     height: 16px;
-    background: #fff;
+    background: var(--surface);
     border-radius: 50%;
     transition: transform 200ms;
 }
@@ -375,11 +391,11 @@ const submitRates = () => {
 }
 
 .modal {
-    background: #1A1A1A;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     width: 480px;
-    max-width: 95vw;
+    max-width: 90vw;
 }
 
 .modal__header {
@@ -387,19 +403,19 @@ const submitRates = () => {
     justify-content: space-between;
     align-items: center;
     padding: 20px 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    border-bottom: 1px solid var(--border);
 }
 
 .modal__title {
     font-size: 15px;
     font-weight: 600;
-    color: #FAFAFA;
+    color: var(--ink);
 }
 
 .modal__close {
     background: none;
     border: none;
-    color: #52525B;
+    color: var(--muted);
     font-size: 16px;
     cursor: pointer;
 }
@@ -416,7 +432,7 @@ const submitRates = () => {
     justify-content: flex-end;
     gap: 10px;
     padding-top: 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid var(--border);
     margin-top: 8px;
 }
 
@@ -430,57 +446,50 @@ const submitRates = () => {
     display: inline-flex;
     align-items: center;
     padding: 9px 18px;
-    background: #22D3EE;
-    color: #0A0A0A;
+    background: var(--red);
+    color: var(--surface);
     font-size: 13px;
     font-weight: 600;
-    border-radius: 8px;
+    border-radius: var(--radius);
     border: none;
     cursor: pointer;
-    transition: opacity 200ms;
+    transition: var(--transition);
 }
 
-.btn-primary:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-.btn-primary:not(:disabled):hover {
-    opacity: 0.85;
+.btn-primary:hover {
+    background: var(--red-dark);
 }
 
 .btn-ghost {
-    display: inline-flex;
-    align-items: center;
     padding: 9px 16px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
-    color: #71717A;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--muted);
     font-size: 13px;
     text-decoration: none;
     background: none;
     cursor: pointer;
-    transition: all 200ms;
+    transition: var(--transition);
 }
 
 .btn-ghost:hover {
-    color: #FAFAFA;
-    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--ink);
+    border-color: var(--ink);
 }
 
 .btn-ghost-sm {
     font-size: 12px;
-    color: #52525B;
+    color: var(--muted);
     background: none;
-    border: 1px dashed rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    padding: 5px 12px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 4px 8px;
     cursor: pointer;
-    transition: all 200ms;
+    transition: var(--transition);
 }
 
 .btn-ghost-sm:hover {
-    color: #FAFAFA;
-    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--red);
+    border-color: var(--red);
 }
 </style>

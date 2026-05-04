@@ -1,7 +1,7 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
 import { Head, useForm, router, Link } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
@@ -9,6 +9,12 @@ const props = defineProps({
     stats: Object,
     filters: Object,
 });
+
+const getBanStatusText = (banType) => {
+    if (banType === 'soft') return 'Soft Banned';
+    if (banType === 'hard') return 'Hard Banned';
+    return 'Active';
+};
 
 const search = ref(props.filters?.search || '');
 const roleFilter = ref(props.filters?.role || '');
@@ -172,8 +178,7 @@ const roleColors = {
                                 </td>
                                 <td>
                                     <span class="status-badge" :class="banTypeColors[user.ban_type || 'none']">
-                                        {{ user.ban_type === 'soft' ? 'Soft Banned' : user.ban_type === 'hard' ? 'Hard
-                                        Banned' : 'Active' }}
+                                        {{ getBanStatusText(user.ban_type) }}
                                     </span>
                                 </td>
                                 <td class="date-cell">{{ new Date(user.created_at).toLocaleDateString() }}</td>

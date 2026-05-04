@@ -87,16 +87,15 @@ const tabs = [
     <AdminLayout>
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Admin Settings</h2>
+                <div class="settings-card">
+                    <div class="settings-content">
+                        <h2 class="settings-title">Admin Settings</h2>
 
                         <!-- Tabs -->
-                        <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
-                            <nav class="flex gap-6">
+                        <div class="settings-tabs">
+                            <nav class="tabs-nav">
                                 <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id"
-                                    :class="activeTab === tab.id ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                                    class="py-2 px-1 border-b-2 font-medium text-sm">
+                                    :class="['tab-btn', { 'tab-btn--active': activeTab === tab.id }]">
                                     {{ tab.label }}
                                 </button>
                             </nav>
@@ -104,148 +103,121 @@ const tabs = [
 
                         <form @submit.prevent="submit">
                             <!-- Branding Tab -->
-                            <div v-if="activeTab === 'branding'" class="space-y-6">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Branding</h3>
-                                <div class="grid grid-cols-2 gap-6">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">App
-                                            Name</label>
-                                        <input v-model="form.app_name" type="text"
-                                            class="mt-1 block w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
+                            <div v-if="activeTab === 'branding'" class="tab-content">
+                                <h3 class="section-title">Branding</h3>
+                                <div class="form-grid">
+                                    <div class="form-field">
+                                        <label class="field-label">App Name</label>
+                                        <input v-model="form.app_name" type="text" class="field-input" />
                                     </div>
-                                    <div>
-                                        <label
-                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tagline</label>
-                                        <input v-model="form.app_tagline" type="text"
-                                            class="mt-1 block w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
+                                    <div class="form-field">
+                                        <label class="field-label">Tagline</label>
+                                        <input v-model="form.app_tagline" type="text" class="field-input" />
                                     </div>
                                 </div>
-                                <div class="grid grid-cols-2 gap-6">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Logo
-                                            URL</label>
-                                        <input v-model="form.logo_url" type="url"
-                                            class="mt-1 block w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                <div class="form-grid">
+                                    <div class="form-field">
+                                        <label class="field-label">Logo URL</label>
+                                        <input v-model="form.logo_url" type="url" class="field-input"
                                             placeholder="https://..." />
                                     </div>
-                                    <div>
-                                        <label
-                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Favicon
-                                            URL</label>
-                                        <input v-model="form.favicon_url" type="url"
-                                            class="mt-1 block w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                    <div class="form-field">
+                                        <label class="field-label">Favicon URL</label>
+                                        <input v-model="form.favicon_url" type="url" class="field-input"
                                             placeholder="https://..." />
                                     </div>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Footer
-                                        Text</label>
-                                    <input v-model="form.footer_text" type="text"
-                                        class="mt-1 block w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
+                                <div class="form-field">
+                                    <label class="field-label">Footer Text</label>
+                                    <input v-model="form.footer_text" type="text" class="field-input" />
                                 </div>
-                                <div class="flex items-center gap-4">
+                                <div class="checkbox-row">
                                     <input v-model="form.donation_enabled" type="checkbox" id="donation"
-                                        class="rounded" />
-                                    <label for="donation" class="text-sm text-gray-700 dark:text-gray-300">Enable PayPal
-                                        Donation</label>
+                                        class="field-checkbox" />
+                                    <label for="donation" class="checkbox-label">Enable PayPal Donation</label>
                                 </div>
-                                <div v-if="form.donation_enabled">
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">PayPal
-                                        Button ID</label>
-                                    <input v-model="form.donation_button_id" type="text"
-                                        class="mt-1 block w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
+                                <div v-if="form.donation_enabled" class="form-field">
+                                    <label class="field-label">PayPal Button ID</label>
+                                    <input v-model="form.donation_button_id" type="text" class="field-input" />
                                 </div>
-                                <div>
-                                    <label
-                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300">robots.txt</label>
-                                    <textarea v-model="form.robots_txt" rows="5"
-                                        class="mt-1 block w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 font-mono text-sm"></textarea>
+                                <div class="form-field">
+                                    <label class="field-label">robots.txt</label>
+                                    <textarea v-model="form.robots_txt" rows="5" class="field-textarea"></textarea>
                                 </div>
-                                <div class="flex items-center gap-4">
+                                <div class="checkbox-row">
                                     <input v-model="form.sitemap_enabled" type="checkbox" id="sitemap"
-                                        class="rounded" />
-                                    <label for="sitemap" class="text-sm text-gray-700 dark:text-gray-300">Enable Sitemap
-                                        Generation</label>
+                                        class="field-checkbox" />
+                                    <label for="sitemap" class="checkbox-label">Enable Sitemap Generation</label>
                                 </div>
                             </div>
 
                             <!-- Features Tab -->
-                            <div v-if="activeTab === 'features'" class="space-y-6">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Feature Modules</h3>
-                                <div class="space-y-4">
-                                    <div class="flex items-center gap-4 p-4 border rounded dark:border-gray-700">
+                            <div v-if="activeTab === 'features'" class="tab-content">
+                                <h3 class="section-title">Feature Modules</h3>
+                                <div class="feature-list">
+                                    <div class="feature-item">
                                         <input v-model="form.features_affiliate" type="checkbox" id="affiliate"
-                                            class="rounded" />
+                                            class="field-checkbox" />
                                         <div>
-                                            <label for="affiliate"
-                                                class="font-medium text-gray-900 dark:text-white">Affiliate
-                                                Program</label>
-                                            <p class="text-sm text-gray-500">Enable the affiliate program for users to
-                                                earn from traffic.</p>
+                                            <label for="affiliate" class="feature-label">Affiliate Program</label>
+                                            <p class="feature-desc">Enable the affiliate program for users to earn from
+                                                traffic.</p>
                                         </div>
                                     </div>
-                                    <div class="flex items-center gap-4 p-4 border rounded dark:border-gray-700">
-                                        <input v-model="form.features_ads" type="checkbox" id="ads" class="rounded" />
+                                    <div class="feature-item">
+                                        <input v-model="form.features_ads" type="checkbox" id="ads"
+                                            class="field-checkbox" />
                                         <div>
-                                            <label for="ads"
-                                                class="font-medium text-gray-900 dark:text-white">Advertising
-                                                System</label>
-                                            <p class="text-sm text-gray-500">Enable banner and interstitial ads on short
-                                                links.</p>
+                                            <label for="ads" class="feature-label">Advertising System</label>
+                                            <p class="feature-desc">Enable banner and interstitial ads on short links.
+                                            </p>
                                         </div>
                                     </div>
-                                    <div class="flex items-center gap-4 p-4 border rounded dark:border-gray-700">
-                                        <input v-model="form.features_gdpr" type="checkbox" id="gdpr" class="rounded" />
+                                    <div class="feature-item">
+                                        <input v-model="form.features_gdpr" type="checkbox" id="gdpr"
+                                            class="field-checkbox" />
                                         <div>
-                                            <label for="gdpr" class="font-medium text-gray-900 dark:text-white">GDPR
-                                                Compliance Mode</label>
-                                            <p class="text-sm text-gray-500">Enable IP anonymization and data retention
-                                                controls.</p>
+                                            <label for="gdpr" class="feature-label">GDPR Compliance Mode</label>
+                                            <p class="feature-desc">Enable IP anonymization and data retention controls.
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <label
-                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300">Auto-Suspend
-                                        Threshold (reports)</label>
+                                <div class="form-field">
+                                    <label class="field-label">Auto-Suspend Threshold (reports)</label>
                                     <input v-model="form.auto_suspend_threshold" type="number" min="1"
-                                        class="mt-1 block w-32 rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
-                                    <p class="text-sm text-gray-500 mt-1">Number of unique reports within 24h to
-                                        auto-suspend a link.</p>
+                                        class="field-input field-input--sm" />
+                                    <p class="field-hint">Number of unique reports within 24h to auto-suspend a link.
+                                    </p>
                                 </div>
                             </div>
 
                             <!-- Cache Tab -->
-                            <div v-if="activeTab === 'cache'" class="space-y-6">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Cache Configuration</h3>
-                                <div class="grid grid-cols-2 gap-6">
-                                    <div>
-                                        <label
-                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Redirect
-                                            Cache TTL (seconds)</label>
+                            <div v-if="activeTab === 'cache'" class="tab-content">
+                                <h3 class="section-title">Cache Configuration</h3>
+                                <div class="form-grid">
+                                    <div class="form-field">
+                                        <label class="field-label">Redirect Cache TTL (seconds)</label>
                                         <input v-model="form.cache_ttl_redirect" type="number" min="60"
-                                            class="mt-1 block w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
+                                            class="field-input" />
                                     </div>
-                                    <div>
-                                        <label
-                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Analytics
-                                            Cache TTL (seconds)</label>
+                                    <div class="form-field">
+                                        <label class="field-label">Analytics Cache TTL (seconds)</label>
                                         <input v-model="form.cache_ttl_analytics" type="number" min="60"
-                                            class="mt-1 block w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
+                                            class="field-input" />
                                     </div>
                                 </div>
 
-                                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded">
-                                    <h4 class="font-medium text-gray-900 dark:text-white mb-3">Purge Cache</h4>
-                                    <div class="flex gap-3">
-                                        <select v-model="cacheForm.type"
-                                            class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+                                <div class="cache-box">
+                                    <h4 class="cache-title">Purge Cache</h4>
+                                    <div class="cache-actions">
+                                        <select v-model="cacheForm.type" class="field-select">
                                             <option value="redirect">Redirect Cache</option>
                                             <option value="analytics">Analytics Cache</option>
                                             <option value="all">All Cache</option>
                                         </select>
                                         <button type="button" @click="purgeCache" :disabled="cacheForm.processing"
-                                            class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50">
+                                            class="btn-danger">
                                             {{ cacheForm.processing ? 'Purging...' : 'Purge' }}
                                         </button>
                                     </div>
@@ -253,110 +225,88 @@ const tabs = [
                             </div>
 
                             <!-- Security Tab -->
-                            <div v-if="activeTab === 'security'" class="space-y-6">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Security Settings</h3>
+                            <div v-if="activeTab === 'security'" class="tab-content">
+                                <h3 class="section-title">Security Settings</h3>
 
-                                <div class="flex items-center gap-4">
+                                <div class="checkbox-row">
                                     <input v-model="form.captcha_enabled" type="checkbox" id="captcha"
-                                        class="rounded" />
+                                        class="field-checkbox" />
                                     <div>
-                                        <label for="captcha" class="font-medium text-gray-900 dark:text-white">Enable
-                                            CAPTCHA</label>
-                                        <p class="text-sm text-gray-500">Require CAPTCHA on registration and login.</p>
+                                        <label for="captcha" class="feature-label">Enable CAPTCHA</label>
+                                        <p class="feature-desc">Require CAPTCHA on registration and login.</p>
                                     </div>
                                 </div>
-                                <div v-if="form.captcha_enabled" class="grid grid-cols-2 gap-4 pl-8">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Site
-                                            Key</label>
-                                        <input v-model="form.captcha_site_key" type="text"
-                                            class="mt-1 block w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
+                                <div v-if="form.captcha_enabled" class="form-grid" style="padding-left: 24px;">
+                                    <div class="form-field">
+                                        <label class="field-label">Site Key</label>
+                                        <input v-model="form.captcha_site_key" type="text" class="field-input" />
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Secret
-                                            Key</label>
-                                        <input v-model="form.captcha_secret_key" type="password"
-                                            class="mt-1 block w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
+                                    <div class="form-field">
+                                        <label class="field-label">Secret Key</label>
+                                        <input v-model="form.captcha_secret_key" type="password" class="field-input" />
                                     </div>
                                 </div>
 
-                                <div class="flex items-center gap-4 mt-6">
+                                <div class="checkbox-row" style="margin-top: 24px;">
                                     <input v-model="form.safe_browsing_enabled" type="checkbox" id="safe_browsing"
-                                        class="rounded" />
+                                        class="field-checkbox" />
                                     <div>
-                                        <label for="safe_browsing"
-                                            class="font-medium text-gray-900 dark:text-white">Google Safe
-                                            Browsing</label>
-                                        <p class="text-sm text-gray-500">Check URLs against Google's Safe Browsing API.
-                                        </p>
+                                        <label for="safe_browsing" class="feature-label">Google Safe Browsing</label>
+                                        <p class="feature-desc">Check URLs against Google's Safe Browsing API.</p>
                                     </div>
                                 </div>
-                                <div v-if="form.safe_browsing_enabled" class="pl-8">
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">API
-                                        Key</label>
-                                    <input v-model="form.safe_browsing_api_key" type="password"
-                                        class="mt-1 block w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
+                                <div v-if="form.safe_browsing_enabled" style="padding-left: 24px;">
+                                    <label class="field-label">API Key</label>
+                                    <input v-model="form.safe_browsing_api_key" type="password" class="field-input" />
                                 </div>
                             </div>
 
                             <!-- Maintenance Tab -->
-                            <div v-if="activeTab === 'maintenance'" class="space-y-6">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Maintenance Mode</h3>
-                                <div
-                                    class="flex items-center gap-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded">
+                            <div v-if="activeTab === 'maintenance'" class="tab-content">
+                                <h3 class="section-title">Maintenance Mode</h3>
+                                <div class="maintenance-box">
                                     <input v-model="form.maintenance_mode" type="checkbox" id="maintenance"
-                                        class="rounded" />
+                                        class="field-checkbox" />
                                     <div>
-                                        <label for="maintenance"
-                                            class="font-medium text-yellow-800 dark:text-yellow-200">Enable Maintenance
+                                        <label for="maintenance" class="maintenance-label">Enable Maintenance
                                             Mode</label>
-                                        <p class="text-sm text-yellow-600 dark:text-yellow-400">When enabled, only
-                                            admins can access the site.</p>
+                                        <p class="maintenance-desc">When enabled, only admins can access the site.</p>
                                     </div>
                                 </div>
-                                <div>
-                                    <label
-                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300">Maintenance
-                                        Message</label>
+                                <div class="form-field">
+                                    <label class="field-label">Maintenance Message</label>
                                     <textarea v-model="form.maintenance_message" rows="3"
-                                        class="mt-1 block w-full rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"></textarea>
+                                        class="field-textarea"></textarea>
                                 </div>
                             </div>
 
                             <!-- Import/Export Tab -->
-                            <div v-if="activeTab === 'data'" class="space-y-6">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Import / Export</h3>
+                            <div v-if="activeTab === 'data'" class="tab-content">
+                                <h3 class="section-title">Import / Export</h3>
 
-                                <div class="grid grid-cols-2 gap-6">
-                                    <div class="p-4 border rounded dark:border-gray-700">
-                                        <h4 class="font-medium text-gray-900 dark:text-white mb-2">Export Settings</h4>
-                                        <p class="text-sm text-gray-500 mb-3">Download all settings as JSON.</p>
-                                        <a :href="route('admin.settings.export')"
-                                            class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Download
-                                            JSON</a>
+                                <div class="form-grid">
+                                    <div class="data-card">
+                                        <h4 class="data-title">Export Settings</h4>
+                                        <p class="data-desc">Download all settings as JSON.</p>
+                                        <a :href="route('admin.settings.export')" class="btn-primary">Download JSON</a>
                                     </div>
-                                    <div class="p-4 border rounded dark:border-gray-700">
-                                        <h4 class="font-medium text-gray-900 dark:text-white mb-2">Import Settings</h4>
-                                        <p class="text-sm text-gray-500 mb-3">Upload a settings JSON file.</p>
-                                        <input type="file" accept=".json" @change="handleImport"
-                                            class="block w-full text-sm" />
+                                    <div class="data-card">
+                                        <h4 class="data-title">Import Settings</h4>
+                                        <p class="data-desc">Upload a settings JSON file.</p>
+                                        <input type="file" accept=".json" @change="handleImport" class="field-file" />
                                     </div>
                                 </div>
 
-                                <div class="p-4 border rounded dark:border-gray-700 mt-6">
-                                    <h4 class="font-medium text-gray-900 dark:text-white mb-2">Database Backup</h4>
-                                    <p class="text-sm text-gray-500 mb-3">Download a full database backup (SQL dump).
-                                    </p>
-                                    <a :href="route('admin.settings.backup')"
-                                        class="inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Download
-                                        Backup</a>
+                                <div class="data-card data-card--full">
+                                    <h4 class="data-title">Database Backup</h4>
+                                    <p class="data-desc">Download a full database backup (SQL dump).</p>
+                                    <a :href="route('admin.settings.backup')" class="btn-success">Download Backup</a>
                                 </div>
                             </div>
 
                             <!-- Save Button -->
-                            <div class="flex justify-end pt-6 border-t dark:border-gray-700 mt-6">
-                                <button type="submit" :disabled="form.processing"
-                                    class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50">
+                            <div class="form-actions">
+                                <button type="submit" :disabled="form.processing" class="btn-primary">
                                     {{ form.processing ? 'Saving...' : 'Save Settings' }}
                                 </button>
                             </div>
@@ -367,3 +317,341 @@ const tabs = [
         </div>
     </AdminLayout>
 </template>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
+
+:root {
+    --font-display: 'Oswald', sans-serif;
+    --font-body: 'Crimson Pro', serif;
+    --red: #e74c3c;
+    --red-dark: #c0392b;
+    --gold: #d4af37;
+    --ink: #1a1a1a;
+    --ink-soft: #444;
+    --muted: #888;
+    --border: #e8e5e0;
+    --bg: #fafafa;
+    --surface: #fff;
+    --surface-2: #f5f3ef;
+    --radius: 4px;
+    --transition: all 0.2s ease;
+}
+
+.settings-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.settings-content {
+    padding: 24px;
+}
+
+.settings-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 20px;
+}
+
+.settings-tabs {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+}
+
+.tabs-nav {
+    display: flex;
+    gap: 8px;
+}
+
+.tab-btn {
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.tab-btn:hover {
+    color: var(--ink);
+}
+
+.tab-btn--active {
+    color: var(--red);
+    border-bottom-color: var(--red);
+}
+
+.tab-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.section-title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-soft);
+}
+
+.field-input,
+.field-textarea,
+.field-select {
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 13px;
+    color: var(--ink);
+    transition: var(--transition);
+}
+
+.field-input:focus,
+.field-textarea:focus,
+.field-select:focus {
+    outline: none;
+    border-color: var(--red);
+}
+
+.field-input--sm {
+    width: 100px;
+}
+
+.field-textarea {
+    font-family: monospace;
+    resize: vertical;
+}
+
+.field-hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.field-checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--red);
+    margin-top: 2px;
+}
+
+.checkbox-label {
+    font-size: 13px;
+    color: var(--ink);
+}
+
+.feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.feature-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    display: block;
+}
+
+.feature-desc {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+}
+
+.cache-box {
+    padding: 16px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.cache-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 12px;
+}
+
+.cache-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.field-select {
+    min-width: 160px;
+}
+
+.maintenance-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    border-radius: var(--radius);
+}
+
+.maintenance-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #92400e;
+    display: block;
+}
+
+.maintenance-desc {
+    font-size: 12px;
+    color: #b45309;
+    margin-top: 4px;
+}
+
+.data-card {
+    padding: 20px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.data-card--full {
+    margin-top: 16px;
+}
+
+.data-title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 8px;
+}
+
+.data-desc {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 16px;
+}
+
+.field-file {
+    font-size: 12px;
+    color: var(--ink-soft);
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background: var(--red);
+    color: var(--surface);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.btn-primary:hover {
+    background: var(--red-dark);
+}
+
+.btn-danger {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background: var(--red);
+    color: var(--surface);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-danger:hover {
+    background: var(--red-dark);
+}
+
+.btn-success {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background: #22c55e;
+    color: var(--surface);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.btn-success:hover {
+    background: #16a34a;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    margin-top: 20px;
+}
+</style>

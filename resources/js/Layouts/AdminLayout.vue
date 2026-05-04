@@ -54,10 +54,8 @@ const icons = {
                 <Link :href="route('admin.dashboard')" class="sidebar__logo">
                     <div class="sidebar__logo-icon">
                         <svg viewBox="0 0 24 24" fill="none">
-                            <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="#fff" stroke-width="2"/>
-                            <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="#fff" stroke-width="2"/>
-                            <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="#fff" stroke-width="2"/>
-                            <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="#fff" stroke-width="2"/>
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2" />
                         </svg>
                     </div>
                     <Transition name="fade">
@@ -102,18 +100,18 @@ const icons = {
                     <Transition name="fade">
                         <div v-if="!sidebarCollapsed" class="user-card__info">
                             <span class="user-card__name">{{ user?.name }}</span>
-                            <span class="user-card__email">Administrator</span>
+                            <span class="user-card__email">{{ user?.email }}</span>
                         </div>
                     </Transition>
                 </div>
-                <Link :href="route('dashboard')" class="logout-btn"
+                <Link :href="route('logout')" method="post" as="button" class="logout-btn"
                     :class="{ 'logout-btn--collapsed': sidebarCollapsed }">
                     <span class="logout-btn__icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                             v-html="icons.logout" />
                     </span>
                     <Transition name="fade">
-                        <span v-if="!sidebarCollapsed" class="logout-btn__text">Back to User</span>
+                        <span v-if="!sidebarCollapsed" class="logout-btn__text">Sign Out</span>
                     </Transition>
                 </Link>
             </div>
@@ -631,6 +629,20 @@ const icons = {
 
     .topbar__menu-btn {
         display: flex;
+    }
+
+    .page-content {
+        padding: 20px 16px 32px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .sidebar {
+        width: var(--sidebar-collapsed);
+    }
+
+    .main-content {
+        margin-left: var(--sidebar-collapsed);
     }
 }
 </style>
