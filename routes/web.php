@@ -23,7 +23,6 @@ use App\Http\Controllers\SocialAuthController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-
 // ── Homepage ─────────────────────────────────────────────────────────────────
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -109,7 +108,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // Dashboard
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-    // Link Management (admin edit)
+    // Link Management (admin)
+    Route::get('links', [AdminLinkController::class, 'index'])->name('links.index');
     Route::get('links/{link}/edit', [AdminLinkController::class, 'edit'])->name('links.edit');
     Route::put('links/{link}', [AdminLinkController::class, 'update'])->name('links.update');
 

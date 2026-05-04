@@ -14,19 +14,50 @@ use Inertia\Response;
 class AdminLinkController extends Controller
 {
     /**
+     * Display a listing of all links.
+     */
+    public function index(): Response
+    {
+        $links = Link::with(['user' => function ($query) {
+            $query->select('id', 'name', 'email');
+        }])
+            ->withCount('clicks')
+            ->latest()
+            ->paginate(20);
+
+        $stats = [
+            'total' => Link::count(),
+            'active' => Link::where('is_active', true)->count(),
+            'inactive' => Link::where('is_active', false)->count(),
+            'totalClicks' => Link::sum('clicks_count'),
+        ];
+
+        return Inertia::render('Admin/Links/Index', [
+            'links' => $links,
+            'stats' => $stats,
+        ]);
+    }
+
+    /**
      * Show the form for editing a link (admin version).
      */
     public function edit(Link $link): Response
     {
-        $otherLinks = Link::where('user_id', $link->user_id)
-            ->where('id', '!=', $link->id)
-            ->latest()
-            ->limit(10)
-            ->get(['id', 'short_code', 'destination_url', 'is_active', 'clicks_count', 'created_at']);
+        $otherLinks = $link->user_id
+            ? Link::where('user_id', $link->user_id)
+                ->where('id', '!=', $link->id)
+                ->latest()
+                ->limit(10)
+                ->get(['id', 'short_code', 'destination_url', 'is_active', 'clicks_count', 'created_at'])
+            : collect();
+
+        $user = $link->user
+            ? $link->user->only(['id', 'name', 'email'])
+            : ['id' => null, 'name' => 'Guest', 'email' => '-'];
 
         return Inertia::render('Admin/Links/Edit', [
             'link' => $link,
-            'user' => $link->user->only(['id', 'name', 'email']),
+            'user' => $user,
             'ads' => Ad::active()->get(),
             'otherLinks' => $otherLinks,
         ]);
@@ -39,7 +70,6 @@ class AdminLinkController extends Controller
     {
         $validated = $request->validate([
             'destination_url' => ['required', 'url', 'max:2048'],
-            'campaign_tag' => ['nullable', 'string', 'max:100'],
             'og_title' => ['nullable', 'string', 'max:255'],
             'og_description' => ['nullable', 'string'],
             'ad_override' => ['required', 'in:inherit,disable,force'],
@@ -58,8 +88,14 @@ class AdminLinkController extends Controller
         // Update cache
         Cache::put("redirect:{$link->short_code}", $link->destination_url, now()->addHours(24));
 
+        if ($link->user_id) {
+            return redirect()
+                ->route('admin.users.show', $link->user_id)
+                ->with('success', 'Link updated successfully.');
+        }
+
         return redirect()
-            ->route('admin.users.show', $link->user_id)
+            ->route('admin.links.index')
             ->with('success', 'Link updated successfully.');
     }
 }

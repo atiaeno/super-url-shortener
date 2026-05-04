@@ -12,7 +12,6 @@ const props = defineProps({
 
 const form = useForm({
     destination_url: props.link.destination_url,
-    campaign_tag: props.link.campaign_tag || '',
     og_title: props.link.og_title || '',
     og_description: props.link.og_description || '',
     ad_override: props.link.ad_override || 'inherit',
@@ -53,9 +52,10 @@ const icons = {
                     <h1 class="page-header__title">Edit Short Link</h1>
                     <p class="page-header__sub">Modify link details for user <strong>{{ user.name }}</strong></p>
                 </div>
-                <Link :href="route('admin.users.show', user.id)" class="back-btn">
+                <Link :href="user.id ? route('admin.users.show', user.id) : route('admin.links.index')"
+                    class="back-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.arrow" />
-                    Back to User
+                    {{ user.id ? 'Back to User' : 'Back to Links' }}
                 </Link>
             </header>
 
@@ -103,14 +103,6 @@ const icons = {
                                 <input v-model="form.destination_url" type="url" class="field__input" required />
                                 <span v-if="form.errors.destination_url" class="field__error">{{
                                     form.errors.destination_url
-                                }}</span>
-                            </div>
-
-                            <div class="field">
-                                <label class="field__label">Campaign Tag</label>
-                                <input v-model="form.campaign_tag" type="text" class="field__input"
-                                    placeholder="e.g., summer-sale" />
-                                <span v-if="form.errors.campaign_tag" class="field__error">{{ form.errors.campaign_tag
                                 }}</span>
                             </div>
 
@@ -169,7 +161,8 @@ const icons = {
                         </div>
 
                         <div class="form-actions">
-                            <Link :href="route('admin.users.show', user.id)" class="btn-ghost">Cancel</Link>
+                            <Link :href="user.id ? route('admin.users.show', user.id) : route('admin.links.index')"
+                                class="btn-ghost">Cancel</Link>
                             <button type="submit" :disabled="form.processing" class="btn-primary">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     v-html="icons.save" />
@@ -181,7 +174,7 @@ const icons = {
             </section>
 
             <!-- Other Links Section -->
-            <section v-if="otherLinks.length > 0" class="other-links-section">
+            <section v-if="otherLinks.length > 0 && user.id" class="other-links-section">
                 <div class="section-header">
                     <h2 class="section-header__title">Other Links by {{ user.name }}</h2>
                     <Link :href="route('admin.users.show', user.id)" class="section-header__link">
