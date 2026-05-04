@@ -1,6 +1,7 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import Masthead from '@/Components/Masthead.vue';
 import EditorialFooter from '@/Components/EditorialFooter.vue';
 
@@ -13,6 +14,41 @@ const props = defineProps({
 const formatThreshold = (val) => {
     const num = parseInt(val) || 0;
     return num >= 1000 ? `${(num / 1000).toFixed(0)}k+ visits` : `${num}+ visits`;
+};
+
+const formatRate = (rate, multiplier) => {
+    const r = parseFloat(rate) || 0;
+    const m = parseInt(multiplier) || 10000;
+    const displayMult = m >= 1000 ? `${m / 1000}k` : m;
+    return `$${r.toFixed(2)} / ${displayMult} views`;
+};
+
+const getCountryCount = (tier) => {
+    return tier.country_rates?.length || 0;
+};
+
+const showCountriesModal = ref(false);
+const selectedTierCountries = ref([]);
+
+const openCountriesModal = (tier) => {
+    selectedTierCountries.value = tier.country_rates || [];
+    showCountriesModal.value = true;
+};
+
+const closeCountriesModal = () => {
+    showCountriesModal.value = false;
+    selectedTierCountries.value = [];
+};
+
+const countryName = (code) => {
+    const countries = {
+        US: 'United States', GB: 'United Kingdom', DE: 'Germany', FR: 'France', CA: 'Canada',
+        AU: 'Australia', JP: 'Japan', BR: 'Brazil', IN: 'India', IT: 'Italy', ES: 'Spain',
+        NL: 'Netherlands', SE: 'Sweden', NO: 'Norway', DK: 'Denmark', FI: 'Finland',
+        CH: 'Switzerland', AT: 'Austria', BE: 'Belgium', IE: 'Ireland', PL: 'Poland',
+        MX: 'Mexico', KR: 'South Korea', SG: 'Singapore', HK: 'Hong Kong', NZ: 'New Zealand',
+    };
+    return countries[code] || code;
 };
 </script>
 
@@ -110,17 +146,21 @@ const formatThreshold = (val) => {
                         <thead>
                             <tr>
                                 <th>Tier</th>
-                                <th>Visit Threshold</th>
-                                <th>Base Rate</th>
-                                <th>Premium Markets</th>
+                                <th>Rate</th>
+                                <th>Countries</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="tier in tiers" :key="tier.id">
                                 <td><span class="tier-name">{{ tier.name }}</span></td>
-                                <td>{{ formatThreshold(tier.visit_threshold) }}</td>
-                                <td>{{ tier.commission_rate }}%</td>
-                                <td>Premium markets +bonus</td>
+                                <td>{{ formatRate(tier.view_rate, tier.view_multiplier) }}</td>
+                                <td>
+                                    <button v-if="getCountryCount(tier) > 0" @click="openCountriesModal(tier)"
+                                        class="countries-link">
+                                        {{ getCountryCount(tier) }} countries
+                                    </button>
+                                    <span v-else class="countries-none">—</span>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -143,6 +183,31 @@ const formatThreshold = (val) => {
                 </div>
             </div>
         </section>
+
+        <!-- Countries Modal -->
+        <Teleport to="body">
+            <div v-if="showCountriesModal" class="modal-overlay" @click="closeCountriesModal">
+                <div class="modal" @click.stop>
+                    <div class="modal__header">
+                        <h3 class="modal__title">Premium Countries</h3>
+                        <button @click="closeCountriesModal" class="modal__close">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="modal__body">
+                        <div class="countries-grid">
+                            <div v-for="rate in selectedTierCountries" :key="rate.country_code" class="country-item">
+                                <span class="country-code">{{ rate.country_code }}</span>
+                                <span class="country-name">{{ countryName(rate.country_code) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Teleport>
 
         <EditorialFooter />
     </div>
@@ -211,79 +276,93 @@ const formatThreshold = (val) => {
 
 .hero-headline {
     font-family: 'Oswald', sans-serif;
-    font-size: clamp(48px, 8vw, 96px);
     font-weight: 700;
-    line-height: 0.95;
-    color: #fff;
+    line-height: 0.9;
     letter-spacing: -2px;
-    margin: 0 0 24px;
+    margin: 0;
 }
 
-.hero-headline .line-1,
-.hero-headline .line-2,
+.hero-headline .line-1 {
+    display: block;
+    font-size: clamp(48px, 10vw, 100px);
+    color: #fff;
+}
+
+.hero-headline .line-2 {
+    display: block;
+    font-size: clamp(36px, 8vw, 72px);
+    color: #fafafa;
+    margin-top: 8px;
+}
+
+.hero-headline .line-2 em {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: #e74c3c;
+}
+
 .hero-headline .line-3 {
     display: block;
-}
-
-.hero-headline em {
-    font-style: normal;
-    color: #e74c3c;
+    font-size: clamp(24px, 5vw, 48px);
+    color: #888;
+    margin-top: 8px;
 }
 
 .hero-headline .highlight {
-    color: #e74c3c;
+    color: #d4af37;
+    font-size: 1.5em;
+    line-height: 0.5;
 }
 
 .hero-subdeck {
-    font-family: 'Oswald', sans-serif;
-    font-size: 18px;
-    color: #888;
-    max-width: 560px;
-    margin: 0 auto;
+    font-size: clamp(18px, 2vw, 22px);
     line-height: 1.6;
+    max-width: 600px;
+    margin: 32px auto 0;
+    color: #aaa;
+    font-weight: 400;
 }
 
 /* ── CTA Buttons ───────────────────────────────── */
-.cta-actions {
+.hero-actions-row {
+    margin-top: 24px;
     display: flex;
-    gap: 16px;
     justify-content: center;
-    flex-wrap: wrap;
 }
 
 .cta-btn {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     padding: 16px 32px;
     font-family: 'Oswald', sans-serif;
     font-size: 13px;
-    letter-spacing: 2px;
+    letter-spacing: 2.5px;
     text-transform: uppercase;
     text-decoration: none;
-    transition: all 0.3s;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.cta-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
 }
 
 .cta-btn--primary {
     background: #e74c3c;
-    color: #0a0a0a;
-    border: none;
+    border-color: #e74c3c;
 }
 
 .cta-btn--primary:hover {
-    background: #e5c158;
-    transform: translateY(-2px);
-}
-
-.cta-btn--secondary {
-    background: transparent;
-    color: #fff;
-    border: 1px solid #444;
-}
-
-.cta-btn--secondary:hover {
-    border-color: #e74c3c;
-    color: #e74c3c;
+    background: #c0392b;
+    border-color: #c0392b;
 }
 
 .auth-notice {
@@ -293,7 +372,7 @@ const formatThreshold = (val) => {
 }
 
 .link-gold {
-    color: #e74c3c;
+    color: #d4af37;
     text-decoration: none;
 }
 
@@ -410,7 +489,7 @@ const formatThreshold = (val) => {
 }
 
 .tiers-table tr:hover td {
-    background: rgba(212, 175, 55, 0.03);
+    background: rgba(231, 76, 60, 0.05);
 }
 
 .tier-name {
@@ -443,6 +522,122 @@ const formatThreshold = (val) => {
     font-size: 18px;
     color: #888;
     margin: 0 0 40px;
+}
+
+/* ── Countries Link ───────────────────────────── */
+.countries-link {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.countries-link:hover {
+    color: #c0392b;
+}
+
+.countries-none {
+    color: #666;
+}
+
+/* ── Modal ─────────────────────────────────────── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 24px;
+}
+
+.modal {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 4px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 80vh;
+    overflow: auto;
+}
+
+.modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #333;
+}
+
+.modal__title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+}
+
+.modal__close {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+}
+
+.modal__close svg {
+    width: 20px;
+    height: 20px;
+}
+
+.modal__close:hover {
+    color: #fff;
+}
+
+.modal__body {
+    padding: 24px;
+}
+
+.countries-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.country-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid #222;
+    border-radius: 4px;
+}
+
+.country-code {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    color: #e74c3c;
+    min-width: 40px;
+}
+
+.country-name {
+    flex: 1;
+    color: #ccc;
+    font-size: 14px;
+}
+
+.country-rate {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    color: #22c55e;
 }
 
 @media (max-width: 768px) {

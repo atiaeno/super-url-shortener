@@ -14,7 +14,7 @@ class AffiliatePublicController extends Controller
         return Inertia::render('Affiliate/Index', [
             'canLogin' => Route::has('login'),
             'canRegister' => Route::has('register'),
-            'tiers' => AffiliateTier::active()->orderBy('visit_threshold')->get(),
+            'tiers' => AffiliateTier::active()->with('countryRates')->orderBy('visit_threshold')->get(),
         ]);
     }
 }
