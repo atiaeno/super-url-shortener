@@ -224,4 +224,25 @@ class LinkController extends Controller
             ->route('links.index')
             ->with('success', 'Link deleted successfully.');
     }
+
+    /**
+     * Toggle link active status.
+     */
+    public function toggle(Link $link)
+    {
+        $this->authorize('update', $link);
+
+        $link->update(['is_active' => !$link->is_active]);
+
+        // Clear cache if deactivating
+        if (!$link->is_active) {
+            Cache::forget("redirect:{$link->short_code}");
+        } else {
+            Cache::put("redirect:{$link->short_code}", $link->destination_url, now()->addHours(24));
+        }
+
+        $status = $link->is_active ? 'activated' : 'deactivated';
+
+        return redirect()->back()->with('success', "Link {$status} successfully.");
+    }
 }

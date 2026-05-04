@@ -21,7 +21,7 @@ class LinkPolicy
      */
     public function view(User $user, Link $link): bool
     {
-        return $user->id === $link->user_id;
+        return $user->id === $link->user_id || $user->role === 'admin';
     }
 
     /**
@@ -37,7 +37,7 @@ class LinkPolicy
      */
     public function update(User $user, Link $link): bool
     {
-        return $user->id === $link->user_id;
+        return $user->id === $link->user_id || $user->role === 'admin';
     }
 
     /**
@@ -45,7 +45,7 @@ class LinkPolicy
      */
     public function delete(User $user, Link $link): bool
     {
-        return $user->id === $link->user_id;
+        return $user->id === $link->user_id || $user->role === 'admin';
     }
 
     /**

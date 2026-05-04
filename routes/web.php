@@ -83,6 +83,7 @@ Route::middleware('auth')->group(function () {
 
     // Links management
     Route::resource('links', LinkController::class);
+    Route::patch('links/{link}/toggle', [LinkController::class, 'toggle'])->name('links.toggle');
 
     // Story 3.4: QR code download
     Route::get('/links/{link}/qr/{format}', [QrCodeController::class, 'generate'])
@@ -109,6 +110,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // User Management (Stories 8.1 - 8.3)
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::get('create', [UserController::class, 'create'])->name('create');
+        Route::post('/', [UserController::class, 'store'])->name('store');
         Route::get('{user}', [UserController::class, 'show'])->name('show');
         Route::get('{user}/edit', [UserController::class, 'edit'])->name('edit');
         Route::put('{user}', [UserController::class, 'update'])->name('update');

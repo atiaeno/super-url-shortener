@@ -161,6 +161,13 @@ const formatDate = (dateStr) => {
                     <h1 class="page-header__title">User Directory</h1>
                     <p class="page-header__sub">Manage user accounts, roles, and bans.</p>
                 </div>
+                <Link :href="route('admin.users.create')" class="create-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    Create User
+                </Link>
             </header>
 
             <!-- Divider -->
@@ -224,6 +231,7 @@ const formatDate = (dateStr) => {
                                 <th>User</th>
                                 <th>Role</th>
                                 <th>Status</th>
+                                <th class="col-center">Links</th>
                                 <th>Joined</th>
                                 <th>Actions</th>
                             </tr>
@@ -252,6 +260,15 @@ const formatDate = (dateStr) => {
                                     <span class="status-badge" :class="banTypeColors[user.ban_type || 'none']">
                                         {{ getBanStatusText(user.ban_type) }}
                                     </span>
+                                </td>
+                                <td class="col-center">
+                                    <Link :href="route('admin.users.show', user.id)" class="links-count">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                                        </svg>
+                                        <span>{{ user.links_count ?? 0 }}</span>
+                                    </Link>
                                 </td>
                                 <td class="date-cell">{{ formatDate(user.created_at) }}</td>
                                 <td>
@@ -424,6 +441,34 @@ const formatDate = (dateStr) => {
     font-style: italic;
     color: var(--muted);
     margin: 0;
+}
+
+.create-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: var(--red);
+    border: 1px solid var(--red);
+    border-radius: var(--radius);
+    color: var(--surface);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.create-btn:hover {
+    background: var(--red-dark);
+    border-color: var(--red-dark);
+}
+
+.create-btn svg {
+    width: 14px;
+    height: 14px;
 }
 
 /* ── Section Rule ─────────────────────────── */
@@ -792,6 +837,38 @@ const formatDate = (dateStr) => {
     color: var(--red);
 }
 
+/* ── Links Count ──────────────────────── */
+.links-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: var(--radius);
+    color: #0284c7;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.links-count:hover {
+    background: #e0f2fe;
+    border-color: #7dd3fc;
+    color: #0369a1;
+}
+
+.links-count svg {
+    width: 14px;
+    height: 14px;
+}
+
+.col-center {
+    text-align: center;
+}
+
 /* ── Date Cell ─────────────────────────── */
 .date-cell {
     font-family: var(--font-display);
@@ -904,11 +981,13 @@ const formatDate = (dateStr) => {
 }
 
 .pagination__link {
-    padding: 6px 12px;
+    padding: 8px 14px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     color: var(--ink-soft);
-    font-size: 12px;
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
     text-decoration: none;
     transition: var(--transition);
 }

@@ -19,7 +19,7 @@ class UserController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = User::query();
+        $query = User::query()->withCount('links');
 
         // Filters
         if ($request->has('search')) {
@@ -31,16 +31,16 @@ class UserController extends Controller
             });
         }
 
-        if ($request->has('role')) {
+        if ($request->filled('role')) {
             $query->where('role', $request->input('role'));
         }
 
-        if ($request->has('ban_type')) {
+        if ($request->filled('ban_type')) {
             $query->where('ban_type', $request->input('ban_type'));
         }
 
         return Inertia::render('Admin/Users/Index', [
-            'users' => $query->latest()->paginate(5),
+            'users' => $query->latest()->paginate(15),
             'stats' => [
                 'total' => User::count(),
                 'admins' => User::where('role', 'admin')->count(),
@@ -53,16 +53,64 @@ class UserController extends Controller
     /**
      * Display user details with their links.
      */
-    public function show(User $user): Response
+    public function show(Request $request, User $user): Response
     {
+        $links = $user->links()->latest()->paginate(10, ['*'], 'links_page');
+
         return Inertia::render('Admin/Users/Show', [
-            'user' => $user->load(['links' => fn($q) => $q->latest()->limit(20)]),
+            'user' => array_merge(
+                $user->only(['id', 'name', 'email', 'role', 'ban_type', 'ban_reason', 'created_at']),
+                ['links' => $links]
+            ),
             'stats' => [
                 'totalLinks' => $user->links()->count(),
                 'totalClicks' => $user->links()->sum('clicks_count'),
                 'activeLinks' => $user->links()->where('is_active', true)->count(),
             ],
         ]);
+    }
+
+    /**
+     * Show create user form.
+     */
+    public function create(): Response
+    {
+        return Inertia::render('Admin/Users/Create');
+    }
+
+    /**
+     * Store new user.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'role' => 'required|in:admin,user,affiliate',
+            'password' => 'required|string|min:8',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'role' => $validated['role'],
+            'password' => bcrypt($validated['password']),
+            'ban_type' => 'none',
+        ]);
+
+        ActivityLog::create([
+            'actor_id' => auth()->id(),
+            'action' => 'user_created',
+            'target_type' => 'user',
+            'target_id' => $user->id,
+            'metadata' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+            ],
+        ]);
+
+        return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
     }
 
     /**

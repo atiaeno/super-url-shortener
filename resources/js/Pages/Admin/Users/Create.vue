@@ -1,0 +1,438 @@
+<!-- © Atia Hegazy — atiaeno.com -->
+<script setup>
+import { Head, useForm, Link } from '@inertiajs/vue3';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+
+const form = useForm({
+    name: '',
+    email: '',
+    role: 'user',
+    password: '',
+});
+
+const submit = () => {
+    form.post(route('admin.users.store'));
+};
+
+const icons = {
+    arrow: `<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>`,
+    save: `<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>`,
+    user: `<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`,
+    lock: `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>`,
+};
+</script>
+
+<template>
+
+    <Head title="Create User" />
+
+    <AdminLayout>
+        <template #header-icon>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+        </template>
+        <template #header>Create User</template>
+
+        <div class="create-page">
+
+            <!-- Page Header -->
+            <header class="page-header">
+                <div class="page-header__left">
+                    <span class="page-header__marker">User Management</span>
+                    <h1 class="page-header__title">Create New User</h1>
+                    <p class="page-header__sub">Add a new user account to the system.</p>
+                </div>
+                <Link :href="route('admin.users.index')" class="back-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.arrow" />
+                    Back to Users
+                </Link>
+            </header>
+
+            <!-- Divider -->
+            <div class="section-rule"></div>
+
+            <!-- Form -->
+            <section class="form-section">
+                <div class="form-card">
+                    <form @submit.prevent="submit">
+                        <div class="form-grid">
+                            <div class="field">
+                                <label class="field__label">Name <span class="required">*</span></label>
+                                <input v-model="form.name" type="text" class="field__input" placeholder="Enter full name" required />
+                                <span v-if="form.errors.name" class="field__error">{{ form.errors.name }}</span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label">Email <span class="required">*</span></label>
+                                <input v-model="form.email" type="email" class="field__input" placeholder="Enter email address" required />
+                                <span v-if="form.errors.email" class="field__error">{{ form.errors.email }}</span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label">Role <span class="required">*</span></label>
+                                <select v-model="form.role" class="field__input" required>
+                                    <option value="admin">Admin</option>
+                                    <option value="user">User</option>
+                                    <option value="affiliate">Affiliate</option>
+                                </select>
+                                <span v-if="form.errors.role" class="field__error">{{ form.errors.role }}</span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label">Password <span class="required">*</span></label>
+                                <div class="password-field">
+                                    <input v-model="form.password" type="password" class="field__input" placeholder="Minimum 8 characters" required minlength="8" />
+                                    <span class="password-hint">Must be at least 8 characters</span>
+                                </div>
+                                <span v-if="form.errors.password" class="field__error">{{ form.errors.password }}</span>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <Link :href="route('admin.users.index')" class="btn-ghost">Cancel</Link>
+                            <button type="submit" :disabled="form.processing" class="btn-primary">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.save" />
+                                {{ form.processing ? 'Creating...' : 'Create User' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Info Card -->
+            <section class="info-section">
+                <div class="info-card">
+                    <h3 class="info-card__title">About User Roles</h3>
+                    <div class="role-list">
+                        <div class="role-item">
+                            <span class="role-badge role--admin">Admin</span>
+                            <p class="role-desc">Full access to admin panel and all features.</p>
+                        </div>
+                        <div class="role-item">
+                            <span class="role-badge role--user">User</span>
+                            <p class="role-desc">Standard user with access to create and manage their own links.</p>
+                        </div>
+                        <div class="role-item">
+                            <span class="role-badge role--affiliate">Affiliate</span>
+                            <p class="role-desc">User with earnings capability and payout features enabled.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </AdminLayout>
+</template>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
+
+:root {
+    --font-display: 'Oswald', sans-serif;
+    --font-body: 'Crimson Pro', serif;
+    --red: #e74c3c;
+    --red-dark: #c0392b;
+    --gold: #d4af37;
+    --ink: #1a1a1a;
+    --ink-soft: #444;
+    --muted: #888;
+    --border: #e8e5e0;
+    --surface: #fff;
+    --surface-2: #f5f3ef;
+    --radius: 4px;
+    --transition: all 0.2s ease;
+}
+
+/* ── Page Header ──────────────────────────── */
+.page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 20px;
+}
+
+.page-header__marker {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--red);
+    display: block;
+    margin-bottom: 8px;
+}
+
+.page-header__title {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 4px;
+}
+
+.page-header__sub {
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-style: italic;
+    color: var(--muted);
+    margin: 0;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.back-btn:hover {
+    background: var(--surface-2);
+}
+
+.back-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* ── Section Rule ─────────────────────────── */
+.section-rule {
+    height: 1px;
+    background: linear-gradient(90deg, var(--red) 60px, var(--border) 60px);
+    margin-bottom: 28px;
+}
+
+/* ── Form Section ────────────────────────── */
+.form-section {
+    margin-bottom: 32px;
+}
+
+.form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.field__label {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--ink);
+}
+
+.required {
+    color: var(--red);
+}
+
+.field__input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    transition: var(--transition);
+}
+
+.field__input:focus {
+    outline: none;
+    border-color: var(--red);
+}
+
+.field__error {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-style: italic;
+    color: var(--red);
+}
+
+.password-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.password-hint {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-style: italic;
+    color: var(--muted);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+}
+
+.btn-ghost {
+    padding: 12px 24px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.btn-ghost:hover {
+    background: var(--surface-2);
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: var(--red);
+    border: 1px solid var(--red);
+    border-radius: var(--radius);
+    color: var(--surface);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-primary:hover {
+    background: var(--red-dark);
+    border-color: var(--red-dark);
+}
+
+.btn-primary svg {
+    width: 14px;
+    height: 14px;
+}
+
+.btn-primary:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* ── Info Section ──────────────────────── */
+.info-section {
+    margin-bottom: 32px;
+}
+
+.info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+}
+
+.info-card__title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin: 0 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.role-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.role-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.role-badge {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.role--admin {
+    background: #fef2f2;
+    color: var(--red);
+    border: 1px solid #fecaca;
+}
+
+.role--user {
+    background: #eff6ff;
+    color: #3b82f6;
+    border: 1px solid #bfdbfe;
+}
+
+.role--affiliate {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+}
+
+.role-desc {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin: 0;
+}
+
+/* ── Responsive ────────────────────────── */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .role-item {
+        flex-direction: column;
+        gap: 6px;
+    }
+}
+</style>

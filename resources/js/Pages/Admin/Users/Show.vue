@@ -1,6 +1,7 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { Head, Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
@@ -16,6 +17,8 @@ const icons = {
     external: `<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>`,
     mail: `<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>`,
     calendar: `<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>`,
+    power: `<path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/>`,
+    trash: `<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>`,
 };
 
 const statItems = [
@@ -33,6 +36,38 @@ const getBanStatusText = (banType) => {
 const formatDate = (dateStr) => {
     return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
+
+// Delete modal state
+const showDeleteModal = ref(false);
+const linkToDelete = ref(null);
+
+const toggleLink = (link) => {
+    router.patch(route('links.toggle', link.id), {}, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
+
+const openDeleteModal = (link) => {
+    linkToDelete.value = link;
+    showDeleteModal.value = true;
+};
+
+const closeDeleteModal = () => {
+    showDeleteModal.value = false;
+    linkToDelete.value = null;
+};
+
+const confirmDelete = () => {
+    if (linkToDelete.value) {
+        router.delete(route('links.destroy', linkToDelete.value.id), {
+            preserveScroll: true,
+            onFinish: () => {
+                closeDeleteModal();
+            },
+        });
+    }
+};
 </script>
 
 <template>
@@ -41,8 +76,8 @@ const formatDate = (dateStr) => {
 
     <AdminLayout>
         <template #header-icon>
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
         </template>
         <template #header>User Profile</template>
 
@@ -57,11 +92,13 @@ const formatDate = (dateStr) => {
                 </div>
                 <div class="page-header__actions">
                     <Link :href="route('admin.users.index')" class="back-btn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.arrow" />
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            v-html="icons.arrow" />
                         Back
                     </Link>
                     <Link :href="route('admin.users.edit', user.id)" class="edit-btn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.edit" />
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            v-html="icons.edit" />
                         Edit User
                     </Link>
                 </div>
@@ -79,7 +116,8 @@ const formatDate = (dateStr) => {
                             <div class="user-meta">
                                 <h2 class="user-meta__name">{{ user.name }}</h2>
                                 <span class="user-meta__email">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.mail" />
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        v-html="icons.mail" />
                                     {{ user.email }}
                                 </span>
                             </div>
@@ -93,14 +131,16 @@ const formatDate = (dateStr) => {
                             </div>
                             <div class="info-row">
                                 <span class="info-row__label">Status</span>
-                                <span class="status-badge" :class="user.ban_type === 'none' ? 'status--active' : (user.ban_type === 'soft' ? 'status--soft' : 'status--hard')">
+                                <span class="status-badge"
+                                    :class="user.ban_type === 'none' ? 'status--active' : (user.ban_type === 'soft' ? 'status--soft' : 'status--hard')">
                                     {{ getBanStatusText(user.ban_type) }}
                                 </span>
                             </div>
                             <div class="info-row">
                                 <span class="info-row__label">Joined</span>
                                 <span class="info-row__value">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.calendar" />
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        v-html="icons.calendar" />
                                     {{ formatDate(user.created_at) }}
                                 </span>
                             </div>
@@ -113,10 +153,13 @@ const formatDate = (dateStr) => {
                             <div class="stat-item__top">
                                 <span class="stat-item__roman">{{ item.roman }}</span>
                                 <div class="stat-item__icon" :class="`stat-item__icon--${item.id}`">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="item.icon" />
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                        v-html="item.icon" />
                                 </div>
                             </div>
-                            <span class="stat-item__value">{{ typeof item.value === 'number' ? item.value.toLocaleString() : item.value }}</span>
+                            <span class="stat-item__value">{{ typeof item.value === 'number' ?
+                                item.value.toLocaleString() :
+                                item.value }}</span>
                             <span class="stat-item__label">{{ item.label }}</span>
                         </div>
                     </div>
@@ -128,13 +171,16 @@ const formatDate = (dateStr) => {
                 <div class="section-header">
                     <div>
                         <span class="section-marker">User Links</span>
-                        <p class="section-sub">{{ user.links.length }} recent links</p>
+                        <p class="section-sub">{{ user.links.total }} total links (showing {{ user.links.per_page }} per
+                            page)
+                        </p>
                     </div>
                 </div>
 
-                <div v-if="user.links.length === 0" class="empty-state">
+                <div v-if="user.links.data.length === 0" class="empty-state">
                     <div class="empty-state__icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="icons.link" />
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                            v-html="icons.link" />
                     </div>
                     <p class="empty-state__title">No links yet</p>
                     <p class="empty-state__text">This user hasn't created any short links.</p>
@@ -152,39 +198,103 @@ const formatDate = (dateStr) => {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="link in user.links" :key="link.id">
+                            <tr v-for="link in user.links.data" :key="link.id">
                                 <td>
                                     <a :href="`/${link.short_code}`" target="_blank" class="short-link">
                                         <span class="short-link__slash">/</span>{{ link.short_code }}
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="short-link__ext" v-html="icons.external" />
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            class="short-link__ext" v-html="icons.external" />
                                     </a>
                                 </td>
                                 <td>
-                                    <span class="dest-cell" :title="link.destination_url">{{ link.destination_url }}</span>
+                                    <span class="dest-cell" :title="link.destination_url">{{ link.destination_url
+                                        }}</span>
                                 </td>
                                 <td class="col-center">
                                     <span class="clicks-cell">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" v-html="icons.chart" />
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            v-html="icons.chart" />
                                         {{ link.clicks_count?.toLocaleString() ?? 0 }}
                                     </span>
                                 </td>
                                 <td class="col-center">
-                                    <span class="link-status" :class="link.is_active ? 'link-status--active' : 'link-status--inactive'">
+                                    <span class="link-status"
+                                        :class="link.is_active ? 'link-status--active' : 'link-status--inactive'">
                                         {{ link.is_active ? 'Active' : 'Inactive' }}
                                     </span>
                                 </td>
                                 <td>
-                                    <a :href="`/${link.short_code}`" target="_blank" class="btn-icon" title="Visit Link">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.external" />
-                                    </a>
+                                    <div class="link-actions">
+                                        <a :href="`/${link.short_code}`" target="_blank" class="btn-icon btn-icon--view"
+                                            title="Visit Link">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                v-html="icons.external" />
+                                        </a>
+                                        <button @click="toggleLink(link)" class="btn-icon"
+                                            :class="link.is_active ? 'btn-icon--disable' : 'btn-icon--enable'"
+                                            :title="link.is_active ? 'Deactivate Link' : 'Activate Link'">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                v-html="icons.power" />
+                                        </button>
+                                        <Link :href="route('links.edit', link.id)" class="btn-icon btn-icon--edit"
+                                            title="Edit Link">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                v-html="icons.edit" />
+                                        </Link>
+                                        <button @click="openDeleteModal(link)" class="btn-icon btn-icon--delete"
+                                            title="Delete Link">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                v-html="icons.trash" />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+
+                    <!-- Links Pagination -->
+                    <div v-if="user.links.last_page > 1" class="pagination">
+                        <template v-for="(link, i) in user.links.links" :key="i">
+                            <span v-if="!link.url" class="pagination__link pagination__link--disabled"
+                                v-html="link.label" />
+                            <Link v-else :href="link.url" v-html="link.label" class="pagination__link"
+                                :class="{ 'pagination__link--active': link.active }" />
+                        </template>
+                    </div>
                 </div>
             </section>
 
         </div>
+
+        <!-- Delete Confirmation Modal -->
+        <Teleport to="body">
+            <div v-if="showDeleteModal" class="modal-overlay" @click="closeDeleteModal">
+                <div class="modal" @click.stop>
+                    <div class="modal__header">
+                        <div class="modal__icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6" />
+                                <path
+                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            </svg>
+                        </div>
+                        <h3 class="modal__title">Delete Link</h3>
+                    </div>
+                    <div class="modal__body">
+                        <p class="modal__text">
+                            Are you sure you want to delete the link
+                            <code class="modal__code" v-if="linkToDelete">/{{ linkToDelete.short_code }}</code>?
+                        </p>
+                        <p class="modal__warning">This action cannot be undone.</p>
+                    </div>
+                    <div class="modal__actions">
+                        <button @click="closeDeleteModal" class="modal__btn modal__btn--ghost">Cancel</button>
+                        <button @click="confirmDelete" class="modal__btn modal__btn--danger">Delete Link</button>
+                    </div>
+                </div>
+            </div>
+        </Teleport>
+
     </AdminLayout>
 </template>
 
@@ -473,6 +583,19 @@ const formatDate = (dateStr) => {
     padding: 20px;
     display: flex;
     flex-direction: column;
+    transition: background 0.2s ease;
+}
+
+.stat-item:nth-child(1) {
+    background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
+}
+
+.stat-item:nth-child(2) {
+    background: linear-gradient(135deg, #eff6ff 0%, #fff 100%);
+}
+
+.stat-item:nth-child(3) {
+    background: linear-gradient(135deg, #f0fdf4 0%, #fff 100%);
 }
 
 .stat-item__top {
@@ -751,6 +874,107 @@ const formatDate = (dateStr) => {
     height: 14px;
 }
 
+/* ── Link Actions ─────────────────────── */
+.link-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+.btn-icon--view {
+    background: #eff6ff;
+    color: #3b82f6;
+    border-color: #bfdbfe;
+}
+
+.btn-icon--view:hover {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.btn-icon--enable {
+    background: #f0fdf4;
+    color: #16a34a;
+    border-color: #86efac;
+}
+
+.btn-icon--enable:hover {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.btn-icon--disable {
+    background: #fef9c3;
+    color: #ca8a04;
+    border-color: #fde047;
+}
+
+.btn-icon--disable:hover {
+    background: #fef08a;
+    color: #a16207;
+}
+
+.btn-icon--edit {
+    background: #fef9f0;
+    color: var(--gold);
+    border-color: #fde68a;
+}
+
+.btn-icon--edit:hover {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.btn-icon--delete {
+    background: #fef2f2;
+    color: var(--red);
+    border-color: #fecaca;
+}
+
+.btn-icon--delete:hover {
+    background: #fee2e2;
+    color: var(--red-dark);
+}
+
+/* ── Pagination ────────────────────────── */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    background: var(--surface-2);
+}
+
+.pagination__link {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.pagination__link:hover {
+    background: var(--surface);
+    color: var(--ink);
+}
+
+.pagination__link--active {
+    background: var(--red);
+    color: var(--surface);
+    border-color: var(--red);
+}
+
+.pagination__link--disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--surface-2);
+}
+
 /* ── Responsive ────────────────────────── */
 @media (max-width: 1024px) {
     .info-grid {
@@ -779,5 +1003,141 @@ const formatDate = (dateStr) => {
     .dest-cell {
         max-width: 150px;
     }
+}
+
+/* ── Delete Modal ──────────────────────── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    animation: modalEnter 0.2s ease;
+}
+
+@keyframes modalEnter {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 24px 0;
+}
+
+.modal__icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fef2f2;
+    border-radius: var(--radius);
+    color: var(--red);
+}
+
+.modal__icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.modal__title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+}
+
+.modal__body {
+    padding: 16px 24px 24px;
+}
+
+.modal__text {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--ink-soft);
+    margin: 0 0 8px;
+    line-height: 1.5;
+}
+
+.modal__code {
+    font-family: monospace;
+    font-size: 13px;
+    background: var(--surface-2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--ink);
+}
+
+.modal__warning {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-style: italic;
+    color: var(--red);
+    margin: 0;
+}
+
+.modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    background: var(--surface-2);
+    border-top: 1px solid var(--border);
+}
+
+.modal__btn {
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid transparent;
+}
+
+.modal__btn--ghost {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--ink);
+}
+
+.modal__btn--ghost:hover {
+    background: var(--border);
+}
+
+.modal__btn--danger {
+    background: var(--red);
+    border-color: var(--red);
+    color: var(--surface);
+}
+
+.modal__btn--danger:hover {
+    background: var(--red-dark);
+    border-color: var(--red-dark);
 }
 </style>
