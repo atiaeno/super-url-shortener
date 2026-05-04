@@ -40,7 +40,7 @@ class UserController extends Controller
         }
 
         return Inertia::render('Admin/Users/Index', [
-            'users' => $query->latest()->paginate(50),
+            'users' => $query->latest()->paginate(5),
             'stats' => [
                 'total' => User::count(),
                 'admins' => User::where('role', 'admin')->count(),
@@ -48,6 +48,62 @@ class UserController extends Controller
             ],
             'filters' => $request->only(['search', 'role', 'ban_type']),
         ]);
+    }
+
+    /**
+     * Display user details with their links.
+     */
+    public function show(User $user): Response
+    {
+        return Inertia::render('Admin/Users/Show', [
+            'user' => $user->load(['links' => fn($q) => $q->latest()->limit(20)]),
+            'stats' => [
+                'totalLinks' => $user->links()->count(),
+                'totalClicks' => $user->links()->sum('clicks_count'),
+                'activeLinks' => $user->links()->where('is_active', true)->count(),
+            ],
+        ]);
+    }
+
+    /**
+     * Show edit form for user.
+     */
+    public function edit(User $user): Response
+    {
+        return Inertia::render('Admin/Users/Edit', [
+            'user' => $user->only(['id', 'name', 'email', 'role', 'ban_type', 'ban_reason', 'created_at']),
+        ]);
+    }
+
+    /**
+     * Update user details.
+     */
+    public function update(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'role' => 'required|in:admin,user,affiliate',
+        ]);
+
+        $oldRole = $user->role;
+        $user->update($validated);
+
+        // Log if role changed
+        if ($oldRole !== $validated['role']) {
+            ActivityLog::create([
+                'actor_id' => auth()->id(),
+                'action' => 'user_role_changed',
+                'target_type' => 'user',
+                'target_id' => $user->id,
+                'metadata' => [
+                    'old_role' => $oldRole,
+                    'new_role' => $validated['role'],
+                ],
+            ]);
+        }
+
+        return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
 
     /**

@@ -109,6 +109,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // User Management (Stories 8.1 - 8.3)
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::get('{user}', [UserController::class, 'show'])->name('show');
+        Route::get('{user}/edit', [UserController::class, 'edit'])->name('edit');
+        Route::put('{user}', [UserController::class, 'update'])->name('update');
         Route::post('{user}/role', [UserController::class, 'updateRole'])->name('role');
         Route::post('{user}/ban', [UserController::class, 'ban'])->name('ban');
         Route::post('{user}/unban', [UserController::class, 'unban'])->name('unban');
