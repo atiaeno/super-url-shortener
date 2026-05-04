@@ -13,8 +13,9 @@ class AdController extends Controller
 {
     public function index(): Response
     {
+        $ads = Ad::all();
         return Inertia::render('Admin/Ads/Index', [
-            'ads' => Ad::latest()->get(),
+            'ads' => $ads,
         ]);
     }
 

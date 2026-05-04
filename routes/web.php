@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\PayoutController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AffiliateController;
+use App\Http\Controllers\AffiliatePublicController;
 use App\Http\Controllers\BulkLinkController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GuestLinkController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SocialAuthController;
+use App\Models\AffiliateTier;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -47,6 +49,9 @@ Route::get('/privacy', fn() => Inertia::render('Legal/Privacy'))->name('legal.pr
 Route::get('/terms', fn() => Inertia::render('Legal/Terms'))->name('legal.terms');
 Route::get('/cookies', fn() => Inertia::render('Legal/Cookies'))->name('legal.cookies');
 Route::get('/gdpr', fn() => Inertia::render('Legal/Gdpr'))->name('legal.gdpr');
+
+// ── Public Affiliate Page ─────────────────────────────────────────────────────
+Route::get('/partners', [AffiliatePublicController::class, 'index'])->name('affiliate.public');
 
 // ── Help & Documentation ───────────────────────────────────────────────────────
 Route::get('/help', fn() => Inertia::render('HelpCenter'))->name('help.center');

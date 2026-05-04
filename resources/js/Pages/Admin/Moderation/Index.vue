@@ -78,35 +78,48 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
 </script>
 
 <template>
+
     <Head title="Content Moderation" />
     <AdminLayout>
-        <div class="admin-page">
-            <h1 class="admin-page__title">Content Moderation</h1>
+        <div class="dashboard">
+            <!-- Page Header -->
+            <header class="page-header">
+                <div class="page-header__left">
+                    <span class="page-header__marker">Moderation</span>
+                    <h1 class="page-header__title">Content Moderation</h1>
+                    <p class="page-header__sub">Review and manage reported content</p>
+                </div>
+            </header>
 
-            <!-- Stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-card__value">{{ stats.pending || 0 }}</span>
-                    <span class="stat-card__label">Pending Reports</span>
+            <!-- Divider -->
+            <div class="section-rule"></div>
+
+            <!-- Stats Grid -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card stat-card--pending">
+                        <span class="stat-card__value">{{ stats.pending || 0 }}</span>
+                        <span class="stat-card__label">Pending Reports</span>
+                    </div>
+                    <div class="stat-card stat-card--reviewed">
+                        <span class="stat-card__value">{{ stats.reviewed || 0 }}</span>
+                        <span class="stat-card__label">Reviewed Today</span>
+                    </div>
+                    <div class="stat-card stat-card--actioned">
+                        <span class="stat-card__value">{{ stats.actioned || 0 }}</span>
+                        <span class="stat-card__label">Action Taken</span>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-card__value">{{ stats.reviewed || 0 }}</span>
-                    <span class="stat-card__label">Reviewed Today</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-card__value">{{ stats.actioned || 0 }}</span>
-                    <span class="stat-card__label">Action Taken</span>
-                </div>
-            </div>
+            </section>
 
             <!-- Reports Section -->
-            <div class="admin-section">
+            <section class="table-section">
                 <div class="section-header">
-                    <h2 class="section-title">Report Queue</h2>
+                    <div>
+                        <span class="section-marker">Report Queue</span>
+                    </div>
                     <div class="section-actions">
-                        <button v-if="selectedReports.length" 
-                            @click="batchMode = true" 
-                            class="btn-ghost-sm">
+                        <button v-if="selectedReports.length" @click="batchMode = true" class="btn-ghost-sm">
                             Batch Review ({{ selectedReports.length }})
                         </button>
                         <button @click="toggleSelectAll" class="btn-ghost-sm">
@@ -119,60 +132,85 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
                     <p>No reports to review.</p>
                 </div>
 
-                <div v-else class="reports-list">
-                    <div v-for="report in reports.data" :key="report.id" class="report-card">
-                        <div class="report-card__checkbox">
-                            <input 
-                                type="checkbox" 
-                                :value="report.id" 
-                                v-model="selectedReports"
-                                class="checkbox" />
-                        </div>
-
-                        <div class="report-card__content">
-                            <div class="report-card__header">
-                                <div class="report-info">
+                <div v-else class="table-wrapper">
+                    <table class="reports-table">
+                        <thead>
+                            <tr>
+                                <th class="col-checkbox"></th>
+                                <th>Reason</th>
+                                <th>Link</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="report in reports.data" :key="report.id">
+                                <td>
+                                    <input type="checkbox" :value="report.id" v-model="selectedReports"
+                                        class="checkbox" />
+                                </td>
+                                <td>
                                     <span class="report-reason">{{ reasonLabels[report.reason] }}</span>
+                                </td>
+                                <td>
+                                    <div class="link-cell">
+                                        <strong>{{ report.link?.short_code }}</strong>
+                                        <span class="link-url">{{ report.link?.original_url }}</span>
+                                    </div>
+                                </td>
+                                <td>
                                     <span class="report-status" :class="statusColors[report.status]">
                                         {{ report.status.charAt(0).toUpperCase() + report.status.slice(1) }}
                                     </span>
-                                </div>
-                                <span class="report-date">{{ formatDate(report.created_at) }}</span>
-                            </div>
-
-                            <div class="report-card__details">
-                                <div class="link-info">
-                                    <strong>{{ report.link?.short_code }}</strong>
-                                    <span class="link-url">{{ report.link?.original_url }}</span>
-                                </div>
-                                <p v-if="report.description" class="report-description">
-                                    {{ report.description }}
-                                </p>
-                            </div>
-
-                            <div class="report-card__actions">
-                                <button @click="openReviewModal(report)" class="btn-primary-sm">
-                                    Review
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                                </td>
+                                <td>
+                                    <span class="report-date">{{ formatDate(report.created_at) }}</span>
+                                </td>
+                                <td>
+                                    <button @click="openReviewModal(report)" class="btn-primary-sm">
+                                        Review
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
+            </section>
 
             <!-- Flagged Links Section -->
-            <div v-if="flaggedLinks?.length" class="admin-section">
-                <h2 class="section-title">Flagged Links</h2>
-                <div class="flagged-list">
-                    <div v-for="link in flaggedLinks" :key="link.id" class="flagged-item">
-                        <div class="flagged-info">
-                            <strong>{{ link.short_code }}</strong>
-                            <span class="link-url">{{ link.original_url }}</span>
-                            <span class="flag-reason">Auto-flagged: {{ link.flag_reason }}</span>
-                        </div>
+            <section v-if="flaggedLinks?.length" class="table-section">
+                <div class="section-header">
+                    <div>
+                        <span class="section-marker">Flagged Links</span>
                     </div>
                 </div>
-            </div>
+
+                <div class="table-wrapper">
+                    <table class="reports-table">
+                        <thead>
+                            <tr>
+                                <th>Short Code</th>
+                                <th>Original URL</th>
+                                <th>Flag Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="link in flaggedLinks" :key="link.id">
+                                <td>
+                                    <strong>{{ link.short_code }}</strong>
+                                </td>
+                                <td>
+                                    <span class="link-url">{{ link.original_url }}</span>
+                                </td>
+                                <td>
+                                    <span class="flag-reason">{{ link.flag_reason }}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
             <!-- Review Modal -->
             <div v-if="showReviewModal" class="modal-backdrop">
@@ -278,59 +316,106 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
     --transition: all 0.2s ease;
 }
 
-.admin-page {
+.dashboard {
     max-width: 1200px;
 }
 
-.admin-page__title {
-    font-family: var(--font-display);
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--ink);
-    margin-bottom: 24px;
+/* ── Page Header ──────────────────────────── */
+.page-header {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 20px;
 }
 
-.admin-page__title::before {
-    content: 'ADMIN';
+.page-header__marker {
+    font-family: var(--font-display);
     font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
     color: var(--red);
-    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.page-header__title {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 4px;
+}
+
+.page-header__sub {
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-style: italic;
+    color: var(--muted);
+    margin: 0;
+}
+
+/* ── Section Rule ─────────────────────────── */
+.section-rule {
+    height: 1px;
+    background: linear-gradient(90deg, var(--red) 60px, var(--border) 60px);
+    margin-bottom: 28px;
+}
+
+/* ── Stats Grid ───────────────────────────── */
+.stats-section {
+    margin-bottom: 24px;
 }
 
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 32px;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
 }
 
 .stat-card {
     background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
+    padding: 20px 18px 16px;
     display: flex;
     flex-direction: column;
-    text-align: center;
+    transition: background 0.15s ease;
+    position: relative;
+}
+
+.stat-card:hover {
+    background: #fdf9f5;
+}
+
+.stat-card--pending {
+    background: linear-gradient(135deg, #fef2f2 0%, #fff5f5 50%, #fff 100%);
+}
+
+.stat-card:nth-child(2) {
+    background: linear-gradient(135deg, #eff6ff 0%, #f0f7ff 50%, #fff 100%);
+}
+
+.stat-card:nth-child(3) {
+    background: linear-gradient(135deg, #f0fdf4 0%, #f5fff0 50%, #fff 100%);
 }
 
 .stat-card__value {
     font-family: var(--font-display);
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 26px;
+    font-weight: 600;
     color: var(--ink);
+    line-height: 1;
     margin-bottom: 4px;
 }
 
 .stat-card__label {
-    font-family: var(--font-body);
-    font-size: 12px;
-    font-style: italic;
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
     color: var(--muted);
 }
 
@@ -344,9 +429,27 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
 
 .section-header {
     display: flex;
+    align-items: flex-end;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 14px;
+}
+
+.section-marker {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 2px;
+}
+
+.section-sub {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-style: italic;
+    color: var(--muted);
+    margin: 0;
 }
 
 .section-title {
@@ -354,8 +457,7 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--muted);
+    color: var(--ink);
 }
 
 .section-actions {
@@ -370,62 +472,81 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
     font-style: italic;
 }
 
-.reports-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+/* ── Table Section ──────────────────────── */
+.table-section {
+    margin-bottom: 32px;
 }
 
-.report-card {
-    background: var(--surface-2);
+.table-wrapper {
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 16px;
-    display: flex;
-    gap: 16px;
-    transition: var(--transition);
+    overflow: hidden;
 }
 
-.report-card:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+.reports-table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.report-card__checkbox {
-    display: flex;
-    align-items: flex-start;
-    padding-top: 2px;
+.reports-table th {
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-align: left;
+    padding: 12px 16px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
 }
 
-.checkbox {
-    width: 16px;
-    height: 16px;
-    accent-color: var(--red);
+.reports-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
 }
 
-.report-card__content {
-    flex: 1;
+.reports-table tr:last-child td {
+    border-bottom: none;
+}
+
+.reports-table tbody tr:hover {
+    background: #fdf9f5;
+}
+
+.col-checkbox {
+    width: 40px;
+}
+
+.link-cell {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 2px;
 }
 
-.report-card__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.report-info {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.report-reason {
+.link-cell strong {
     font-family: var(--font-display);
     font-size: 12px;
     font-weight: 600;
     color: var(--ink);
+}
+
+.link-url {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--muted);
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.report-reason {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--red);
     text-transform: uppercase;
 }
 
@@ -442,10 +563,16 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
     color: var(--muted);
 }
 
-.report-card__details {
+.checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--red);
+}
+
+.report-info {
     display: flex;
-    flex-direction: column;
     gap: 8px;
+    align-items: center;
 }
 
 .link-info {
@@ -517,7 +644,7 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
 }
 
 .flagged-item {
-    background: var(--surface-2);
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 12px;
@@ -531,9 +658,11 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
 }
 
 .flag-reason {
+    font-family: var(--font-display);
     font-size: 11px;
+    font-weight: 600;
     color: var(--red);
-    font-style: italic;
+    text-transform: uppercase;
 }
 
 /* Modal Styles */
@@ -604,7 +733,7 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
 }
 
 .report-summary {
-    background: var(--surface-2);
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 16px;

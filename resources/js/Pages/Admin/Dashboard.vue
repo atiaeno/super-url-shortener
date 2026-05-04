@@ -116,7 +116,7 @@ const getCountryBarWidth = (count) => {
             <!-- Stats Grid -->
             <section class="stats-section">
                 <div class="stats-grid">
-                    <div v-for="item in statItems" :key="item.id" class="stat-card">
+                    <div v-for="item in statItems" :key="item.id" class="stat-card" :class="`stat-card--${item.id}`">
                         <div class="stat-card__top">
                             <span class="stat-card__roman">{{ item.roman }}</span>
                             <div class="stat-card__icon-wrap" :class="`stat-card__icon-wrap--${item.id}`">
@@ -388,7 +388,7 @@ const getCountryBarWidth = (count) => {
 }
 
 .stat-card {
-    background: var(--surface);
+    background: linear-gradient(135deg, #fff9f5 0%, var(--surface) 50%, #fef6f0 100%);
     padding: 20px 18px 16px;
     display: flex;
     flex-direction: column;
@@ -398,6 +398,22 @@ const getCountryBarWidth = (count) => {
 
 .stat-card:hover {
     background: #fdf9f5;
+}
+
+.stat-card--users {
+    background: linear-gradient(135deg, #fef2f2 0%, #fff5f5 50%, #fff 100%);
+}
+
+.stat-card--links {
+    background: linear-gradient(135deg, #eff6ff 0%, #f0f7ff 50%, #fff 100%);
+}
+
+.stat-card--clicks {
+    background: linear-gradient(135deg, #f0fdf4 0%, #f5fff0 50%, #fff 100%);
+}
+
+.stat-card--payouts {
+    background: linear-gradient(135deg, #fef9f0 0%, #fffbf5 50%, #fff 100%);
 }
 
 .stat-card__top {
@@ -799,9 +815,17 @@ const getCountryBarWidth = (count) => {
     align-items: center;
     gap: 16px;
     padding: 20px;
-    background: var(--surface);
+    background: linear-gradient(135deg, #f0fdf4 0%, #f5fff0 50%, #fff 100%);
     border: 1px solid var(--border);
     border-radius: var(--radius);
+}
+
+.health-card--warning {
+    background: linear-gradient(135deg, #fef9c3 0%, #fffde7 50%, #fff 100%);
+}
+
+.health-card--success {
+    background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 50%, #fff 100%);
 }
 
 .health-card__icon {

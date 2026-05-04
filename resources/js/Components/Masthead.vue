@@ -39,18 +39,26 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll));
                     <span class="masthead__link-num">II.</span>
                     My Links
                 </Link>
-                <Link :href="route('profile.edit')" class="masthead__link">
+                <Link href="/partners" class="masthead__link">
                     <span class="masthead__link-num">III.</span>
+                    Affiliate
+                </Link>
+                <Link :href="route('profile.edit')" class="masthead__link">
+                    <span class="masthead__link-num">IV.</span>
                     Profile
                 </Link>
             </template>
             <template v-else>
-                <Link v-if="canLogin" :href="route('login')" class="masthead__link">
+                <Link href="/partners" class="masthead__link">
                     <span class="masthead__link-num">I.</span>
+                    Affiliate
+                </Link>
+                <Link v-if="canLogin" :href="route('login')" class="masthead__link">
+                    <span class="masthead__link-num">II.</span>
                     Enter
                 </Link>
                 <Link v-if="canRegister" :href="route('register')" class="masthead__link masthead__link--cta">
-                    <span class="masthead__link-num">II.</span>
+                    <span class="masthead__link-num">III.</span>
                     Join
                 </Link>
             </template>
