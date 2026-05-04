@@ -34,14 +34,17 @@ class AffiliateTierController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name'            => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:100'],
             'visit_threshold' => ['required', 'integer', 'min:0'],
-            'commission_rate' => ['required', 'numeric', 'min:0', 'max:100'],
+            'commission_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'view_rate' => ['required', 'numeric', 'min:0'],
+            'view_multiplier' => ['required', 'integer', 'min:1'],
         ]);
 
         AffiliateTier::create($validated);
 
-        return redirect()->route('admin.affiliate-tiers.index')
+        return redirect()
+            ->route('admin.affiliate-tiers.index')
             ->with('success', 'Tier created.');
     }
 
@@ -51,10 +54,12 @@ class AffiliateTierController extends Controller
     public function update(Request $request, AffiliateTier $affiliateTier): RedirectResponse
     {
         $validated = $request->validate([
-            'name'            => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:100'],
             'visit_threshold' => ['required', 'integer', 'min:0'],
-            'commission_rate' => ['required', 'numeric', 'min:0', 'max:100'],
-            'is_active'       => ['boolean'],
+            'commission_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'view_rate' => ['required', 'numeric', 'min:0'],
+            'view_multiplier' => ['required', 'integer', 'min:1'],
+            'is_active' => ['boolean'],
         ]);
 
         $affiliateTier->update($validated);
@@ -68,8 +73,8 @@ class AffiliateTierController extends Controller
     public function syncCountryRates(Request $request, AffiliateTier $affiliateTier): RedirectResponse
     {
         $validated = $request->validate([
-            'rates'                  => ['required', 'array'],
-            'rates.*.country_code'   => ['required', 'string', 'size:2'],
+            'rates' => ['required', 'array'],
+            'rates.*.country_code' => ['required', 'string', 'size:2'],
             'rates.*.commission_rate' => ['required', 'numeric', 'min:0', 'max:100'],
         ]);
 
@@ -78,8 +83,8 @@ class AffiliateTierController extends Controller
         foreach ($validated['rates'] as $rate) {
             AffiliateCountryRate::create([
                 'affiliate_tier_id' => $affiliateTier->id,
-                'country_code'      => strtoupper($rate['country_code']),
-                'commission_rate'   => $rate['commission_rate'],
+                'country_code' => strtoupper($rate['country_code']),
+                'commission_rate' => $rate['commission_rate'],
             ]);
         }
 

@@ -19,15 +19,31 @@ class PayoutController extends Controller
     /**
      * Story 4.7: Pending payout queue.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $payouts = Payout::with(['affiliate.user:id,name,email', 'affiliate.tier:id,name'])
-            ->pending()
-            ->latest()
-            ->paginate(20);
+        $status = $request->get('status', 'pending');
+
+        $query = Payout::with(['affiliate.user:id,name,email', 'affiliate.tier:id,name'])
+            ->latest();
+
+        if (in_array($status, ['pending', 'approved', 'paid', 'rejected'])) {
+            $query->where('status', $status);
+        }
+
+        $payouts = $query->paginate(20)->withQueryString();
+
+        $stats = [
+            'pending' => Payout::where('status', Payout::STATUS_PENDING)->count(),
+            'approved' => Payout::where('status', Payout::STATUS_APPROVED)->count(),
+            'paid' => Payout::where('status', Payout::STATUS_PAID)->count(),
+            'rejected' => Payout::where('status', Payout::STATUS_REJECTED)->count(),
+            'totalAmount' => Payout::where('status', Payout::STATUS_PENDING)->sum('amount'),
+        ];
 
         return Inertia::render('Admin/Payouts/Index', [
             'payouts' => $payouts,
+            'stats' => $stats,
+            'currentStatus' => $status,
         ]);
     }
 

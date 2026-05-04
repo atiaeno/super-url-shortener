@@ -3,8 +3,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Model;
 
 class AffiliateTier extends Model
 {
@@ -12,13 +12,17 @@ class AffiliateTier extends Model
         'name',
         'visit_threshold',
         'commission_rate',
+        'view_rate',
+        'view_multiplier',
         'is_active',
     ];
 
     protected $casts = [
-        'visit_threshold'  => 'integer',
-        'commission_rate'  => 'decimal:2',
-        'is_active'        => 'boolean',
+        'visit_threshold' => 'integer',
+        'commission_rate' => 'decimal:2',
+        'view_rate' => 'decimal:4',
+        'view_multiplier' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     public function affiliates(): HasMany
@@ -37,7 +41,8 @@ class AffiliateTier extends Model
     public function rateForCountry(?string $countryCode): float
     {
         if ($countryCode) {
-            $override = $this->countryRates()
+            $override = $this
+                ->countryRates()
                 ->where('country_code', strtoupper($countryCode))
                 ->value('commission_rate');
 

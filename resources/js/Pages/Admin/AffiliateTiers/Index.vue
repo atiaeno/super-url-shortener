@@ -1,21 +1,81 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, useForm, Link } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
     tiers: { type: Array, default: () => [] },
 });
 
-const createForm = useForm({ name: '', visit_threshold: 0, commission_rate: 0 });
+const icons = {
+    tiers: `<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>`,
+    dollar: `<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>`,
+    users: `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
+    eye: `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`,
+    arrow: `<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>`,
+    edit: `<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>`,
+    globe: `<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>`,
+    trash: `<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>`,
+    plus: `<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>`,
+};
+
+const stats = computed(() => ({
+    total: props.tiers.length,
+    active: props.tiers.filter(t => t.is_active).length,
+    affiliates: props.tiers.reduce((sum, t) => sum + (t.affiliates_count || 0), 0),
+}));
+
+const statItems = computed(() => [
+    { id: 'total', label: 'Total Tiers', value: stats.value.total, roman: 'I.', icon: icons.tiers, color: 'red' },
+    { id: 'active', label: 'Active', value: stats.value.active, roman: 'II.', icon: icons.tiers, color: 'green' },
+    { id: 'affiliates', label: 'Total Affiliates', value: stats.value.affiliates, roman: 'III.', icon: icons.users, color: 'blue' },
+]);
+
+// Create modal and form
+const createModal = ref(false);
+const createForm = useForm({
+    name: '',
+    visit_threshold: 0,
+    view_rate: 3.00,
+    view_multiplier: 1000,
+    commission_rate: null,
+});
+
+const openCreateModal = () => {
+    createModal.value = true;
+    createForm.reset();
+    createForm.view_rate = 3.00;
+    createForm.view_multiplier = 1000;
+};
+
+const closeCreateModal = () => {
+    createModal.value = false;
+    createForm.reset();
+};
+
+const submitCreate = () => {
+    createForm.post(route('admin.affiliate-tiers.store'), {
+        onSuccess: () => closeCreateModal(),
+    });
+};
+
 const editingId = ref(null);
-const editForm = useForm({ name: '', visit_threshold: 0, commission_rate: 0, is_active: true });
+const editForm = useForm({
+    name: '',
+    visit_threshold: 0,
+    view_rate: 0,
+    view_multiplier: 1000,
+    commission_rate: null,
+    is_active: true,
+});
 
 const startEdit = (tier) => {
     editingId.value = tier.id;
     editForm.name = tier.name;
     editForm.visit_threshold = tier.visit_threshold;
+    editForm.view_rate = tier.view_rate || 0;
+    editForm.view_multiplier = tier.view_multiplier || 1000;
     editForm.commission_rate = tier.commission_rate;
     editForm.is_active = tier.is_active;
 };
@@ -45,6 +105,13 @@ const submitRates = () => {
         onSuccess: () => { ratesModal.value = null; },
     });
 };
+
+// Helper to format rate display
+const formatRate = (tier) => {
+    const rate = tier.view_rate || 0;
+    const mult = tier.view_multiplier || 1000;
+    return `$${rate.toFixed(2)} per ${mult.toLocaleString()} views`;
+};
 </script>
 
 <template>
@@ -52,102 +119,291 @@ const submitRates = () => {
     <Head title="Affiliate Tiers" />
 
     <AdminLayout>
-        <template #header>Affiliate Tier Management</template>
+        <template #header-icon>
+            <polygon points="12 2 2 7 12 12 22 7 12 2" />
+            <polyline points="2 17 12 22 22 17" />
+            <polyline points="2 12 12 17 22 12" />
+        </template>
+        <template #header>Affiliate Tiers</template>
 
-        <!-- Create new tier -->
-        <div class="card mb">
-            <h3 class="card-title">Create Tier</h3>
-            <form @submit.prevent="createForm.post(route('admin.affiliate-tiers.store'))" class="inline-form">
-                <div class="field">
-                    <label class="field__label">Name</label>
-                    <input v-model="createForm.name" type="text" placeholder="Bronze" class="field__input" required />
-                </div>
-                <div class="field">
-                    <label class="field__label">Visit Threshold</label>
-                    <input v-model="createForm.visit_threshold" type="number" min="0" class="field__input" required />
-                </div>
-                <div class="field">
-                    <label class="field__label">Commission %</label>
-                    <input v-model="createForm.commission_rate" type="number" step="0.01" min="0" max="100"
-                        class="field__input" required />
-                </div>
-                <button type="submit" class="btn-primary" :disabled="createForm.processing">Add Tier</button>
-            </form>
-        </div>
+        <div class="tiers-page">
 
-        <!-- Tiers table -->
-        <div class="table-card">
-            <div class="table-head">
-                <span>Name</span>
-                <span>Visit Threshold</span>
-                <span>Commission %</span>
-                <span>Affiliates</span>
-                <span>Status</span>
-                <span>Actions</span>
-            </div>
+            <!-- Page Header -->
+            <header class="page-header">
+                <div class="page-header__left">
+                    <span class="page-header__marker">Affiliate Program</span>
+                    <h1 class="page-header__title">Tier Management</h1>
+                    <p class="page-header__sub">Configure view-based earnings for each tier</p>
+                </div>
+            </header>
 
-            <div v-for="tier in tiers" :key="tier.id">
-                <!-- View row -->
-                <div v-if="editingId !== tier.id" class="table-row">
-                    <span class="cell-name">{{ tier.name }}</span>
-                    <span class="cell-num">{{ tier.visit_threshold.toLocaleString() }}</span>
-                    <span class="cell-rate">{{ tier.commission_rate }}%</span>
-                    <span class="cell-num">{{ tier.affiliates_count ?? 0 }}</span>
-                    <span class="badge" :class="tier.is_active ? 'badge--green' : 'badge--red'">
-                        {{ tier.is_active ? 'Active' : 'Inactive' }}
-                    </span>
-                    <div class="cell-actions">
-                        <button @click="startEdit(tier)" class="action-btn">Edit</button>
-                        <button @click="openRatesModal(tier)" class="action-btn">Country Rates</button>
+            <!-- Divider -->
+            <div class="section-rule"></div>
+
+            <!-- Stats Grid -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div v-for="item in statItems" :key="item.id" class="stat-card" :class="`stat-card--${item.color}`">
+                        <div class="stat-card__top">
+                            <span class="stat-card__roman">{{ item.roman }}</span>
+                            <div class="stat-card__icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    v-html="item.icon" />
+                            </div>
+                        </div>
+                        <div class="stat-card__value">{{ item.value }}</div>
+                        <div class="stat-card__label">{{ item.label }}</div>
                     </div>
                 </div>
+            </section>
 
-                <!-- Edit row -->
-                <div v-else class="edit-row">
-                    <input v-model="editForm.name" class="field__input field__input--sm" placeholder="Name" />
-                    <input v-model="editForm.visit_threshold" type="number" class="field__input field__input--sm" />
-                    <input v-model="editForm.commission_rate" type="number" step="0.01"
-                        class="field__input field__input--sm" />
-                    <span></span>
-                    <label class="toggle">
-                        <input type="checkbox" v-model="editForm.is_active" class="toggle__input" />
-                        <span class="toggle__track"><span class="toggle__thumb" /></span>
-                    </label>
-                    <div class="cell-actions">
-                        <button @click="submitEdit(tier.id)" class="action-btn action-btn--primary"
-                            :disabled="editForm.processing">Save</button>
-                        <button @click="cancelEdit" class="action-btn">Cancel</button>
+            <!-- Create Tier Button -->
+            <section class="create-section">
+                <button @click="openCreateModal" class="btn-create">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.plus" />
+                    Create New Tier
+                </button>
+            </section>
+
+            <!-- Tiers Table -->
+            <section class="table-section">
+                <div class="section-header">
+                    <h2 class="section-header__title">All Tiers</h2>
+                </div>
+                <div class="table-card">
+                    <div v-if="!tiers.length" class="empty-state">
+                        <div class="empty-state__icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                v-html="icons.tiers" />
+                        </div>
+                        <p class="empty-state__title">No tiers created</p>
+                        <p class="empty-state__text">Create your first affiliate tier to get started.</p>
+                    </div>
+
+                    <div v-else class="tiers-list">
+                        <div v-for="tier in tiers" :key="tier.id" class="tier-item">
+                            <!-- View Mode -->
+                            <div v-if="editingId !== tier.id" class="tier-row">
+                                <div class="tier-main">
+                                    <div class="tier-info">
+                                        <div class="tier-icon"
+                                            :class="tier.is_active ? 'tier-icon--active' : 'tier-icon--inactive'">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                v-html="icons.tiers" />
+                                        </div>
+                                        <div class="tier-details">
+                                            <span class="tier-name">{{ tier.name }}</span>
+                                            <span class="tier-meta">{{ tier.visit_threshold.toLocaleString() }}+ visits
+                                                required</span>
+                                        </div>
+                                    </div>
+                                    <div class="tier-rate">
+                                        <div class="rate-display">
+                                            <span class="rate-icon">$</span>
+                                            <span class="rate-amount">{{ (tier.view_rate || 0).toFixed(2) }}</span>
+                                            <span class="rate-divider">/</span>
+                                            <span class="rate-views">{{ (tier.view_multiplier || 1000).toLocaleString()
+                                            }}
+                                                views</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tier-side">
+                                    <div class="tier-affiliates">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            v-html="icons.users" />
+                                        {{ tier.affiliates_count ?? 0 }}
+                                    </div>
+                                    <span class="tier-status"
+                                        :class="tier.is_active ? 'tier-status--active' : 'tier-status--inactive'">
+                                        {{ tier.is_active ? 'Active' : 'Inactive' }}
+                                    </span>
+                                    <div class="tier-actions">
+                                        <button @click="startEdit(tier)" class="btn-icon btn-icon--edit"
+                                            title="Edit Tier">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                v-html="icons.edit" />
+                                        </button>
+                                        <button @click="openRatesModal(tier)" class="btn-icon btn-icon--globe"
+                                            title="Country Rates">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                v-html="icons.globe" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Edit Mode -->
+                            <div v-else class="tier-row tier-row--edit">
+                                <div class="tier-main tier-main--edit">
+                                    <div class="edit-fields">
+                                        <div class="field field--compact">
+                                            <label class="field__label">Name</label>
+                                            <input v-model="editForm.name" class="field__input"
+                                                placeholder="Tier name" />
+                                        </div>
+                                        <div class="field field--compact">
+                                            <label class="field__label">Threshold</label>
+                                            <input v-model="editForm.visit_threshold" type="number"
+                                                class="field__input" />
+                                        </div>
+                                        <div class="field field--compact">
+                                            <label class="field__label">Rate ($)</label>
+                                            <input v-model="editForm.view_rate" type="number" step="0.01"
+                                                class="field__input" />
+                                        </div>
+                                        <div class="field field--compact">
+                                            <label class="field__label">Per</label>
+                                            <select v-model="editForm.view_multiplier" class="field__input">
+                                                <option :value="100">100 views</option>
+                                                <option :value="1000">1,000 views</option>
+                                                <option :value="10000">10,000 views</option>
+                                            </select>
+                                        </div>
+                                        <label class="toggle">
+                                            <input type="checkbox" v-model="editForm.is_active" class="toggle__input" />
+                                            <span class="toggle__track"><span class="toggle__thumb" /></span>
+                                            <span class="toggle__label">{{ editForm.is_active ? 'Active' : 'Inactive'
+                                            }}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="tier-side tier-side--edit">
+                                    <button @click="submitEdit(tier.id)" class="btn-icon btn-icon--save"
+                                        :disabled="editForm.processing" title="Save">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12" />
+                                        </svg>
+                                    </button>
+                                    <button @click="cancelEdit" class="btn-icon btn-icon--cancel" title="Cancel">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="18" y1="6" x2="6" y2="18" />
+                                            <line x1="6" y1="6" x2="18" y2="18" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
+
         </div>
 
         <!-- Country Rates Modal -->
-        <div v-if="ratesModal" class="modal-overlay" @click.self="ratesModal = null">
-            <div class="modal">
-                <div class="modal__header">
-                    <h3 class="modal__title">Country Rates — {{ ratesModal.name }}</h3>
-                    <button @click="ratesModal = null" class="modal__close">✕</button>
+        <Teleport to="body">
+            <div v-if="ratesModal" class="modal-overlay" @click="ratesModal = null">
+                <div class="modal" @click.stop>
+                    <div class="modal__header">
+                        <div class="modal__icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                v-html="icons.globe" />
+                        </div>
+                        <h3 class="modal__title">Country Rates — {{ ratesModal.name }}</h3>
+                    </div>
+
+                    <form @submit.prevent="submitRates" class="modal__body">
+                        <div class="rates-list">
+                            <div v-for="(rate, i) in ratesForm.rates" :key="i" class="rate-row">
+                                <div class="field field--compact">
+                                    <label class="field__label">Country</label>
+                                    <input v-model="rate.country_code" type="text" placeholder="US" maxlength="2"
+                                        class="field__input field__input--code" />
+                                </div>
+                                <div class="field field--compact">
+                                    <label class="field__label">Rate %</label>
+                                    <input v-model="rate.commission_rate" type="number" step="0.01" min="0" max="100"
+                                        placeholder="5.00" class="field__input field__input--rate" />
+                                </div>
+                                <button type="button" @click="removeRate(i)" class="btn-icon btn-icon--delete"
+                                    title="Remove">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        v-html="icons.trash" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="button" @click="addRate" class="btn-add">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            Add Country Rate
+                        </button>
+
+                        <div class="modal__actions">
+                            <button type="button" @click="ratesModal = null"
+                                class="modal__btn modal__btn--ghost">Cancel</button>
+                            <button type="submit" class="modal__btn modal__btn--primary"
+                                :disabled="ratesForm.processing">
+                                {{ ratesForm.processing ? 'Saving...' : 'Save Rates' }}
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-                <form @submit.prevent="submitRates" class="modal__body">
-                    <div v-for="(rate, i) in ratesForm.rates" :key="i" class="rate-row">
-                        <input v-model="rate.country_code" type="text" placeholder="US" maxlength="2"
-                            class="field__input field__input--sm" style="width:70px;text-transform:uppercase" />
-                        <input v-model="rate.commission_rate" type="number" step="0.01" min="0" max="100"
-                            placeholder="%" class="field__input field__input--sm" style="width:90px" />
-                        <button type="button" @click="removeRate(i)" class="action-btn action-btn--danger">✕</button>
-                    </div>
-
-                    <button type="button" @click="addRate" class="btn-ghost-sm">+ Add Country</button>
-
-                    <div class="modal__footer">
-                        <button type="button" @click="ratesModal = null" class="btn-ghost">Cancel</button>
-                        <button type="submit" class="btn-primary" :disabled="ratesForm.processing">Save Rates</button>
-                    </div>
-                </form>
             </div>
-        </div>
+        </Teleport>
+
+        <!-- Create Tier Modal -->
+        <Teleport to="body">
+            <div v-if="createModal" class="modal-overlay" @click="closeCreateModal">
+                <div class="modal" @click.stop>
+                    <div class="modal__header">
+                        <div class="modal__icon modal__icon--create">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                v-html="icons.tiers" />
+                        </div>
+                        <h3 class="modal__title">Create New Tier</h3>
+                    </div>
+
+                    <form @submit.prevent="submitCreate" class="modal__body">
+                        <div class="field">
+                            <label class="field__label">Tier Name <span class="required">*</span></label>
+                            <input v-model="createForm.name" type="text" placeholder="e.g., Bronze" class="field__input"
+                                required />
+                            <span v-if="createForm.errors.name" class="field__error">{{ createForm.errors.name }}</span>
+                        </div>
+
+                        <div class="field">
+                            <label class="field__label">Visit Threshold</label>
+                            <input v-model="createForm.visit_threshold" type="number" min="0" placeholder="0"
+                                class="field__input" />
+                            <span class="field__hint">Minimum visits required to qualify for this tier</span>
+                        </div>
+
+                        <div class="field">
+                            <label class="field__label">Earnings Per <span class="highlight">{{
+                                createForm.view_multiplier.toLocaleString() }}</span> Views <span
+                                    class="required">*</span></label>
+                            <div class="rate-inputs">
+                                <span class="currency">$</span>
+                                <input v-model="createForm.view_rate" type="number" step="0.01" min="0"
+                                    placeholder="3.00" class="field__input field__input--rate" required />
+                                <span class="per">per</span>
+                                <select v-model="createForm.view_multiplier"
+                                    class="field__input field__input--multiplier">
+                                    <option :value="100">100 views</option>
+                                    <option :value="1000">1,000 views</option>
+                                    <option :value="10000">10,000 views</option>
+                                </select>
+                            </div>
+                            <span v-if="createForm.errors.view_rate" class="field__error">{{ createForm.errors.view_rate
+                                }}</span>
+                        </div>
+
+                        <div class="modal__actions">
+                            <button type="button" @click="closeCreateModal"
+                                class="modal__btn modal__btn--ghost">Cancel</button>
+                            <button type="submit" class="modal__btn modal__btn--primary"
+                                :disabled="createForm.processing">
+                                {{ createForm.processing ? 'Creating...' : 'Create Tier' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </Teleport>
+
     </AdminLayout>
 </template>
 
@@ -164,73 +420,345 @@ const submitRates = () => {
     --ink-soft: #444;
     --muted: #888;
     --border: #e8e5e0;
-    --bg: #fafafa;
     --surface: #fff;
     --surface-2: #f5f3ef;
     --radius: 4px;
     --transition: all 0.2s ease;
 }
 
-.mb {
+/* ── Page Header ──────────────────────────── */
+.page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
     margin-bottom: 20px;
 }
 
-.card {
+.page-header__marker {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--red);
+    display: block;
+    margin-bottom: 8px;
+}
+
+.page-header__title {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 4px;
+}
+
+.page-header__sub {
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-style: italic;
+    color: var(--muted);
+    margin: 0;
+}
+
+.highlight {
+    color: var(--red);
+    font-weight: 600;
+}
+
+/* ── Section Rule ─────────────────────────── */
+.section-rule {
+    height: 1px;
+    background: linear-gradient(90deg, var(--red) 60px, var(--border) 60px);
+    margin-bottom: 28px;
+}
+
+/* ── Section Headers ─────────────────────── */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.section-header__title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin: 0;
+}
+
+/* ── Stats Grid ───────────────────────────── */
+.stats-section {
+    margin-bottom: 32px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    transition: var(--transition);
+}
+
+.stat-card--red {
+    background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
+}
+
+.stat-card--green {
+    background: linear-gradient(135deg, #f0fdf4 0%, #fff 100%);
+}
+
+.stat-card--blue {
+    background: linear-gradient(135deg, #eff6ff 0%, #fff 100%);
+}
+
+.stat-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.stat-card__roman {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--red);
+}
+
+.stat-card__icon {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-card--red .stat-card__icon {
+    background: #fef2f2;
+    color: var(--red);
+}
+
+.stat-card--green .stat-card__icon {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.stat-card--blue .stat-card__icon {
+    background: #dbeafe;
+    color: #3b82f6;
+}
+
+.stat-card__icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+.stat-card__value {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+}
+
+.stat-card__label {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-style: italic;
+    color: var(--muted);
+}
+
+/* ── Create Section ───────────────────────── */
+.create-section {
+    margin-bottom: 32px;
+}
+
+.btn-create {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    background: var(--red);
+    border: 1px solid var(--red);
+    border-radius: var(--radius);
+    color: var(--surface);
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
+}
+
+.btn-create:hover {
+    background: var(--red-dark);
+    border-color: var(--red-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(231, 76, 60, 0.3);
+}
+
+.btn-create svg {
+    width: 18px;
+    height: 18px;
+}
+
+.create-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 24px;
 }
 
-.card-title {
-    font-family: var(--font-display);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    margin-bottom: 16px;
+.create-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.inline-form {
+.form-row {
     display: flex;
-    align-items: flex-end;
-    gap: 14px;
+    gap: 20px;
     flex-wrap: wrap;
 }
 
 .field {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.field--rate {
+    flex: 2;
+    min-width: 300px;
+}
+
+.field--compact {
+    min-width: auto;
 }
 
 .field__label {
-    font-size: 12px;
-    color: var(--muted);
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink);
+    text-transform: uppercase;
+}
+
+.required {
+    color: var(--red);
 }
 
 .field__input {
-    background: var(--surface);
+    padding: 10px 12px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 9px 12px;
-    font-size: 13px;
+    background: var(--surface);
     color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 14px;
+    transition: var(--transition);
     outline: none;
-    transition: border-color 200ms;
 }
 
 .field__input:focus {
     border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
 }
 
-.field__input--sm {
-    padding: 7px 10px;
-    font-size: 13px;
+.rate-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-/* ── Table ─────────────────────────────────── */
+.currency,
+.per {
+    font-family: var(--font-display);
+    font-size: 16px;
+    color: var(--muted);
+}
+
+.field__input--rate {
+    width: 100px;
+    text-align: center;
+}
+
+.field__input--multiplier {
+    width: auto;
+    min-width: 120px;
+}
+
+.field__input--code {
+    width: 70px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.field__hint {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-style: italic;
+    color: var(--muted);
+}
+
+.field__error {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--red);
+    font-style: italic;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-start;
+    padding-top: 8px;
+}
+
+.btn-primary {
+    padding: 10px 20px;
+    background: var(--red);
+    border: 1px solid var(--red);
+    border-radius: var(--radius);
+    color: var(--surface);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-primary:hover {
+    background: var(--red-dark);
+    border-color: var(--red-dark);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ── Table Section ───────────────────────── */
+.table-section {
+    margin-bottom: 32px;
+}
+
 .table-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -238,113 +766,303 @@ const submitRates = () => {
     overflow: hidden;
 }
 
-.table-head {
-    display: grid;
-    grid-template-columns: 1fr 140px 120px 100px 90px 200px;
-    padding: 10px 20px;
-    font-size: 11px;
-    font-weight: 600;
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state__icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
     color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    background: var(--surface-2);
+    opacity: 0.5;
+}
+
+.empty-state__icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.empty-state__title {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 8px;
+}
+
+.empty-state__text {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-style: italic;
+    color: var(--muted);
+    margin: 0;
+}
+
+.tiers-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.tier-item {
     border-bottom: 1px solid var(--border);
 }
 
-.table-row,
-.edit-row {
-    display: grid;
-    grid-template-columns: 1fr 140px 120px 100px 90px 200px;
-    align-items: center;
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
-    transition: background 200ms;
-}
-
-.table-row:hover {
-    background: var(--surface-2);
-}
-
-.table-row:last-child,
-.edit-row:last-child {
+.tier-item:last-child {
     border-bottom: none;
 }
 
-.cell-name {
-    font-size: 14px;
+.tier-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    transition: background 200ms;
+}
+
+.tier-row:hover {
+    background: var(--surface-2);
+}
+
+.tier-row--edit {
+    background: #fffbeb;
+}
+
+.tier-row--edit:hover {
+    background: #fffbeb;
+}
+
+.tier-main {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex: 1;
+}
+
+.tier-main--edit {
+    flex: 1;
+}
+
+.tier-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 200px;
+}
+
+.tier-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.tier-icon--active {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.tier-icon--inactive {
+    background: #f3f4f6;
+    color: var(--muted);
+}
+
+.tier-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.tier-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.tier-name {
+    font-family: var(--font-display);
+    font-size: 15px;
     font-weight: 600;
     color: var(--ink);
+    margin-bottom: 2px;
 }
 
-.cell-num {
-    font-size: 13px;
-    color: var(--ink-soft);
+.tier-meta {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-style: italic;
+    color: var(--muted);
 }
 
-.cell-rate {
+.tier-rate {
+    flex: 1;
+}
+
+.rate-display {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-family: var(--font-display);
+}
+
+.rate-icon {
     font-size: 14px;
+    color: var(--muted);
+}
+
+.rate-amount {
+    font-size: 20px;
     font-weight: 600;
     color: var(--red);
 }
 
-.badge {
-    display: inline-flex;
+.rate-divider {
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.rate-views {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 500;
+}
+
+.tier-side {
+    display: flex;
     align-items: center;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 11px;
+    gap: 12px;
+}
+
+.tier-affiliates {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-soft);
+}
+
+.tier-affiliates svg {
+    width: 14px;
+    height: 14px;
+}
+
+.tier-status {
+    font-family: var(--font-display);
+    font-size: 10px;
     font-weight: 600;
-    width: fit-content;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: var(--radius);
 }
 
-.badge--green {
-    color: #22C55E;
-    background: rgba(34, 197, 94, 0.1);
+.tier-status--active {
+    background: #dcfce7;
+    color: #16a34a;
 }
 
-.badge--red {
-    color: #EF4444;
-    background: rgba(239, 68, 68, 0.1);
+.tier-status--inactive {
+    background: #f3f4f6;
+    color: var(--muted);
 }
 
-.cell-actions {
+.tier-actions {
     display: flex;
     gap: 6px;
 }
 
-.action-btn {
-    font-size: 11px;
-    color: var(--muted);
-    text-decoration: none;
-    padding: 4px 10px;
-    border-radius: 6px;
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
     border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink-soft);
+    cursor: pointer;
     transition: var(--transition);
+    text-decoration: none;
 }
 
-.action-btn:hover {
+.btn-icon:hover {
+    background: var(--surface-2);
     color: var(--ink);
-    border-color: var(--red);
 }
 
-.action-btn--primary {
+.btn-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+.btn-icon--edit {
+    background: #eff6ff;
+    color: #3b82f6;
+    border-color: #bfdbfe;
+}
+
+.btn-icon--edit:hover {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.btn-icon--globe {
+    background: #f5f3ef;
+    color: var(--gold);
+    border-color: #fde68a;
+}
+
+.btn-icon--globe:hover {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.btn-icon--save {
+    background: #dcfce7;
+    color: #16a34a;
+    border-color: #86efac;
+}
+
+.btn-icon--save:hover {
+    background: #bbf7d0;
+}
+
+.btn-icon--cancel {
+    background: #fef2f2;
     color: var(--red);
-    border-color: var(--red);
+    border-color: #fecaca;
 }
 
-.action-btn--primary:hover {
-    background: rgba(34, 211, 238, 0.1);
+.btn-icon--cancel:hover {
+    background: #fee2e2;
 }
 
-.action-btn--danger:hover {
+.btn-icon--delete {
+    background: #fef2f2;
     color: var(--red);
-    border-color: var(--red);
+    border-color: #fecaca;
 }
 
-/* ── Toggle ──────────────────────────────────── */
+.btn-icon--delete:hover {
+    background: #fee2e2;
+}
+
+.edit-fields {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ── Toggle ──────────────────────────────── */
 .toggle {
     display: flex;
     align-items: center;
+    gap: 8px;
     cursor: pointer;
 }
 
@@ -379,117 +1097,207 @@ const submitRates = () => {
     transform: translateX(16px);
 }
 
-/* ── Modal ──────────────────────────────────── */
+.toggle__label {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-soft);
+}
+
+/* ── Modal ───────────────────────────────── */
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 50;
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 1000;
+    padding: 20px;
 }
 
 .modal {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    width: 480px;
-    max-width: 90vw;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    animation: modalEnter 0.2s ease;
+}
+
+@keyframes modalEnter {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .modal__header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    padding: 24px 24px 0;
+}
+
+.modal__icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #dbeafe;
+    border-radius: var(--radius);
+    color: #3b82f6;
+}
+
+.modal__icon--create {
+    background: #fef2f2;
+    color: var(--red);
+}
+
+.modal__icon svg {
+    width: 20px;
+    height: 20px;
 }
 
 .modal__title {
-    font-size: 15px;
+    font-family: var(--font-display);
+    font-size: 18px;
     font-weight: 600;
     color: var(--ink);
-}
-
-.modal__close {
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-size: 16px;
-    cursor: pointer;
+    margin: 0;
 }
 
 .modal__body {
-    padding: 20px 24px;
+    padding: 16px 24px 24px;
+}
+
+.rates-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
-}
-
-.modal__footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-    margin-top: 8px;
+    margin-bottom: 16px;
 }
 
 .rate-row {
     display: flex;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.btn-add {
+    display: flex;
     align-items: center;
-    gap: 10px;
-}
-
-.btn-primary {
-    display: inline-flex;
-    align-items: center;
-    padding: 9px 18px;
-    background: var(--red);
-    color: var(--surface);
-    font-size: 13px;
-    font-weight: 600;
-    border-radius: var(--radius);
-    border: none;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.btn-primary:hover {
-    background: var(--red-dark);
-}
-
-.btn-ghost {
-    padding: 9px 16px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--muted);
-    font-size: 13px;
-    text-decoration: none;
-    background: none;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.btn-ghost:hover {
-    color: var(--ink);
-    border-color: var(--ink);
-}
-
-.btn-ghost-sm {
-    font-size: 12px;
-    color: var(--muted);
-    background: none;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px;
+    background: var(--surface);
     border: 1px dashed var(--border);
     border-radius: var(--radius);
-    padding: 4px 8px;
+    color: var(--muted);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 500;
     cursor: pointer;
     transition: var(--transition);
 }
 
-.btn-ghost-sm:hover {
+.btn-add:hover {
     color: var(--red);
     border-color: var(--red);
+    background: #fef2f2;
+}
+
+.btn-add svg {
+    width: 16px;
+    height: 16px;
+}
+
+.modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    background: var(--surface-2);
+    border-top: 1px solid var(--border);
+    margin: 24px -24px -24px;
+    border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.modal__btn {
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid transparent;
+}
+
+.modal__btn--ghost {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--ink);
+}
+
+.modal__btn--ghost:hover {
+    background: var(--border);
+}
+
+.modal__btn--primary {
+    background: var(--red);
+    border-color: var(--red);
+    color: var(--surface);
+}
+
+.modal__btn--primary:hover {
+    background: var(--red-dark);
+    border-color: var(--red-dark);
+}
+
+/* ── Responsive ────────────────────────── */
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .tier-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .tier-side {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .edit-fields {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+
+    .rate-inputs {
+        flex-wrap: wrap;
+    }
 }
 </style>
