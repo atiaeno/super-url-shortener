@@ -208,7 +208,7 @@ const confirmDelete = () => {
                                 </td>
                                 <td>
                                     <span class="dest-cell" :title="link.destination_url">{{ link.destination_url
-                                        }}</span>
+                                    }}</span>
                                 </td>
                                 <td class="col-center">
                                     <span class="clicks-cell">
@@ -236,7 +236,7 @@ const confirmDelete = () => {
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                 v-html="icons.power" />
                                         </button>
-                                        <Link :href="route('links.edit', link.id)" class="btn-icon btn-icon--edit"
+                                        <Link :href="route('admin.links.edit', link.id)" class="btn-icon btn-icon--edit"
                                             title="Edit Link">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                 v-html="icons.edit" />

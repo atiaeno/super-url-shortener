@@ -2,6 +2,7 @@
 // © Atia Hegazy — atiaeno.com
 
 use App\Http\Controllers\Admin\AdController;
+use App\Http\Controllers\Admin\AdminLinkController;
 use App\Http\Controllers\Admin\AffiliateTierController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ModerationController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SocialAuthController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
 
 // ── Homepage ─────────────────────────────────────────────────────────────────
 Route::get('/', function () {
@@ -106,6 +108,10 @@ Route::middleware('auth')->group(function () {
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     // Dashboard
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // Link Management (admin edit)
+    Route::get('links/{link}/edit', [AdminLinkController::class, 'edit'])->name('links.edit');
+    Route::put('links/{link}', [AdminLinkController::class, 'update'])->name('links.update');
 
     // User Management (Stories 8.1 - 8.3)
     Route::prefix('users')->name('users.')->group(function () {
