@@ -4,10 +4,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Link extends Model
 {
@@ -78,14 +78,17 @@ class Link extends Model
 
     public function getShortUrlAttribute(): string
     {
-        return config('app.url') . '/' . $this->short_code;
+        $code = $this->custom_alias ?: $this->short_code;
+        return config('app.url') . '/' . $code;
     }
 
     public function scopeActive($query)
     {
-        return $query->where('is_active', true)
+        return $query
+            ->where('is_active', true)
             ->where(function ($q) {
-                $q->whereNull('expires_at')
+                $q
+                    ->whereNull('expires_at')
                     ->orWhere('expires_at', '>', now());
             });
     }
