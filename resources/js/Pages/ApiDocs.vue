@@ -29,23 +29,36 @@ const endpoints = [
 
 const endpointDetails = {
     create: {
-        description: 'Create a new shortened URL. Optionally specify a custom alias.',
+        description: 'Create a new shortened URL. Supports optional parameters: alias, campaign_tag, visibility (public/private), password (for private links), expires_at, og_title, og_description, og_image.',
         request: `POST ${baseUrl}/links
 Content-Type: application/json
 Authorization: Bearer YOUR_API_KEY
 
 {
   "url": "https://example.com/very/long/path/to/resource",
-  "alias": "my-link"
+  "alias": "my-link",
+  "campaign_tag": "summer-sale",
+  "visibility": "public",
+  "expires_at": "2025-12-31T23:59:59Z",
+  "og_title": "My Awesome Product",
+  "og_description": "Check out this amazing product!",
+  "og_image": "https://example.com/og-image.jpg"
 }`,
         response: `{
   "id": "abc123",
   "short_code": "my-link",
   "short_url": "https://short.link/my-link",
   "original_url": "https://example.com/very/long/path/to/resource",
+  "alias": "my-link",
+  "campaign_tag": "summer-sale",
+  "visibility": "public",
+  "expires_at": "2025-12-31T23:59:59Z",
+  "og_title": "My Awesome Product",
+  "og_description": "Check out this amazing product!",
+  "og_image": "https://example.com/og-image.jpg",
   "qr_code": "https://short.link/qr/my-link.svg",
-  "created_at": "2025-01-15T10:30:00Z",
-  "clicks": 0
+  "clicks": 0,
+  "created_at": "2025-01-15T10:30:00Z"
 }`
     },
     list: {
@@ -59,6 +72,11 @@ Authorization: Bearer YOUR_API_KEY`,
       "short_code": "my-link",
       "short_url": "https://short.link/my-link",
       "original_url": "https://example.com",
+      "alias": "my-link",
+      "campaign_tag": "summer-sale",
+      "visibility": "public",
+      "expires_at": "2025-12-31T23:59:59Z",
+      "og_title": "My Product",
       "clicks": 42,
       "created_at": "2025-01-15T10:30:00Z"
     }
@@ -79,30 +97,41 @@ Authorization: Bearer YOUR_API_KEY`,
   "short_code": "my-link",
   "short_url": "https://short.link/my-link",
   "original_url": "https://example.com",
+  "alias": "my-link",
+  "campaign_tag": "summer-sale",
+  "visibility": "public",
+  "expires_at": "2025-12-31T23:59:59Z",
+  "og_title": "My Product",
+  "og_description": "Check it out!",
+  "og_image": "https://example.com/og.jpg",
   "qr_code": "https://short.link/qr/my-link.svg",
-  "created_at": "2025-01-15T10:30:00Z",
-  "updated_at": "2025-01-15T14:20:00Z",
   "clicks": 42,
-  "unique_clicks": 38
+  "created_at": "2025-01-15T10:30:00Z",
+  "updated_at": "2025-01-15T14:20:00Z"
 }`
     },
     update: {
-        description: 'Update the destination URL or alias of an existing link.',
+        description: 'Update link properties including URL, alias, campaign_tag, visibility, password, expires_at, and OG fields.',
         request: `PATCH ${baseUrl}/links/abc123
 Content-Type: application/json
 Authorization: Bearer YOUR_API_KEY
 
 {
   "url": "https://new-destination.com/updated-path",
-  "alias": "new-alias"
+  "alias": "new-alias",
+  "campaign_tag": "winter-sale",
+  "og_title": "Updated Title"
 }`,
         response: `{
   "id": "abc123",
   "short_code": "new-alias",
   "short_url": "https://short.link/new-alias",
   "original_url": "https://new-destination.com/updated-path",
-  "updated_at": "2025-01-15T16:45:00Z",
-  "message": "Link updated successfully"
+  "alias": "new-alias",
+  "campaign_tag": "winter-sale",
+  "visibility": "public",
+  "og_title": "Updated Title",
+  "updated_at": "2025-01-15T16:45:00Z"
 }`
     },
     delete: {

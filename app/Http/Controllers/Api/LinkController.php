@@ -161,6 +161,10 @@ class LinkController extends ApiController
         if (isset($validated['password'])) {
             $link->password = $validated['password'];
         }
+        $link->expires_at = $validated['expires_at'] ?? $link->expires_at;
+        $link->og_title = $validated['og_title'] ?? $link->og_title;
+        $link->og_description = $validated['og_description'] ?? $link->og_description;
+        $link->og_image = $validated['og_image'] ?? $link->og_image;
         $link->save();
 
         // Update cache
