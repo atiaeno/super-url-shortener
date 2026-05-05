@@ -21,7 +21,27 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    charts: {
+        type: Object,
+        default: () => ({
+            clicks_over_time: [],
+            top_countries: [],
+        }),
+    },
 });
+
+const maxClicks = computed(() => {
+    const data = props.charts?.clicks_over_time || [];
+    const max = Math.max(...data.map(d => d.count), 0);
+    return max;
+});
+
+const hasClicksData = computed(() => {
+    const data = props.charts?.clicks_over_time || [];
+    return data.some(d => d.count > 0);
+});
+
+const charts = computed(() => props.charts || { clicks_over_time: [], top_countries: [] });
 
 const statItems = computed(() => [
     {
@@ -29,6 +49,7 @@ const statItems = computed(() => [
         label: 'Total Links',
         value: props.stats.total_links,
         roman: 'I.',
+        color: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
         icon: `<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>`,
     },
     {
@@ -36,6 +57,7 @@ const statItems = computed(() => [
         label: 'Total Clicks',
         value: props.stats.total_clicks,
         roman: 'II.',
+        color: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
         icon: `<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>`,
     },
     {
@@ -43,6 +65,7 @@ const statItems = computed(() => [
         label: 'Clicks Today',
         value: props.stats.clicks_today,
         roman: 'III.',
+        color: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
         icon: `<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
     },
     {
@@ -50,6 +73,7 @@ const statItems = computed(() => [
         label: 'Active Links',
         value: props.stats.active_links,
         roman: 'IV.',
+        color: 'linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%)',
         icon: `<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>`,
     },
 ]);
@@ -100,7 +124,7 @@ const icons = {
             <!-- Stats Grid -->
             <section class="stats-section">
                 <div class="stats-grid">
-                    <div v-for="item in statItems" :key="item.id" class="stat-card">
+                    <div v-for="item in statItems" :key="item.id" class="stat-card" :style="{ background: item.color }">
                         <div class="stat-card__top">
                             <span class="stat-card__roman">{{ item.roman }}</span>
                             <div class="stat-card__icon-wrap" :class="`stat-card__icon-wrap--${item.id}`">
@@ -166,12 +190,20 @@ const icons = {
                             <span class="chart-card__title">Clicks Over Time</span>
                         </div>
                         <div class="chart-card__body">
-                            <div class="chart-placeholder">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                                    <polyline points="17 6 23 6 23 12" />
-                                </svg>
-                                <span>7-day click trend</span>
+                            <div v-if="!hasClicksData" class="chart-placeholder">
+                                <span>No clicks yet</span>
+                            </div>
+                            <div v-else class="bar-chart">
+                                <div class="bar-chart__bars">
+                                    <div v-for="item in charts.clicks_over_time" :key="item.date"
+                                        class="bar-chart__bar-wrapper">
+                                        <div class="bar-chart__bar"
+                                            :style="{ height: (item.count / maxClicks * 100) + '%' }">
+                                            <span class="bar-chart__tooltip">{{ item.count }}</span>
+                                        </div>
+                                        <span class="bar-chart__label">{{ item.date }}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -181,14 +213,16 @@ const icons = {
                             <span class="chart-card__title">Top Countries</span>
                         </div>
                         <div class="chart-card__body">
-                            <div class="chart-placeholder">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <line x1="2" y1="12" x2="22" y2="12" />
-                                    <path
-                                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                                </svg>
-                                <span>Geographic distribution</span>
+                            <div class="country-list">
+                                <div v-for="(item, index) in charts.top_countries" :key="item.country"
+                                    class="country-item">
+                                    <span class="country-rank">{{ index + 1 }}</span>
+                                    <span class="country-code">{{ item.country }}</span>
+                                    <span class="country-count">{{ item.count.toLocaleString() }}</span>
+                                </div>
+                                <div v-if="!charts.top_countries?.length" class="chart-placeholder">
+                                    <span>No data yet</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -311,7 +345,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 10px;
     font-weight: 700;
-    
+
     text-transform: uppercase;
     color: var(--red);
     display: block;
@@ -322,7 +356,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 24px;
     font-weight: 600;
-    
+
     color: var(--ink);
     margin: 0 0 4px;
 }
@@ -346,7 +380,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 12px;
     font-weight: 500;
-   
+
     text-transform: uppercase;
     text-decoration: none;
     transition: var(--transition);
@@ -392,7 +426,6 @@ const icons = {
 }
 
 .stat-card {
-    background: var(--surface);
     padding: 20px 18px 16px;
     display: flex;
     flex-direction: column;
@@ -401,7 +434,7 @@ const icons = {
 }
 
 .stat-card:hover {
-    background: #fdf9f5;
+    filter: brightness(0.95);
 }
 
 .stat-card__top {
@@ -416,7 +449,7 @@ const icons = {
     font-size: 10px;
     font-weight: 700;
     color: var(--red);
-    
+
 }
 
 .stat-card__icon-wrap {
@@ -466,7 +499,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 10px;
     font-weight: 500;
-    
+
     text-transform: uppercase;
     color: var(--muted);
 }
@@ -526,7 +559,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 12px;
     font-weight: 600;
-   
+
     text-transform: uppercase;
     color: var(--ink);
     white-space: nowrap;
@@ -594,14 +627,14 @@ const icons = {
     font-size: 10px;
     font-weight: 700;
     color: var(--red);
-    
+
 }
 
 .chart-card__title {
     font-family: var(--font-display);
     font-size: 11px;
     font-weight: 600;
-    
+
     text-transform: uppercase;
     color: var(--ink);
 }
@@ -609,9 +642,10 @@ const icons = {
 .chart-card__body {
     flex: 1;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     min-height: 100px;
+    padding-bottom: 10px;
 }
 
 .chart-placeholder {
@@ -634,6 +668,114 @@ const icons = {
     font-style: italic;
 }
 
+/* Bar Chart */
+.bar-chart {
+    width: 100%;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.bar-chart__bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 100px;
+    padding-bottom: 8px;
+}
+
+.bar-chart__bar-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+}
+
+.bar-chart__bar {
+    width: 100%;
+    max-width: 40px;
+    background: linear-gradient(180deg, var(--red) 0%, #c0392b 100%);
+    border-radius: 4px 4px 0 0;
+    min-height: 4px;
+    position: relative;
+    transition: height 0.3s ease;
+}
+
+.bar-chart__bar:hover {
+    background: linear-gradient(180deg, #c0392b 0%, #a93226 100%);
+}
+
+.bar-chart__tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: var(--font-display);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+    margin-bottom: 4px;
+}
+
+.bar-chart__bar:hover .bar-chart__tooltip {
+    opacity: 1;
+}
+
+.bar-chart__label {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: var(--font-display);
+    margin-top: 4px;
+}
+
+/* Country List */
+.country-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.country-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+.country-rank {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--red);
+    min-width: 20px;
+}
+
+.country-code {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink);
+    flex: 1;
+}
+
+.country-count {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--muted);
+}
+
 /* ── Links Section ────────────────────────── */
 .links-section {
     margin-bottom: 32px;
@@ -650,7 +792,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 13px;
     font-weight: 600;
- 
+
     text-transform: uppercase;
     color: var(--ink);
     display: block;
@@ -672,7 +814,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 11px;
     font-weight: 500;
-    
+
     text-transform: uppercase;
     color: var(--red);
     text-decoration: none;
@@ -726,7 +868,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 14px;
     font-weight: 600;
-    
+
     text-transform: uppercase;
     color: var(--ink);
     margin: 0 0 6px;
@@ -760,7 +902,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 9px;
     font-weight: 600;
-   
+
     text-transform: uppercase;
     color: var(--muted);
 }
@@ -801,7 +943,7 @@ const icons = {
     font-weight: 600;
     color: var(--red);
     text-decoration: none;
-  
+
     transition: color 0.15s;
 }
 
@@ -858,7 +1000,7 @@ const icons = {
     font-family: var(--font-display);
     font-size: 11px;
     color: var(--muted);
-  
+
     text-align: center;
 }
 

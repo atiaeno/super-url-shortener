@@ -27,7 +27,7 @@ class LinkController extends Controller
         $links = Link::forUser(Auth::id())
             ->withCount('clicks')
             ->latest()
-            ->paginate(50);
+            ->paginate(20);
 
         return Inertia::render('Links/Index', [
             'links' => $links,

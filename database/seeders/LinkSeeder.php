@@ -3,8 +3,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Link;
 use App\Models\Click;
+use App\Models\Link;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -26,9 +26,9 @@ class LinkSeeder extends Seeder
         $browsers = ['Chrome', 'Safari', 'Firefox', 'Edge', 'Opera'];
         $devices = ['desktop', 'mobile', 'tablet'];
 
-        // Create 20 links with analytics
-        for ($i = 1; $i <= 20; $i++) {
-            $user = $users->random();
+        // Create 50 links for user 1 with analytics
+        for ($i = 1; $i <= 50; $i++) {
+            $user = User::find(1);
             $shortCode = $this->generateShortCode();
             $domain = $domains[array_rand($domains)];
 
@@ -36,17 +36,21 @@ class LinkSeeder extends Seeder
                 'user_id' => $user->id,
                 'short_code' => $shortCode,
                 'destination_url' => $domain . 'page-' . $i,
-                'custom_alias' => $i <= 5 ? 'custom-' . $i : null,
+                'custom_alias' => $i <= 5 ? 'custom-' . $shortCode : null,
                 'campaign_tag' => $i <= 10 ? $campaigns[array_rand($campaigns)] : null,
                 'og_title' => $i <= 8 ? 'Amazing Article #' . $i : null,
                 'og_description' => $i <= 8 ? 'Read this incredible story about topic ' . $i : null,
-                'is_active' => $i <= 18, // 2 inactive links
+                'is_active' => $i <= 18,  // 2 inactive links
                 'clicks_count' => 0,
             ]);
 
             // Generate 50-200 clicks per link
             $clickCount = rand(50, 200);
-            for ($j = 0; $j < $clickCount; $j++) {
+            // Ensure at least 30% of clicks are in the last 7 days for chart testing
+            $recentClicks = (int) ($clickCount * 0.3);
+            $olderClicks = $clickCount - $recentClicks;
+
+            for ($j = 0; $j < $recentClicks; $j++) {
                 Click::create([
                     'link_id' => $link->id,
                     'ip_hash' => hash('sha256', '192.168.1.' . rand(1, 255)),
@@ -55,7 +59,20 @@ class LinkSeeder extends Seeder
                     'browser' => $browsers[array_rand($browsers)],
                     'os' => ['Windows', 'macOS', 'Linux', 'iOS', 'Android'][array_rand(['Windows', 'macOS', 'Linux', 'iOS', 'Android'])],
                     'referrer_domain' => ['google.com', 'facebook.com', 'twitter.com', 'linkedin.com', null][array_rand(['google.com', 'facebook.com', 'twitter.com', 'linkedin.com', null])],
-                    'created_at' => now()->subDays(rand(0, 30))->subHours(rand(0, 23)),
+                    'created_at' => now()->subDays(rand(0, 7))->subHours(rand(0, 23))->subMinutes(rand(0, 59)),
+                ]);
+            }
+
+            for ($j = 0; $j < $olderClicks; $j++) {
+                Click::create([
+                    'link_id' => $link->id,
+                    'ip_hash' => hash('sha256', '10.0.0.' . rand(1, 255)),
+                    'country_code' => $countries[array_rand($countries)],
+                    'device_type' => $devices[array_rand($devices)],
+                    'browser' => $browsers[array_rand($browsers)],
+                    'os' => ['Windows', 'macOS', 'Linux', 'iOS', 'Android'][array_rand(['Windows', 'macOS', 'Linux', 'iOS', 'Android'])],
+                    'referrer_domain' => ['google.com', 'facebook.com', 'twitter.com', 'linkedin.com', null][array_rand(['google.com', 'facebook.com', 'twitter.com', 'linkedin.com', null])],
+                    'created_at' => now()->subDays(rand(8, 30))->subHours(rand(0, 23))->subMinutes(rand(0, 59)),
                 ]);
             }
 

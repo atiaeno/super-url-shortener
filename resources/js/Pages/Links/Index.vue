@@ -29,9 +29,17 @@ const formatDate = (dateStr) => {
     if (!dateStr) return '—';
     return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
+
+const icons = {
+    external: `<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>`,
+    chart: `<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>`,
+    edit: `<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>`,
+    trash: `<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>`,
+};
 </script>
 
 <template>
+
     <Head title="My Links — Editorial" />
 
     <AuthenticatedLayout>
@@ -57,69 +65,68 @@ const formatDate = (dateStr) => {
             <Link :href="route('links.create')" class="btn-primary">Create Entry</Link>
         </div>
 
-        <!-- Editorial Table -->
-        <div v-else class="editorial-table">
-            <div class="table-head">
-                <span>Destination</span>
+        <!-- Links Table -->
+        <div v-else class="links-table">
+            <div class="links-table__head">
                 <span>Short URL</span>
-                <span>Clicks</span>
-                <span>Status</span>
-                <span>Created</span>
-                <span>Actions</span>
+                <span>Destination</span>
+                <span class="col-center">Clicks</span>
+                <span class="col-center">Status</span>
+                <span class="col-center">Created</span>
+                <span></span>
             </div>
 
-            <div v-for="link in links.data" :key="link.id" class="table-row">
-                <!-- Destination -->
-                <div class="cell-dest">
-                    <a :href="link.destination_url" target="_blank" rel="noopener" class="dest-url">
-                        {{ link.destination_url }}
+            <div v-for="link in links.data" :key="link.id" class="link-row">
+                <!-- Short URL -->
+                <div class="link-row__short">
+                    <a :href="`/${link.short_code}`" target="_blank" class="short-link">
+                        <span class="short-link__slash">/</span>{{ link.short_code }}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            class="short-link__ext" v-html="icons.external" />
                     </a>
-                    <span v-if="link.campaign_tag" class="tag">{{ link.campaign_tag }}</span>
                 </div>
 
-                <!-- Short URL -->
-                <div class="cell-short">
-                    <a :href="`/${link.short_code}`" target="_blank" class="short-url">
-                        /{{ link.short_code }}
-                    </a>
-                    <button @click="copyShortUrl(link.short_code)" class="copy-btn">
-                        {{ copiedId === link.short_code ? '✓ Copied' : 'Copy' }}
-                    </button>
+                <!-- Destination -->
+                <div class="link-row__dest">
+                    <span :title="link.destination_url">{{ link.destination_url }}</span>
                 </div>
 
                 <!-- Clicks -->
-                <span class="cell-clicks">{{ (link.clicks_count ?? 0).toLocaleString() }}</span>
+                <div class="link-row__clicks col-center">
+                    {{ (link.clicks_count ?? 0).toLocaleString() }}
+                </div>
 
                 <!-- Status -->
-                <span class="cell-status" :class="link.is_active ? 'status--active' : 'status--inactive'">
+                <span class="col-center cell-status" :class="link.is_active ? 'status--active' : 'status--inactive'">
                     {{ link.is_active ? 'Active' : 'Inactive' }}
                 </span>
 
                 <!-- Date -->
-                <span class="cell-date">{{ formatDate(link.created_at) }}</span>
+                <span class="link-row__date col-center">{{ formatDate(link.created_at) }}</span>
 
                 <!-- Actions -->
-                <div class="cell-actions">
-                    <Link :href="route('links.show', link.id)" class="action-btn" title="Analytics">Stats</Link>
-                    <Link :href="route('links.edit', link.id)" class="action-btn" title="Edit">Edit</Link>
-                    <button @click="deleteLink(link.id)" class="action-btn action-btn--danger" title="Delete">Del</button>
+                <div class="link-row__actions">
+                    <Link :href="route('links.show', link.id)" class="icon-btn icon-btn--chart" title="Analytics">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            v-html="icons.chart" />
+                    </Link>
+                    <Link :href="route('links.edit', link.id)" class="icon-btn" title="Edit">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            v-html="icons.edit" />
+                    </Link>
+                    <button @click="deleteLink(link.id)" class="icon-btn icon-btn--danger" title="Delete">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            v-html="icons.trash" />
+                    </button>
                 </div>
             </div>
         </div>
 
         <!-- Editorial Pagination -->
         <div v-if="links.last_page > 1" class="pagination">
-            <Link
-                v-if="links.prev_page_url"
-                :href="links.prev_page_url"
-                class="page-btn"
-            >← Previous</Link>
+            <Link v-if="links.prev_page_url" :href="links.prev_page_url" class="page-btn">← Previous</Link>
             <span class="page-info">Page {{ links.current_page }} of {{ links.last_page }}</span>
-            <Link
-                v-if="links.next_page_url"
-                :href="links.next_page_url"
-                class="page-btn"
-            >Next →</Link>
+            <Link v-if="links.next_page_url" :href="links.next_page_url" class="page-btn">Next →</Link>
         </div>
     </AuthenticatedLayout>
 </template>
@@ -187,176 +194,185 @@ const formatDate = (dateStr) => {
     background: #c0392b;
 }
 
-/* ── Editorial Table ─────────────────────────────── */
-.editorial-table {
+/* ── Links Table (Dashboard Style) ───────────────── */
+.links-table {
     background: #fff;
-    border: 1px solid #ddd;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-.table-head {
+.links-table__head {
     display: grid;
-    grid-template-columns: 2.5fr 1.2fr 80px 80px 110px 120px;
-    padding: 16px 24px;
+    grid-template-columns: 130px 1fr 90px 80px 90px 72px;
+    gap: 12px;
+    padding: 14px 20px;
     font-family: 'Oswald', sans-serif;
     font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 3px;
+    font-weight: 600;
+    letter-spacing: 2px;
     text-transform: uppercase;
     color: #888;
     background: #fafafa;
-    border-bottom: 2px solid #1a1a1a;
+    border-bottom: 1px solid #e5e5e5;
 }
 
-.table-row {
+.col-center {
+    text-align: center;
+    justify-content: center;
+}
+
+.link-row {
     display: grid;
-    grid-template-columns: 2.5fr 1.2fr 80px 80px 110px 120px;
+    grid-template-columns: 130px 1fr 90px 80px 90px 72px;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f0f0;
     align-items: center;
-    padding: 18px 24px;
-    border-bottom: 1px solid #eee;
-    transition: background 0.2s;
+    transition: background 0.15s ease;
 }
 
-.table-row:last-child {
+.link-row:last-child {
     border-bottom: none;
 }
 
-.table-row:hover {
-    background: #f0f0f0;
+.link-row:hover {
+    background: #fdf9f5;
 }
 
-/* ── Cells ───────────────────────────────────────── */
-.cell-dest {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+.link-row>div {
     min-width: 0;
-    padding-right: 16px;
 }
 
-.dest-url {
-    font-family: 'Crimson Pro', serif;
-    font-size: 14px;
-    color: #666;
-    text-decoration: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition: color 0.2s;
-}
-
-.dest-url:hover {
-    color: #1a1a1a;
-    text-decoration: underline;
-}
-
-.tag {
-    display: inline-block;
-    font-family: 'Oswald', sans-serif;
-    font-size: 9px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #d4af37;
-    border: 1px solid #d4af37;
-    padding: 2px 8px;
-    width: fit-content;
-}
-
-.cell-short {
+.link-row__short {
     display: flex;
     align-items: center;
-    gap: 12px;
 }
 
-.short-url {
+.short-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
     font-family: 'Oswald', sans-serif;
     font-size: 13px;
     font-weight: 500;
-    letter-spacing: 1px;
     color: #e74c3c;
-    text-decoration: none;
 }
 
-.short-url:hover {
-    text-decoration: underline;
+.short-link:hover {
+    color: #c0392b;
 }
 
-.copy-btn {
-    font-family: 'Oswald', sans-serif;
-    font-size: 9px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+.short-link__slash {
     color: #888;
-    background: none;
-    border: 1px solid #ddd;
-    padding: 4px 10px;
-    cursor: pointer;
+    margin-right: 2px;
+}
+
+.short-link__ext {
+    width: 12px;
+    height: 12px;
+    margin-left: 6px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.short-link:hover .short-link__ext {
+    opacity: 1;
+}
+
+.link-row__dest {
+    min-width: 0;
+}
+
+.link-row__dest span {
+    font-family: 'Crimson Pro', serif;
+    font-size: 13px;
+    color: #666;
+    display: block;
     white-space: nowrap;
-    transition: all 0.2s;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.copy-btn:hover {
-    color: #1a1a1a;
-    border-color: #1a1a1a;
-}
-
-.cell-clicks {
+.link-row__clicks {
     font-family: 'Oswald', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 1px;
+    font-size: 13px;
+    font-weight: 600;
     color: #1a1a1a;
+    text-align: center;
 }
 
 .cell-status {
     font-family: 'Oswald', sans-serif;
-    font-size: 11px;
-    letter-spacing: 2px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 4px;
     text-transform: uppercase;
 }
 
 .status--active {
-    color: #27ae60;
+    background: #dcfce7;
+    color: #16a34a;
 }
 
 .status--inactive {
-    color: #e74c3c;
+    background: #fee2e2;
+    color: #dc2626;
 }
 
-.cell-date {
-    font-family: 'Crimson Pro', serif;
-    font-size: 13px;
-    font-style: italic;
-    color: #888;
-}
-
-.cell-actions {
-    display: flex;
-    gap: 8px;
-}
-
-.action-btn {
+.link-row__date {
     font-family: 'Oswald', sans-serif;
-    font-size: 9px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+    font-size: 11px;
     color: #888;
-    text-decoration: none;
-    padding: 6px 12px;
-    border: 1px solid #ddd;
-    background: none;
+    text-align: center;
+}
+
+.link-row__actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+.icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 4px;
+    background: #f5f5f5;
+    color: #666;
     cursor: pointer;
     transition: all 0.2s;
-    white-space: nowrap;
+    text-decoration: none;
 }
 
-.action-btn:hover {
+.icon-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.icon-btn:hover {
+    background: #eee;
     color: #1a1a1a;
-    border-color: #1a1a1a;
 }
 
-.action-btn--danger:hover {
-    color: #e74c3c;
-    border-color: #e74c3c;
+.icon-btn--chart {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.icon-btn--chart:hover {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.icon-btn--danger:hover {
+    background: #fee2e2;
+    color: #dc2626;
 }
 
 /* ── Empty State ──────────────────────────────────── */
@@ -402,34 +418,38 @@ const formatDate = (dateStr) => {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 24px;
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid #ddd;
+    gap: 16px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e5e5;
 }
 
 .page-btn {
     font-family: 'Oswald', sans-serif;
-    font-size: 11px;
-    letter-spacing: 3px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    color: #888;
+    color: #1a1a1a;
     text-decoration: none;
     padding: 10px 20px;
-    border: 1px solid #ddd;
+    border: 1px solid #1a1a1a;
+    background: #fff;
     transition: all 0.2s;
+    cursor: pointer;
 }
 
 .page-btn:hover {
-    color: #1a1a1a;
-    border-color: #1a1a1a;
+    background: #1a1a1a;
+    color: #fff;
 }
 
 .page-info {
-    font-family: 'Crimson Pro', serif;
-    font-size: 14px;
-    font-style: italic;
-    color: #888;
+    font-family: 'Oswald', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: #1a1a1a;
+    letter-spacing: 1px;
 }
 
 /* ── Responsive ───────────────────────────────────── */
@@ -439,32 +459,44 @@ const formatDate = (dateStr) => {
         gap: 16px;
     }
 
-    .table-head,
-    .table-row {
-        grid-template-columns: 2fr 1fr 70px 80px;
+    .links-table__head,
+    .link-row {
+        grid-template-columns: 120px 1fr 80px 80px;
     }
 
-    .cell-date,
-    .table-head span:nth-child(5) {
+    .link-row__date,
+    .links-table__head span:nth-child(5) {
         display: none;
     }
 }
 
 @media (max-width: 640px) {
-    .table-head,
-    .table-row {
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-    }
-
-    .cell-clicks,
-    .cell-status,
-    .table-head span:nth-child(3),
-    .table-head span:nth-child(4) {
+    .links-table__head {
         display: none;
     }
 
-    .cell-actions {
+    .link-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .link-row__clicks,
+    .link-row__date,
+    .links-table__head span:nth-child(3),
+    .links-table__head span:nth-child(4) {
+        display: none;
+    }
+
+    .link-row__short {
+        grid-column: 1 / -1;
+    }
+
+    .link-row__dest {
+        grid-column: 1 / -1;
+    }
+
+    .link-row__actions {
         grid-column: 1 / -1;
         justify-content: flex-start;
         padding-top: 8px;
