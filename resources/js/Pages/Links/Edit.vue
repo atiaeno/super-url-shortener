@@ -15,8 +15,6 @@ const form = useForm({
     og_title: props.link.og_title ?? '',
     og_description: props.link.og_description ?? '',
     is_active: props.link.is_active ?? true,
-    ad_override: props.link.ad_override ?? 'inherit',
-    ad_id: props.link.ad_id ?? null,
 });
 
 const showAdvanced = ref(!!(props.link.og_title || props.link.og_description));
@@ -27,97 +25,87 @@ const submit = () => {
 </script>
 
 <template>
-    <Head :title="`Edit /${link.short_code} — Editorial`" />
+
+    <Head :title="`Edit Link`" />
 
     <AuthenticatedLayout>
-        <template #header>Edit Entry</template>
+        <template #header><span class="material-icons">edit</span> Edit Link</template>
 
-        <div class="editorial-layout">
-            <div class="editorial-form-section">
-                <!-- Short code badge -->
-                <div class="entry-badge">
-                    <span class="badge-label">Entry Code</span>
-                    <a :href="`/${link.short_code}`" target="_blank" class="badge-code">
+        <div class="page-content">
+            <!-- Link Info Card -->
+            <div class="info-card">
+                <div class="info-row">
+                    <span class="info-label">Short Link</span>
+                    <a :href="`/${link.short_code}`" target="_blank" class="info-link">
                         /{{ link.short_code }}
+                        <span class="material-icons">open_in_new</span>
                     </a>
-                    <span v-if="link.custom_alias" class="badge-alias">custom alias</span>
                 </div>
-
-                <div class="form-header">
-                    <span class="roman-num">III.</span>
-                    <span class="section-label">Revision</span>
+                <div v-if="link.custom_alias" class="info-row">
+                    <span class="info-label">Custom Alias</span>
+                    <span class="info-value">{{ link.custom_alias }}</span>
                 </div>
+                <div class="info-row">
+                    <span class="info-label">Created</span>
+                    <span class="info-value">{{ new Date(link.created_at).toLocaleDateString() }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span :class="['status-badge', link.is_active ? 'active' : 'inactive']">
+                        <span class="material-icons">{{ link.is_active ? 'check_circle' : 'cancel' }}</span>
+                        {{ link.is_active ? 'Active' : 'Inactive' }}
+                    </span>
+                </div>
+            </div>
 
-                <form @submit.prevent="submit" class="editorial-form">
-                    <!-- Destination URL -->
+            <!-- Edit Form -->
+            <div class="form-card">
+                <form @submit.prevent="submit" class="form">
                     <div class="field">
-                        <label class="field__label">Destination URL <span class="field__required">*</span></label>
-                        <input
-                            v-model="form.destination_url"
-                            type="url"
-                            placeholder="https://example.com/your-long-url"
-                            class="field__input"
-                            :class="{ 'field__input--error': form.errors.destination_url }"
-                            required
-                        />
-                        <span v-if="form.errors.destination_url" class="field__error">{{ form.errors.destination_url }}</span>
+                        <label class="label">Destination URL <span class="required">*</span></label>
+                        <input v-model="form.destination_url" type="url" placeholder="https://example.com/your-long-url"
+                            class="input" :class="{ 'input--error': form.errors.destination_url }" required />
+                        <span v-if="form.errors.destination_url" class="error">{{ form.errors.destination_url }}</span>
                     </div>
 
-                    <!-- Campaign Tag -->
                     <div class="field">
-                        <label class="field__label">Campaign Tag <span class="field__optional">(optional)</span></label>
-                        <input
-                            v-model="form.campaign_tag"
-                            type="text"
-                            placeholder="summer-promo"
-                            class="field__input"
-                            maxlength="100"
-                        />
+                        <label class="label">Campaign Tag <span class="optional">(optional)</span></label>
+                        <input v-model="form.campaign_tag" type="text" placeholder="summer-promo" class="input"
+                            maxlength="100" />
                     </div>
 
-                    <!-- Active toggle -->
-                    <div class="field field--row">
-                        <label class="field__label">Entry Status</label>
-                        <label class="toggle">
-                            <input type="checkbox" v-model="form.is_active" class="toggle__input" />
-                            <span class="toggle__track">
-                                <span class="toggle__thumb" />
-                            </span>
-                            <span class="toggle__label">{{ form.is_active ? 'Active' : 'Inactive' }}</span>
-                        </label>
-                    </div>
-
-                    <!-- Ad Settings -->
                     <div class="field">
-                        <label class="field__label">Ad Display</label>
-                        <select v-model="form.ad_override" class="field__input field__select">
-                            <option value="inherit">Inherit global settings</option>
-                            <option value="disable">Disable ads for this link</option>
-                            <option value="force">Force specific ad</option>
-                        </select>
-                    </div>
-                    <div v-if="form.ad_override === 'force'" class="field">
-                        <label class="field__label">Select Ad</label>
-                        <select v-model="form.ad_id" class="field__input field__select">
-                            <option :value="null">-- Select an ad --</option>
-                            <option v-for="ad in ads" :key="ad.id" :value="ad.id">{{ ad.name }} ({{ ad.format }})</option>
-                        </select>
+                        <label class="label">Link Status</label>
+                        <div class="toggle-group">
+                            <button type="button" class="toggle-btn" :class="{ 'toggle-btn--active': form.is_active }"
+                                @click="form.is_active = true">
+                                <span class="toggle-icon">✓</span>
+                                <span>Active</span>
+                            </button>
+                            <button type="button" class="toggle-btn" :class="{ 'toggle-btn--active': !form.is_active }"
+                                @click="form.is_active = false">
+                                <span class="toggle-icon">✕</span>
+                                <span>Inactive</span>
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Advanced OG toggle -->
-                    <button type="button" class="toggle-advanced" @click="showAdvanced = !showAdvanced">
-                        <span class="roman-num-small">{{ showAdvanced ? '▲' : '▼' }}</span>
+                    <!-- Advanced Toggle -->
+                    <button type="button" class="advanced-toggle" @click="showAdvanced = !showAdvanced">
+                        <span class="material-icons">{{ showAdvanced ? 'expand_less' : 'expand_more' }}</span>
                         <span>Advanced (OG / Social Preview)</span>
                     </button>
 
                     <div v-if="showAdvanced" class="advanced-fields">
                         <div class="field">
-                            <label class="field__label">OG Title</label>
-                            <input v-model="form.og_title" type="text" placeholder="Override link preview title" class="field__input" maxlength="255" />
+                            <label class="label">OG Title</label>
+                            <input v-model="form.og_title" type="text" placeholder="Override link preview title"
+                                class="input" maxlength="255" />
                         </div>
                         <div class="field">
-                            <label class="field__label">OG Description</label>
-                            <textarea v-model="form.og_description" placeholder="Override link preview description" class="field__textarea" rows="3" />
+                            <label class="label">OG Description</label>
+                            <textarea v-model="form.og_description" placeholder="Override link preview description"
+                                class="textarea" rows="3" />
                         </div>
                     </div>
 
@@ -126,7 +114,7 @@ const submit = () => {
                         <Link :href="route('links.show', link.id)" class="btn-secondary">Cancel</Link>
                         <button type="submit" class="btn-primary" :disabled="form.processing || !form.isDirty">
                             <span v-if="form.processing">Saving…</span>
-                            <span v-else>Save Changes</span>
+                            <span v-else><span class="material-icons">save</span> Save Changes</span>
                         </button>
                     </div>
                 </form>
@@ -136,298 +124,257 @@ const submit = () => {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&display=swap');
 
-/* ── Editorial Layout ───────────────────────────── */
-.editorial-layout {
+.page-content {
     max-width: 600px;
+    margin: 0 auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.editorial-form-section {
-    background: #fff;
-    border: 1px solid #ddd;
-    padding: 40px;
+.info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px 20px;
 }
 
-/* ── Entry Badge ────────────────────────────────── */
-.entry-badge {
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-family: 'Oswald', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #666;
+}
+
+.info-value {
+    font-size: 14px;
+    color: #333;
+}
+
+.info-link {
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 16px 20px;
-    background: #fafafa;
-    border: 1px solid #e0e0e0;
-    margin-bottom: 32px;
-}
-
-.badge-label {
-    font-family: 'Oswald', sans-serif;
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: #888;
-}
-
-.badge-code {
-    font-family: 'Oswald', sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    letter-spacing: 2px;
-    color: #e74c3c;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--red);
     text-decoration: none;
+    font-weight: 500;
 }
 
-.badge-code:hover {
+.info-link:hover {
     text-decoration: underline;
 }
 
-.badge-alias {
-    font-family: 'Crimson Pro', serif;
-    font-size: 12px;
-    font-style: italic;
-    color: #d4af37;
+.info-link .material-icons {
+    font-size: 14px;
 }
 
-/* ── Form Header ────────────────────────────────── */
-.form-header {
-    display: flex;
+.status-badge {
+    display: inline-flex;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 32px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #1a1a1a;
-}
-
-.roman-num {
-    font-family: 'Oswald', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: #e74c3c;
-    letter-spacing: 2px;
-}
-
-.roman-num-small {
-    font-family: 'Oswald', sans-serif;
-    font-size: 10px;
-    color: #888;
-}
-
-.section-label {
-    font-family: 'Oswald', sans-serif;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 12px;
     font-size: 12px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: #1a1a1a;
+    font-weight: 500;
 }
 
-.editorial-form {
+.status-badge .material-icons {
+    font-size: 14px;
+}
+
+.status-badge.active {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status-badge.inactive {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+}
+
+.form {
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 20px;
 }
 
-/* ── Fields ──────────────────────────────────────── */
 .field {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
-.field--row {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #eee;
-}
-
-.field__label {
+.label {
     font-family: 'Oswald', sans-serif;
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: #888;
-}
-
-.field__required {
-    color: #e74c3c;
-    margin-left: 4px;
-}
-
-.field__optional {
-    font-family: 'Crimson Pro', serif;
     font-size: 12px;
-    font-style: italic;
-    text-transform: none;
-    letter-spacing: 0;
-    color: #aaa;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #333;
+}
+
+.required {
+    color: #dc2626;
+}
+
+.optional {
+    color: #888;
     font-weight: 400;
 }
 
-.field__input {
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid #ddd;
-    padding: 12px 0;
-    font-family: 'Crimson Pro', serif;
-    font-size: 16px;
-    color: #1a1a1a;
-    outline: none;
-    transition: border-color 0.3s;
-    width: 100%;
-}
-
-.field__input::placeholder {
-    color: #bbb;
-    font-style: italic;
-}
-
-.field__input:focus {
-    border-bottom-color: #e74c3c;
-}
-
-.field__input--error {
-    border-bottom-color: #e74c3c;
-}
-
-.field__select {
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0 center;
-    padding-right: 20px;
-}
-
-.field__textarea {
-    background: transparent;
-    border: 1px solid #ddd;
-    padding: 16px;
-    font-family: 'Crimson Pro', serif;
-    font-size: 16px;
-    color: #1a1a1a;
-    outline: none;
-    transition: border-color 0.3s;
-    resize: vertical;
-    min-height: 100px;
-}
-
-.field__textarea:focus {
-    border-color: #e74c3c;
-}
-
-.field__error {
-    font-family: 'Crimson Pro', serif;
-    font-size: 13px;
-    font-style: italic;
-    color: #e74c3c;
-}
-
-/* ── Toggle Switch ───────────────────────────────── */
-.toggle {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-}
-
-.toggle__input {
-    display: none;
-}
-
-.toggle__track {
-    width: 44px;
-    height: 24px;
-    background: #ddd;
-    display: flex;
-    align-items: center;
-    padding: 2px;
-    transition: background 0.3s;
-    position: relative;
-}
-
-.toggle__input:checked + .toggle__track {
-    background: #27ae60;
-}
-
-.toggle__thumb {
-    width: 20px;
-    height: 20px;
-    background: #fff;
-    transition: transform 0.3s;
-}
-
-.toggle__input:checked + .toggle__track .toggle__thumb {
-    transform: translateX(20px);
-}
-
-.toggle__label {
+.input {
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
     font-family: 'Oswald', sans-serif;
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #888;
+    font-size: 14px;
+    color: var(--ink);
+    background: #fff;
+    outline: none;
+    transition: border-color 200ms;
 }
 
-/* ── Advanced Toggle ────────────────────────────── */
-.toggle-advanced {
+.input:focus {
+    outline: none;
+    border-color: var(--red);
+}
+
+.input--error {
+    border-color: #dc2626;
+}
+
+.textarea {
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    color: #1a1a1a;
+    background: #fff;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.textarea:focus {
+    outline: none;
+    border-color: var(--red);
+}
+
+.error {
+    font-size: 12px;
+    color: #dc2626;
+}
+
+.toggle-group {
+    display: flex;
+    gap: 8px;
+}
+
+.toggle-btn {
+    flex: 1;
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #fff;
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toggle-btn:hover {
+    background: #f5f5f5;
+}
+
+.toggle-btn--active {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+}
+
+.toggle-icon {
+    font-size: 14px;
+}
+
+.advanced-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 0;
     background: none;
     border: none;
-    cursor: pointer;
     font-family: 'Oswald', sans-serif;
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #888;
-    text-align: left;
-    padding: 0;
-    transition: color 0.3s;
+    font-size: 12px;
+    color: #666;
+    cursor: pointer;
+    transition: color 200ms;
 }
 
-.toggle-advanced:hover {
-    color: #1a1a1a;
+.advanced-toggle:hover {
+    color: #333;
+}
+
+.advanced-toggle .material-icons {
+    font-size: 20px;
 }
 
 .advanced-fields {
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    padding: 24px;
+    gap: 16px;
+    padding: 16px;
     background: #fafafa;
-    border-left: 3px solid #d4af37;
+    border-radius: 8px;
 }
 
-/* ── Actions ───────────────────────────────────── */
 .form-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 16px;
-    padding-top: 16px;
-    border-top: 1px solid #ddd;
+    gap: 12px;
     margin-top: 8px;
 }
 
 .btn-primary {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    padding: 14px 32px;
-    background: #e74c3c;
+    gap: 6px;
+    padding: 12px 24px;
+    background: var(--red);
     color: #fff;
-    font-family: 'Oswald', sans-serif;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 3px;
-    text-transform: uppercase;
     border: none;
+    border-radius: 4px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background 0.3s;
-}
-
-.btn-primary:hover:not(:disabled) {
-    background: #c0392b;
+    transition: opacity 200ms;
 }
 
 .btn-primary:disabled {
@@ -435,48 +382,33 @@ const submit = () => {
     cursor: not-allowed;
 }
 
+.btn-primary .material-icons {
+    font-size: 18px;
+}
+
 .btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    padding: 14px 28px;
-    background: transparent;
-    color: #888;
+    padding: 12px 24px;
+    background: #fff;
+    color: #666;
+    border: 1px solid var(--border);
+    border-radius: 4px;
     font-family: 'Oswald', sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
-    letter-spacing: 3px;
-    text-transform: uppercase;
     text-decoration: none;
-    border: 1px solid #ddd;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 200ms;
 }
 
 .btn-secondary:hover {
-    color: #1a1a1a;
-    border-color: #1a1a1a;
+    background: #f5f5f5;
+    color: #333;
 }
 
-/* ── Responsive ──────────────────────────────────── */
-@media (max-width: 640px) {
-    .editorial-form-section {
-        padding: 24px;
-    }
-
-    .form-actions {
-        flex-direction: column;
-    }
-
-    .btn-primary,
-    .btn-secondary {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .field--row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
+/* Material Icons */
+.material-icons {
+    font-size: 20px;
+    vertical-align: middle;
+    margin-right: 4px;
 }
 </style>

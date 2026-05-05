@@ -10,6 +10,7 @@ const props = defineProps({
 
 const statusLabel = { pending: 'Pending', approved: 'Approved', rejected: 'Rejected', paid: 'Paid' };
 const statusClass = { pending: 'badge--warn', approved: 'badge--info', rejected: 'badge--red', paid: 'badge--green' };
+const statusIcon = { pending: 'schedule', approved: 'verified', rejected: 'cancel', paid: 'check_circle' };
 
 const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 </script>
@@ -33,42 +34,34 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
                 <p class="empty-hint">Request a payout from your dashboard when you have enough earnings.</p>
             </div>
 
-            <div v-else class="payouts-list">
-                <div v-for="payout in payouts.data" :key="payout.id" class="payout-card">
-                    <div class="payout-main">
-                        <div class="payout-amount">
-                            <span class="amount-val">${{ parseFloat(payout.amount).toFixed(2) }}</span>
-                            <span class="amount-label">Amount</span>
-                        </div>
-                        <div class="payout-status">
-                            <span class="badge" :class="statusClass[payout.status]">
-                                <span class="material-icons">{{ payout.status === 'paid' ? 'check_circle' : payout.status === 'rejected' ? 'cancel' : payout.status === 'approved' ? 'verified' : 'schedule' }}</span>
-                                {{ statusLabel[payout.status] }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="payout-details">
-                        <div class="detail-item">
-                            <span class="material-icons">event</span>
-                            <span>{{ formatDate(payout.created_at) }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="material-icons">credit_card</span>
-                            <span>{{ payout.payment_method || 'PayPal' }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="material-icons">email</span>
-                            <span>{{ payout.payment_email || payout.paypal_email || '—' }}</span>
-                        </div>
-                        <div v-if="payout.admin_note" class="detail-item note">
-                            <span class="material-icons">info</span>
-                            <span>{{ payout.admin_note }}</span>
-                        </div>
-                    </div>
-                    <div v-if="payout.processed_at" class="payout-processed">
-                        Processed: {{ formatDate(payout.processed_at) }}
-                    </div>
-                </div>
+            <div v-else class="table-wrapper">
+                <table class="payout-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Email / Address</th>
+                            <th>Status</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="payout in payouts.data" :key="payout.id">
+                            <td class="cell-date">{{ formatDate(payout.created_at) }}</td>
+                            <td class="cell-amount">${{ parseFloat(payout.amount).toFixed(2) }}</td>
+                            <td class="cell-method">{{ payout.payment_method || 'PayPal' }}</td>
+                            <td class="cell-email">{{ payout.payment_email || payout.paypal_email || '—' }}</td>
+                            <td>
+                                <span class="badge" :class="statusClass[payout.status]">
+                                    <span class="material-icons">{{ statusIcon[payout.status] }}</span>
+                                    {{ statusLabel[payout.status] }}
+                                </span>
+                            </td>
+                            <td class="cell-note">{{ payout.admin_note || '—' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
             <!-- Pagination -->
@@ -87,7 +80,7 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
 
 <style scoped>
 .page-content {
-    max-width: 800px;
+    max-width: 1100px;
     margin: 0 auto;
     padding: 24px;
 }
@@ -145,64 +138,90 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
     margin-top: 8px !important;
 }
 
-.payouts-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.payout-card {
+.table-wrapper {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 20px;
-    transition: border-color 200ms;
+    overflow: hidden;
 }
 
-.payout-card:hover {
-    border-color: #ccc;
+.payout-table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.payout-main {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
+.payout-table th {
+    text-align: left;
+    padding: 14px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #fafafa;
     border-bottom: 1px solid var(--border);
 }
 
-.payout-amount {
-    display: flex;
-    flex-direction: column;
+.payout-table td {
+    padding: 16px 20px;
+    font-size: 14px;
+    color: #333;
+    border-bottom: 1px solid var(--border);
 }
 
-.amount-val {
+.payout-table tr:last-child td {
+    border-bottom: none;
+}
+
+.payout-table tr:hover {
+    background: #fafafa;
+}
+
+.cell-date {
+    color: #666;
+    font-size: 13px;
+}
+
+.cell-amount {
     font-family: var(--font-display);
-    font-size: 28px;
+    font-size: 16px;
     font-weight: 700;
     color: #1a1a1a;
 }
 
-.amount-label {
-    font-size: 12px;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+.cell-method {
+    color: #444;
+}
+
+.cell-email {
+    color: #555;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cell-note {
+    color: #888;
+    font-size: 13px;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 14px;
+    padding: 5px 12px;
     border-radius: 20px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
 }
 
 .badge .material-icons {
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .badge--warn   { color: #F59E0B; background: rgba(245,158,11,0.1); }
@@ -210,44 +229,12 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
 .badge--green  { color: #22C55E; background: rgba(34,197,94,0.1); }
 .badge--red    { color: #EF4444; background: rgba(239,68,68,0.1); }
 
-.payout-details {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.detail-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: #444;
-}
-
-.detail-item .material-icons {
-    font-size: 18px;
-    color: #666;
-}
-
-.detail-item.note {
-    color: #666;
-    font-style: italic;
-}
-
-.payout-processed {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid var(--border);
-    font-size: 12px;
-    color: #888;
-}
-
 .pagination {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 16px;
-    margin-top: 32px;
+    margin-top: 24px;
 }
 
 .page-btn {

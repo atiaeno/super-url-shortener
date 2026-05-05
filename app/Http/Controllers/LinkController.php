@@ -169,10 +169,14 @@ class LinkController extends Controller
     {
         $this->authorize('update', $link);
 
-        return Inertia::render('Links/Edit', [
-            'link' => $link,
-            'ads' => Ad::active()->get(),
-        ]);
+        $data = ['link' => $link];
+
+        // Only admins can manage ad overrides
+        if (Auth::user()->is_admin) {
+            $data['ads'] = Ad::active()->get();
+        }
+
+        return Inertia::render('Links/Edit', $data);
     }
 
     /**
