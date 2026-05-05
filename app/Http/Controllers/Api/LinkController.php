@@ -210,13 +210,12 @@ class LinkController extends ApiController
     private function transformLink(Link $link, bool $includeQr = false): array
     {
         $data = [
-            'id' => $link->id,
             'short_code' => $link->short_code,
             'short_url' => $link->short_url,
             'original_url' => $link->destination_url,
             'alias' => $link->custom_alias,
             'campaign_tag' => $link->campaign_tag,
-            'is_active' => $link->is_active,
+            'is_active' => $link->is_active ?? true,
             'visibility' => $link->visibility,
             'expires_at' => $link->expires_at?->toIso8601String(),
             'og_title' => $link->og_title,
@@ -228,7 +227,7 @@ class LinkController extends ApiController
         ];
 
         if ($includeQr) {
-            $data['qr_code'] = config('app.url') . '/links/' . $link->id . '/qr/svg';
+            $data['qr_code'] = config('app.url') . '/qr/' . $link->short_code . '/svg';
         }
 
         return $data;

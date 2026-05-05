@@ -50,6 +50,12 @@ abstract class ApiController extends Controller
                 'total_count' => $paginator->total(),
                 'per_page' => $paginator->perPage(),
             ],
+            'links' => [
+                'first' => $paginator->url(1),
+                'last' => $paginator->url($paginator->lastPage()),
+                'prev' => $paginator->previousPageUrl(),
+                'next' => $paginator->nextPageUrl(),
+            ],
         ]);
     }
 }

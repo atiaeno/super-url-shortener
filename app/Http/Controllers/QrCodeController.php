@@ -12,9 +12,16 @@ class QrCodeController extends Controller
     /**
      * Story 3.4: Generate a QR code for a link in SVG or PNG format.
      */
-    public function generate(Link $link, string $format = 'svg'): Response
+    public function generate(string $shortCode, string $format = 'svg'): Response
     {
-        $this->authorize('view', $link);
+        $link = Link::where('short_code', $shortCode)->firstOrFail();
+
+        // Allow public access for QR codes
+        // Only check ownership if user is logged in
+        if (auth()->check() && auth()->id() !== $link->user_id) {
+            abort(403);
+        }
+
         $shortUrl = $link->short_url;
 
         if ($format === 'png') {
@@ -24,7 +31,7 @@ class QrCodeController extends Controller
                 ->generate($shortUrl);
 
             return response($qr, 200, [
-                'Content-Type'        => 'image/png',
+                'Content-Type' => 'image/png',
                 'Content-Disposition' => "attachment; filename=\"qr-{$link->short_code}.png\"",
             ]);
         }
@@ -36,7 +43,7 @@ class QrCodeController extends Controller
             ->generate($shortUrl);
 
         return response($qr, 200, [
-            'Content-Type'        => 'image/svg+xml',
+            'Content-Type' => 'image/svg+xml',
             'Content-Disposition' => "attachment; filename=\"qr-{$link->short_code}.svg\"",
         ]);
     }
@@ -63,4 +70,3 @@ class QrCodeController extends Controller
         ]);
     }
 }
-
