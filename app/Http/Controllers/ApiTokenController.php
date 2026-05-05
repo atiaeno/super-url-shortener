@@ -15,15 +15,26 @@ class ApiTokenController extends Controller
     /**
      * Show API tokens page.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $tokens = ApiToken::where('user_id', auth()->id())
-            ->select('id', 'name', 'last_used_at', 'expires_at', 'created_at')
+            ->select('id', 'token', 'name', 'last_used_at', 'expires_at', 'created_at')
             ->orderByDesc('created_at')
             ->get();
 
+        // Handle toast from copy action
+        if ($request->has('toast')) {
+            session()->flash('toast', [[
+                'id' => now()->timestamp,
+                'message' => $request->toast,
+                'type' => 'success',
+            ]]);
+        }
+
         return Inertia::render('Profile/ApiTokens', [
             'tokens' => $tokens,
+            'newToken' => session('new_token', ''),
+            'newTokenName' => session('new_token_name', ''),
         ]);
     }
 
@@ -43,8 +54,8 @@ class ApiTokenController extends Controller
             'user_id' => auth()->id(),
             'token' => $token,
             'name' => $request->input('name', 'API Token'),
-            'expires_at' => $request->has('expires_days')
-                ? now()->addDays($request->input('expires_days'))
+            'expires_at' => $request->filled('expires_days') && $request->expires_days > 0
+                ? now()->addDays((int) $request->expires_days)
                 : null,
         ]);
 

@@ -2,51 +2,55 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
 
 const props = defineProps({
     tokens: { type: Array, default: () => [] },
+    newToken: { type: String, default: '' },
+    newTokenName: { type: String, default: '' },
 });
 
-const showNewTokenModal = ref(false);
-const newToken = ref('');
-const newTokenName = ref('');
-
-// Show modal if session flash has the token (after redirect)
-onMounted(() => {
-    if (page.props.flash?.new_token) {
-        newToken.value = page.props.flash.new_token;
-        newTokenName.value = page.props.flash.new_token_name || 'API Token';
-        showNewTokenModal.value = true;
-    }
-});
+const showToken = ref(props.newToken || '');
+const showTokenName = ref(props.newTokenName || '');
+const copiedId = ref(null);
 
 const tokenForm = useForm({
     name: '',
-    expires_days: null,
+    expires_days: '', // Empty = never expires
 });
 
 const createToken = () => {
     tokenForm.post(route('profile.api-tokens.store'));
 };
 
-const closeTokenModal = () => {
-    showNewTokenModal.value = false;
-    newToken.value = '';
+const copyToken = async () => {
+    await navigator.clipboard.writeText(showToken.value);
 };
 
-const copyToken = async () => {
-    await navigator.clipboard.writeText(newToken.value);
+const copyToClipboard = async (text) => {
+    await navigator.clipboard.writeText(text);
+    // Show temporary success state
+    copiedId.value = text;
+    setTimeout(() => { copiedId.value = null; }, 2000);
+};
+
+const closeToken = () => {
+    showToken.value = '';
+    showTokenName.value = '';
 };
 
 const deleteForm = useForm({});
 
 const deleteToken = (id) => {
     if (confirm('Are you sure you want to revoke this token? This action cannot be undone.')) {
-        deleteForm.delete(route('profile.api-tokens.destroy', id));
+        console.log('Deleting token:', id);
+        deleteForm.delete(route('profile.api-tokens.destroy', { id }), {
+            onSuccess: () => console.log('Token deleted'),
+            onError: (e) => console.error('Delete error:', e),
+        });
     }
 };
 
@@ -141,6 +145,12 @@ const statusText = (token) => {
                                 Created {{ formatDate(token.created_at) }}
                                 <span v-if="token.expires_at"> · Expires {{ formatDate(token.expires_at) }}</span>
                             </span>
+                            <div class="token-value">
+                                <code>{{ token.token }}</code>
+                                <button @click="copyToClipboard(token.token)" class="btn-copy-small">
+                                    {{ copiedId === token.token ? 'Copied!' : 'Copy' }}
+                                </button>
+                            </div>
                         </div>
                         <div class="token-status">
                             <span class="status-badge" :class="statusClass(token)">
@@ -158,34 +168,19 @@ const statusText = (token) => {
             </div>
         </div>
 
-        <!-- New Token Modal -->
-        <div v-if="showNewTokenModal" class="modal-overlay" @click.self="closeTokenModal">
-            <div class="modal">
-                <div class="modal-header">
-                    <span class="material-icons modal-icon">check_circle</span>
-                    <h3>Token Created</h3>
-                </div>
-                <div class="modal-body">
-                    <p class="modal-label">Token name:</p>
-                    <p class="modal-value">{{ newTokenName }}</p>
-
-                    <p class="modal-label">Your new API token:</p>
-                    <div class="token-display">
-                        <code>{{ newToken }}</code>
-                        <button @click="copyToken" class="btn-copy" title="Copy to clipboard">
-                            <span class="material-icons">content_copy</span>
-                        </button>
-                    </div>
-
-                    <div class="warning-box">
-                        <span class="material-icons">warning</span>
-                        <p>Copy this token now. You won't be able to see it again!</p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button @click="closeTokenModal" class="btn-primary">I've saved my token</button>
-                </div>
+        <!-- New Token Banner -->
+        <div v-if="showToken" class="token-banner">
+            <div class="token-banner-header">
+                <span class="material-icons">check_circle</span>
+                <h3>Token Created!</h3>
+                <button @click="closeToken" class="btn-close">&times;</button>
             </div>
+            <p class="token-banner-name">{{ showTokenName }}</p>
+            <div class="token-banner-value">
+                <code>{{ showToken }}</code>
+                <button @click="copyToken" class="btn-copy">Copy</button>
+            </div>
+            <p class="token-banner-warning">⚠️ Copy this now - you won't see it again!</p>
         </div>
     </AuthenticatedLayout>
 </template>
@@ -405,6 +400,38 @@ const statusText = (token) => {
     color: var(--muted);
 }
 
+.token-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    background: #f5f5f5;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.token-value code {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #333;
+    word-break: break-all;
+}
+
+.btn-copy-small {
+    padding: 4px 8px;
+    background: #333;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.btn-copy-small:hover {
+    background: #555;
+}
+
 .token-status {
     display: flex;
     flex-direction: column;
@@ -622,6 +649,95 @@ const statusText = (token) => {
     border-top: 1px solid var(--border);
     display: flex;
     justify-content: flex-end;
+}
+
+/* Token Banner */
+.token-banner {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+.token-banner-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.token-banner-header .material-icons {
+    color: var(--green);
+    font-size: 24px;
+}
+
+.token-banner-header h3 {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+    flex: 1;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.btn-close:hover {
+    color: #fff;
+}
+
+.token-banner-name {
+    font-size: 13px;
+    color: #aaa;
+    margin: 0 0 8px;
+}
+
+.token-banner-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #000;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.token-banner-value code {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #22c55e;
+    word-break: break-all;
+}
+
+.btn-copy {
+    padding: 6px 12px;
+    background: #333;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.btn-copy:hover {
+    background: #444;
+}
+
+.token-banner-warning {
+    font-size: 12px;
+    color: #f59e0b;
+    margin: 0;
 }
 
 @media (max-width: 640px) {
