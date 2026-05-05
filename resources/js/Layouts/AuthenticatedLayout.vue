@@ -24,7 +24,7 @@ const toolsNavItems = [
 
 const supportNavItems = [
     { label: 'Help Center', icon: 'help', route: 'help.center' },
-    { label: 'API Docs', icon: 'api', route: 'api.docs' },
+    { label: 'API Docs', icon: 'api', route: 'api-docs' },
     { label: 'Settings', icon: 'settings', route: 'profile.edit' },
 ];
 

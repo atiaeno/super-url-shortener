@@ -1,8 +1,8 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm, usePage } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { ref, computed, onMounted } from 'vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
@@ -15,26 +15,22 @@ const showNewTokenModal = ref(false);
 const newToken = ref('');
 const newTokenName = ref('');
 
+// Show modal if session flash has the token (after redirect)
+onMounted(() => {
+    if (page.props.flash?.new_token) {
+        newToken.value = page.props.flash.new_token;
+        newTokenName.value = page.props.flash.new_token_name || 'API Token';
+        showNewTokenModal.value = true;
+    }
+});
+
 const tokenForm = useForm({
     name: '',
     expires_days: null,
 });
 
-const openNewTokenModal = () => {
-    tokenForm.name = '';
-    tokenForm.expires_days = null;
-};
-
 const createToken = () => {
-    tokenForm.post(route('profile.api-tokens.store'), {
-        onSuccess: (page) => {
-            if (page.props.new_token) {
-                newToken.value = page.props.new_token;
-                newTokenName.value = page.props.new_token_name || 'API Token';
-                showNewTokenModal.value = true;
-            }
-        },
-    });
+    tokenForm.post(route('profile.api-tokens.store'));
 };
 
 const closeTokenModal = () => {
@@ -93,7 +89,7 @@ const statusText = (token) => {
             <div class="intro-card">
                 <h2 class="intro-title">API Access</h2>
                 <p class="intro-text">
-                    Generate API tokens to access your links programmatically. 
+                    Generate API tokens to access your links programmatically.
                     Tokens can be used to create, read, update, and delete links via our REST API.
                 </p>
                 <div class="intro-link">
@@ -111,24 +107,13 @@ const statusText = (token) => {
                     <div class="field-row">
                         <div class="field">
                             <label class="field__label">Token Name</label>
-                            <input 
-                                v-model="tokenForm.name" 
-                                type="text" 
-                                class="field__input"
-                                placeholder="e.g., Production API"
-                                maxlength="255"
-                            />
+                            <input v-model="tokenForm.name" type="text" class="field__input"
+                                placeholder="e.g., Production API" maxlength="255" />
                         </div>
                         <div class="field field--sm">
                             <label class="field__label">Expires (days)</label>
-                            <input 
-                                v-model="tokenForm.expires_days" 
-                                type="number" 
-                                class="field__input"
-                                placeholder="Never"
-                                min="1"
-                                max="365"
-                            />
+                            <input v-model="tokenForm.expires_days" type="number" class="field__input"
+                                placeholder="Never" min="1" max="365" />
                         </div>
                     </div>
                     <button type="submit" class="btn-primary" :disabled="tokenForm.processing">
@@ -141,7 +126,7 @@ const statusText = (token) => {
             <!-- Tokens List -->
             <div class="tokens-card">
                 <h3 class="card-title">Your Tokens</h3>
-                
+
                 <div v-if="tokens.length === 0" class="empty-state">
                     <span class="material-icons empty-icon">vpn_key_off</span>
                     <p>No API tokens yet</p>
@@ -183,7 +168,7 @@ const statusText = (token) => {
                 <div class="modal-body">
                     <p class="modal-label">Token name:</p>
                     <p class="modal-value">{{ newTokenName }}</p>
-                    
+
                     <p class="modal-label">Your new API token:</p>
                     <div class="token-display">
                         <code>{{ newToken }}</code>
@@ -191,7 +176,7 @@ const statusText = (token) => {
                             <span class="material-icons">content_copy</span>
                         </button>
                     </div>
-                    
+
                     <div class="warning-box">
                         <span class="material-icons">warning</span>
                         <p>Copy this token now. You won't be able to see it again!</p>
@@ -269,14 +254,14 @@ const statusText = (token) => {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     padding: 8px 16px;
-    border: 1px solid rgba(255,255,255,0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: var(--radius);
     transition: all 0.2s;
 }
 
 .link-btn:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.5);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 .link-btn .material-icons {
@@ -512,7 +497,7 @@ const statusText = (token) => {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -524,7 +509,7 @@ const statusText = (token) => {
     border-radius: 8px;
     width: 90%;
     max-width: 480px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
 .modal-header {
@@ -593,7 +578,7 @@ const statusText = (token) => {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     border: none;
     border-radius: 4px;
     color: #fff;
@@ -602,7 +587,7 @@ const statusText = (token) => {
 }
 
 .btn-copy:hover {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .btn-copy .material-icons {

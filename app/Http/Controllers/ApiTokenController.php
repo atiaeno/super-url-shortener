@@ -49,9 +49,12 @@ class ApiTokenController extends Controller
         ]);
 
         // Store the plain token in session to display once
-        return redirect()->route('profile.api-tokens')
-            ->with('new_token', $token)
-            ->with('new_token_name', $apiToken->name);
+        return redirect()
+            ->route('profile.api-tokens')
+            ->with([
+                'new_token' => $token,
+                'new_token_name' => $apiToken->name,
+            ]);
     }
 
     /**

@@ -10,9 +10,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Laravel\Facades\Image;
 use Inertia\Inertia;
 use Inertia\Response;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class ProfileController extends Controller
 {
@@ -24,9 +25,10 @@ class ProfileController extends Controller
     public function edit(Request $request): Response
     {
         return Inertia::render('Profile/Edit', [
-            'mustVerifyEmail'    => $request->user() instanceof MustVerifyEmail,
-            'status'             => session('status'),
-            'connectedProviders' => $request->user()
+            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+            'status' => session('status'),
+            'connectedProviders' => $request
+                ->user()
                 ->socialAccounts()
                 ->pluck('provider')
                 ->toArray(),
@@ -51,8 +53,10 @@ class ProfileController extends Controller
             Storage::disk('public')->delete("{$base}/{$size}.jpg");
         }
 
+        $manager = new ImageManager(new Driver());
         foreach (self::AVATAR_SIZES as $size) {
-            $img = Image::read($file->getRealPath())
+            $img = $manager
+                ->read($file->getRealPath())
                 ->cover($size, $size)
                 ->toJpeg(90);
 

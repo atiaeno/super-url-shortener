@@ -58,6 +58,8 @@ class HandleInertiaRequests extends Middleware
             'recaptchaSiteKey' => $captcha->isEnabled() ? $captcha->siteKey() : '',
             'flash' => [
                 'toast' => $toasts,
+                'new_token' => $request->session()->get('new_token'),
+                'new_token_name' => $request->session()->get('new_token_name'),
             ],
         ];
     }
