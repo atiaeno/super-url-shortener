@@ -3,9 +3,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class Affiliate extends Model
@@ -22,11 +22,11 @@ class Affiliate extends Model
     ];
 
     protected $casts = [
-        'total_earnings'   => 'decimal:2',
+        'total_earnings' => 'decimal:2',
         'pending_earnings' => 'decimal:2',
-        'paid_earnings'    => 'decimal:2',
-        'total_visits'     => 'integer',
-        'is_active'        => 'boolean',
+        'paid_earnings' => 'decimal:2',
+        'total_visits' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     public function user(): BelongsTo
@@ -57,7 +57,8 @@ class Affiliate extends Model
      */
     public function tierProgressPercent(int $nextThreshold): int
     {
-        if ($nextThreshold <= 0) return 100;
+        if ($nextThreshold <= 0)
+            return 100;
 
         return (int) min(100, round(($this->total_visits / $nextThreshold) * 100));
     }

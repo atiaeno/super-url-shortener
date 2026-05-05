@@ -3,8 +3,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SyncAffiliateEarningsJob;
 use App\Models\Affiliate;
 use App\Models\AffiliateTier;
+use App\Models\AffiliateVisit;
 use App\Models\Payout;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
@@ -21,21 +23,39 @@ class AffiliateController extends Controller
     public function index(): Response
     {
         $user = Auth::user();
-        $affiliate = Affiliate::with(['tier.countryRates', 'payouts' => fn ($q) => $q->latest()->limit(10)])
+        $affiliate = Affiliate::with(['payouts' => fn($q) => $q->latest()->limit(10)])
             ->where('user_id', $user->id)
             ->first();
 
-        $tiers = AffiliateTier::active()->orderBy('visit_threshold')->get();
+        $tiers = AffiliateTier::active()->with('countryRates')->orderBy('id')->get();
 
-        $nextTier = $affiliate
-            ? $tiers->where('visit_threshold', '>', $affiliate->total_visits)->first()
-            : null;
+        // Per-tier visit breakdown for the enrolled affiliate
+        $visitsByTier = [];
+        if ($affiliate) {
+            $rows = AffiliateVisit::where('affiliate_id', $affiliate->id)
+                ->selectRaw('affiliate_tier_id, COUNT(*) as visits')
+                ->groupBy('affiliate_tier_id')
+                ->get()
+                ->keyBy('affiliate_tier_id');
+
+            foreach ($tiers as $tier) {
+                $visits = $rows->get($tier->id)?->visits ?? 0;
+                $visitsByTier[] = [
+                    'tier_id' => $tier->id,
+                    'name' => $tier->name,
+                    'visits' => $visits,
+                    'rate' => $tier->view_rate,
+                    'multiplier' => $tier->view_multiplier,
+                    'earned' => round(($visits / $tier->view_multiplier) * $tier->view_rate, 4),
+                ];
+            }
+        }
 
         return Inertia::render('Affiliate/Dashboard', [
-            'affiliate'  => $affiliate,
-            'tiers'      => $tiers,
-            'nextTier'   => $nextTier,
-            'minPayout'  => (float) Setting::get('affiliate_min_payout', 50),
+            'affiliate' => $affiliate,
+            'tiers' => $tiers,
+            'visitsByTier' => $visitsByTier,
+            'minPayout' => (float) Setting::get('affiliate_min_payout', 50),
         ]);
     }
 
@@ -53,12 +73,13 @@ class AffiliateController extends Controller
         $defaultTier = AffiliateTier::active()->orderBy('visit_threshold')->firstOrFail();
 
         Affiliate::create([
-            'user_id'      => $user->id,
-            'tier_id'      => $defaultTier->id,
+            'user_id' => $user->id,
+            'tier_id' => $defaultTier->id,
             'referral_code' => Affiliate::generateReferralCode(),
         ]);
 
-        return redirect()->route('affiliate.index')
+        return redirect()
+            ->route('affiliate.index')
             ->with('success', 'Welcome to the affiliate program!');
     }
 
@@ -71,7 +92,7 @@ class AffiliateController extends Controller
 
         $minPayout = (float) Setting::get('affiliate_min_payout', 50);
 
-        if (! $affiliate->canRequestPayout($minPayout)) {
+        if (!$affiliate->canRequestPayout($minPayout)) {
             return back()->with('error', "Minimum payout is \${$minPayout}.");
         }
 
@@ -84,13 +105,25 @@ class AffiliateController extends Controller
         ]);
 
         Payout::create([
-            'affiliate_id'  => $affiliate->id,
-            'amount'        => $affiliate->pending_earnings,
-            'status'        => Payout::STATUS_PENDING,
-            'paypal_email'  => $validated['paypal_email'],
+            'affiliate_id' => $affiliate->id,
+            'amount' => $affiliate->pending_earnings,
+            'status' => Payout::STATUS_PENDING,
+            'paypal_email' => $validated['paypal_email'],
         ]);
 
         return back()->with('success', 'Payout request submitted. We will review it shortly.');
+    }
+
+    /**
+     * Manually trigger earnings sync for the authenticated affiliate.
+     */
+    public function sync(): RedirectResponse
+    {
+        $affiliate = Affiliate::where('user_id', Auth::id())->firstOrFail();
+
+        SyncAffiliateEarningsJob::dispatch($affiliate->id);
+
+        return back()->with('success', 'Earnings sync queued. Refresh in a moment.');
     }
 
     /**
@@ -107,7 +140,7 @@ class AffiliateController extends Controller
 
         return Inertia::render('Affiliate/Payouts', [
             'affiliate' => $affiliate,
-            'payouts'   => $payouts,
+            'payouts' => $payouts,
         ]);
     }
 }

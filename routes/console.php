@@ -19,3 +19,6 @@ Schedule::job(new DeleteOldClicksJob)->monthlyOn(1, '03:00');
 
 // Update disposable email domains list weekly
 Schedule::command('disposable:update')->weekly();
+
+// Affiliate: sync earnings + prune old visits daily at 01:00
+Schedule::command('affiliates:daily-sync')->dailyAt('01:00');
