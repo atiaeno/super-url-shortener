@@ -15,7 +15,6 @@ class QrCodeController extends Controller
     public function generate(Link $link, string $format = 'svg'): Response
     {
         $this->authorize('view', $link);
-
         $shortUrl = $link->short_url;
 
         if ($format === 'png') {

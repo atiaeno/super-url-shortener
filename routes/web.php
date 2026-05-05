@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AffiliateController;
 use App\Http\Controllers\AffiliatePublicController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\BulkLinkController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GuestLinkController;
@@ -56,7 +57,7 @@ Route::get('/partners', [AffiliatePublicController::class, 'index'])->name('affi
 
 // ── Help & Documentation ───────────────────────────────────────────────────────
 Route::get('/help', fn() => Inertia::render('HelpCenter'))->name('help.center');
-Route::get('/api-docs', fn() => Inertia::render('ApiDocs'))->name('api.docs');
+Route::get('/api-docs', fn() => Inertia::render('ApiDocs'))->name('api-docs');
 
 // ── Story 1.8: Sitemap & robots ───────────────────────────────────────────────
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
@@ -84,6 +85,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/avatar', [ProfileController::class, 'uploadAvatar'])->name('profile.avatar');
+
+    // API Tokens
+    Route::get('/profile/api-tokens', [ApiTokenController::class, 'index'])->name('profile.api-tokens');
+    Route::post('/profile/api-tokens', [ApiTokenController::class, 'store'])->name('profile.api-tokens.store');
+    Route::delete('/profile/api-tokens/{id}', [ApiTokenController::class, 'destroy'])->name('profile.api-tokens.destroy');
 
     // Story 2.8: OAuth disconnect
     Route::delete('/auth/{provider}/disconnect', [SocialAuthController::class, 'disconnect'])->name('social.disconnect');
