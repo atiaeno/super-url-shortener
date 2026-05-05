@@ -1,5 +1,6 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
@@ -19,9 +20,9 @@ const props = defineProps({
     },
 });
 
-const copied       = ref(false);
-const embedCopied  = ref(false);
-const showEmbed    = ref(false);
+const copied = ref(false);
+const embedCopied = ref(false);
+const showEmbed = ref(false);
 const showReportModal = ref(false);
 const reportSubmitted = ref(false);
 const reportError = ref('');
@@ -62,28 +63,28 @@ const deviceColors = { desktop: '#d4af37', mobile: '#e74c3c', tablet: '#d4af37',
 
 const periods = [
     { key: 'today', label: 'Today' },
-    { key: 'week',  label: '7 Days' },
+    { key: 'week', label: '7 Days' },
     { key: 'month', label: '30 Days' },
-    { key: 'all',   label: 'All Time' },
+    { key: 'all', label: 'All Time' },
 ];
 
 const activePeriod = computed(() => props.analytics.period ?? 'all');
 
 // Social share URLs
-const twitterUrl   = computed(() => `https://twitter.com/intent/tweet?url=${encodeURIComponent(shortUrl.value)}`);
-const whatsappUrl  = computed(() => `https://wa.me/?text=${encodeURIComponent(shortUrl.value)}`);
-const telegramUrl  = computed(() => `https://t.me/share/url?url=${encodeURIComponent(shortUrl.value)}`);
-const linkedinUrl  = computed(() => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shortUrl.value)}`);
-const facebookUrl  = computed(() => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shortUrl.value)}`);
+const twitterUrl = computed(() => `https://twitter.com/intent/tweet?url=${encodeURIComponent(shortUrl.value)}`);
+const whatsappUrl = computed(() => `https://wa.me/?text=${encodeURIComponent(shortUrl.value)}`);
+const telegramUrl = computed(() => `https://t.me/share/url?url=${encodeURIComponent(shortUrl.value)}`);
+const linkedinUrl = computed(() => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shortUrl.value)}`);
+const facebookUrl = computed(() => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shortUrl.value)}`);
 
 // QR download URLs
 const qrSvgUrl = computed(() => route('links.qr', { link: props.link.id, format: 'svg' }));
 const qrPngUrl = computed(() => route('links.qr', { link: props.link.id, format: 'png' }));
 
 // Max value for bar charts
-const maxDevice  = computed(() => Math.max(1, ...(props.analytics.clicks_by_device  || []).map(d => d.total)));
+const maxDevice = computed(() => Math.max(1, ...(props.analytics.clicks_by_device || []).map(d => d.total)));
 const maxCountry = computed(() => Math.max(1, ...(props.analytics.clicks_by_country || []).map(d => d.total)));
-const maxRef     = computed(() => Math.max(1, ...(topReferrers.value).map(d => d.total)));
+const maxRef = computed(() => Math.max(1, ...(topReferrers.value).map(d => d.total)));
 
 // Report form
 const reportForm = useForm({
@@ -102,7 +103,7 @@ const reasonOptions = [
 const submitReport = () => {
     reportError.value = '';
     reportSubmitted.value = false;
-    
+
     reportForm.post(route('links.report', props.link.id), {
         preserveScroll: true,
         onSuccess: () => {
@@ -121,269 +122,274 @@ const submitReport = () => {
 </script>
 
 <template>
-    <Head :title="`/${link.short_code} — Analytics`" />
 
-    <div class="editorial">
-        <!-- Fixed masthead -->
-        <header class="masthead">
-            <div class="masthead-logo">ShortLink</div>
-            <nav class="masthead-nav">
-                <Link :href="route('dashboard')">Dashboard</Link>
-                <Link :href="route('profile.edit')">Profile</Link>
-            </nav>
-        </header>
+    <Head :title="`${link.short_code} — Analytics`" />
 
-        <!-- Hero: Link Identity -->
-        <section class="hero-split">
-            <div class="hero-left">
-                <div class="issue-label">Analytics Report</div>
-                <h1>/<span>{{ link.short_code }}</span></h1>
-                <p class="deck">Comprehensive click analysis and engagement metrics for this shortened URL. Track performance across devices, locations, and referrers.</p>
-                
-                <div class="short-url-display">
-                    <a :href="shortUrl" target="_blank" class="short-anchor">{{ shortUrl }}</a>
-                    <button @click="copyUrl" class="copy-btn">{{ copied ? '✓ Copied' : 'Copy' }}</button>
+    <AuthenticatedLayout>
+        <template #header>{{ link.short_code }} — Analytics</template>
+
+        <div class="editorial">
+            <!-- Hero: Link Identity -->
+            <section class="hero-split">
+                <div class="hero-left">
+                    <div class="issue-label">Analytics Report</div>
+                    <h1>/<span>{{ link.short_code }}</span></h1>
+                    <p class="deck">Comprehensive click analysis and engagement metrics for this shortened URL. Track
+                        performance across devices, locations, and referrers.</p>
+
+                    <div class="short-url-display">
+                        <a :href="shortUrl" target="_blank" class="short-anchor">{{ shortUrl }}</a>
+                        <button @click="copyUrl" class="copy-btn">{{ copied ? '✓ Copied' : 'Copy' }}</button>
+                    </div>
+
+                    <a :href="link.destination_url" target="_blank" rel="noopener" class="dest-anchor">{{
+                        link.destination_url }}</a>
+
+                    <div class="link-meta">
+                        <span class="meta-badge"
+                            :class="link.is_active ? 'meta-badge--active' : 'meta-badge--inactive'">
+                            {{ link.is_active ? 'Active' : 'Inactive' }}
+                        </span>
+                        <span v-if="link.campaign_tag" class="meta-badge meta-badge--tag">{{ link.campaign_tag }}</span>
+                        <span class="meta-created">Created {{ formatDate(link.created_at) }}</span>
+                    </div>
+
+                    <div class="hero-actions">
+                        <Link :href="route('links.edit', link.id)" class="btn-primary">Edit Link</Link>
+                        <button @click="deleteLink" class="btn-danger">Delete</button>
+                        <button @click="showReportModal = true" class="btn-text">Report</button>
+                    </div>
                 </div>
-                
-                <a :href="link.destination_url" target="_blank" rel="noopener" class="dest-anchor">{{ link.destination_url }}</a>
-                
-                <div class="link-meta">
-                    <span class="meta-badge" :class="link.is_active ? 'meta-badge--active' : 'meta-badge--inactive'">
-                        {{ link.is_active ? 'Active' : 'Inactive' }}
+
+                <div class="hero-right">
+                    <div class="blueprint">
+                        <h3>Link Specifications</h3>
+                        <p>Real-time performance metrics with granular tracking across geographic regions, device types,
+                            and
+                            traffic sources.</p>
+
+                        <div class="spec-list">
+                            <div class="spec-item">
+                                <span class="spec-num">01</span>
+                                <span class="spec-label">Total Clicks</span>
+                                <span class="spec-val">{{ (analytics.total_clicks ?? 0).toLocaleString() }}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-num">02</span>
+                                <span class="spec-label">Countries Reached</span>
+                                <span class="spec-val">{{ topCountries.length }}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-num">03</span>
+                                <span class="spec-label">Referrers</span>
+                                <span class="spec-val">{{ topReferrers.length }}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-num">04</span>
+                                <span class="spec-label">Expires</span>
+                                <span class="spec-val">{{ link.expires_at ? formatDate(link.expires_at) : 'Never'
+                                    }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Share & Distribution -->
+            <section class="share-section">
+                <div class="share-header">
+                    <span class="roman-num">I.</span>
+                    <h3>Distribution Channels</h3>
+                </div>
+
+                <div class="share-grid">
+                    <div class="share-group">
+                        <span class="share-label">Social</span>
+                        <div class="share-buttons">
+                            <a :href="twitterUrl" target="_blank" rel="noopener" class="share-btn"
+                                title="Twitter/X">𝕏</a>
+                            <a :href="whatsappUrl" target="_blank" rel="noopener" class="share-btn"
+                                title="WhatsApp">W</a>
+                            <a :href="telegramUrl" target="_blank" rel="noopener" class="share-btn"
+                                title="Telegram">T</a>
+                            <a :href="linkedinUrl" target="_blank" rel="noopener" class="share-btn"
+                                title="LinkedIn">L</a>
+                            <a :href="facebookUrl" target="_blank" rel="noopener" class="share-btn"
+                                title="Facebook">F</a>
+                        </div>
+                    </div>
+
+                    <div class="share-group">
+                        <span class="share-label">QR Code</span>
+                        <div class="share-buttons">
+                            <a :href="qrSvgUrl" class="qr-btn">SVG</a>
+                            <a :href="qrPngUrl" class="qr-btn">PNG</a>
+                        </div>
+                    </div>
+
+                    <div class="share-group">
+                        <span class="share-label">Embed</span>
+                        <button @click="showEmbed = !showEmbed" class="qr-btn">{{ showEmbed ? 'Hide' : 'Get Code'
+                            }}</button>
+                    </div>
+                </div>
+
+                <!-- Embed panel -->
+                <div v-if="showEmbed" class="embed-panel">
+                    <code class="embed-code">{{ embedCode }}</code>
+                    <button @click="copyEmbed" class="copy-btn">{{ embedCopied ? '✓ Copied' : 'Copy' }}</button>
+                </div>
+            </section>
+
+            <!-- Period filter -->
+            <section class="period-section">
+                <div class="period-bar">
+                    <span class="period-label">Time Period</span>
+                    <button v-for="p in periods" :key="p.key" @click="setPeriod(p.key)" class="period-btn"
+                        :class="activePeriod === p.key ? 'period-btn--active' : ''">{{ p.label }}</button>
+                </div>
+            </section>
+
+            <!-- Analytics grid with editorial spec-item style -->
+            <section class="analytics-section">
+                <div class="analytics-grid">
+                    <!-- Devices -->
+                    <div class="analytics-card">
+                        <div class="card-header">
+                            <span class="roman-num">II.</span>
+                            <h3 class="card-title">Device Analytics</h3>
+                        </div>
+                        <div v-if="!analytics.clicks_by_device?.length" class="no-data">No data yet</div>
+                        <div v-else class="spec-list">
+                            <div v-for="(row, index) in analytics.clicks_by_device" :key="row.device_type"
+                                class="spec-item">
+                                <span class="spec-num">{{ String(index + 1).padStart(2, '0') }}</span>
+                                <span class="spec-label">{{ row.device_type || 'Unknown' }}</span>
+                                <span class="spec-val">{{ row.total }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Countries with flag emojis (Story 3.10) -->
+                    <div class="analytics-card">
+                        <div class="card-header">
+                            <span class="roman-num">III.</span>
+                            <h3 class="card-title">Geographic Reach</h3>
+                        </div>
+                        <div v-if="!analytics.clicks_by_country?.length" class="no-data">No data yet</div>
+                        <div v-else class="spec-list">
+                            <div v-for="(row, index) in topCountries" :key="row.country_code" class="spec-item">
+                                <span class="spec-num">{{ String(index + 1).padStart(2, '0') }}</span>
+                                <span class="spec-label"><span class="country-flag">{{ row.country_emoji }}</span> {{
+                                    row.country_name }}</span>
+                                <span class="spec-val">{{ row.total }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Referrers -->
+                    <div class="analytics-card">
+                        <div class="card-header">
+                            <span class="roman-num">IV.</span>
+                            <h3 class="card-title">Traffic Sources</h3>
+                        </div>
+                        <div v-if="!topReferrers.length" class="no-data">No data yet</div>
+                        <div v-else class="spec-list">
+                            <div v-for="(row, index) in topReferrers" :key="row.referrer_domain || 'Direct'"
+                                class="spec-item">
+                                <span class="spec-num">{{ String(index + 1).padStart(2, '0') }}</span>
+                                <span class="spec-label">{{ row.referrer_domain || 'Direct / None' }}</span>
+                                <span class="spec-val">{{ row.total }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Browsers -->
+                    <div class="analytics-card">
+                        <div class="card-header">
+                            <span class="roman-num">V.</span>
+                            <h3 class="card-title">Browser Analytics</h3>
+                        </div>
+                        <div v-if="!analytics.clicks_by_browser?.length" class="no-data">No data yet</div>
+                        <div v-else class="spec-list">
+                            <div v-for="(row, index) in analytics.clicks_by_browser" :key="row.browser_name"
+                                class="spec-item">
+                                <span class="spec-num">{{ String(index + 1).padStart(2, '0') }}</span>
+                                <span class="spec-label">{{ row.browser_name }}</span>
+                                <span class="spec-val">{{ row.total }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Time series -->
+            <section v-if="analytics.clicks_over_time?.length" class="time-section">
+                <div class="time-header">
+                    <span class="roman-num">VI.</span>
+                    <h3>Engagement Timeline</h3>
+                </div>
+                <div class="time-chart">
+                    <div v-for="point in analytics.clicks_over_time" :key="point.date" class="time-bar"
+                        :style="{ height: `${Math.max(20, (point.clicks / Math.max(...analytics.clicks_over_time.map(p => p.clicks))) * 160)}px` }"
+                        :title="`${point.date}: ${point.clicks} clicks`">
+                        <span class="time-value">{{ point.clicks }}</span>
+                    </div>
+                </div>
+                <div class="time-labels">
+                    <span v-for="point in analytics.clicks_over_time" :key="point.date" class="time-label">
+                        {{ point.date }}
                     </span>
-                    <span v-if="link.campaign_tag" class="meta-badge meta-badge--tag">{{ link.campaign_tag }}</span>
-                    <span class="meta-created">Created {{ formatDate(link.created_at) }}</span>
                 </div>
-                
-                <div class="hero-actions">
-                    <Link :href="route('links.edit', link.id)" class="btn-primary">Edit Link</Link>
-                    <button @click="deleteLink" class="btn-danger">Delete</button>
-                    <button @click="showReportModal = true" class="btn-text">Report</button>
-                </div>
-            </div>
+            </section>
 
-            <div class="hero-right">
-                <div class="blueprint">
-                    <h3>Link Specifications</h3>
-                    <p>Real-time performance metrics with granular tracking across geographic regions, device types, and traffic sources.</p>
-                    
-                    <div class="spec-list">
-                        <div class="spec-item">
-                            <span class="spec-num">01</span>
-                            <span class="spec-label">Total Clicks</span>
-                            <span class="spec-val">{{ (analytics.total_clicks ?? 0).toLocaleString() }}</span>
+            <!-- Editorial Footer -->
+            <footer class="editorial-footer">
+                <p> MMXXV ShortLink Analytics — Link #{{ link.id }}</p>
+                <Link :href="route('dashboard')" class="footer-link">Return to Dashboard</Link>
+            </footer>
+
+            <!-- Report Modal -->
+            <div v-if="showReportModal" class="modal-overlay">
+                <div class="modal-panel">
+                    <h3 class="modal-title">Report Link</h3>
+
+                    <div v-if="reportSubmitted" class="modal-success">
+                        Thank you for your report. We'll review it shortly.
+                    </div>
+
+                    <form v-else @submit.prevent="submitReport">
+                        <p class="modal-desc">
+                            Report this link if it contains spam, malware, phishing, or harmful content.
+                        </p>
+
+                        <div class="modal-field">
+                            <label>Reason</label>
+                            <select v-model="reportForm.reason" class="editorial-select">
+                                <option v-for="opt in reasonOptions" :key="opt.value" :value="opt.value">{{ opt.label }}
+                                </option>
+                            </select>
                         </div>
-                        <div class="spec-item">
-                            <span class="spec-num">02</span>
-                            <span class="spec-label">Countries Reached</span>
-                            <span class="spec-val">{{ topCountries.length }}</span>
+
+                        <div class="modal-field">
+                            <label>Details (optional)</label>
+                            <textarea v-model="reportForm.details" rows="3" class="editorial-textarea"
+                                placeholder="Provide additional context..."></textarea>
                         </div>
-                        <div class="spec-item">
-                            <span class="spec-num">03</span>
-                            <span class="spec-label">Referrers</span>
-                            <span class="spec-val">{{ topReferrers.length }}</span>
+
+                        <p v-if="reportError" class="modal-error">{{ reportError }}</p>
+
+                        <div class="modal-actions">
+                            <button type="button" @click="showReportModal = false" class="btn-ghost">Cancel</button>
+                            <button type="submit" :disabled="reportForm.processing" class="btn-danger">
+                                {{ reportForm.processing ? 'Submitting...' : 'Submit Report' }}
+                            </button>
                         </div>
-                        <div class="spec-item">
-                            <span class="spec-num">04</span>
-                            <span class="spec-label">Expires</span>
-                            <span class="spec-val">{{ link.expires_at ? formatDate(link.expires_at) : 'Never' }}</span>
-                        </div>
-                    </div>
+                    </form>
                 </div>
-            </div>
-        </section>
-
-        <!-- Share & Distribution -->
-        <section class="share-section">
-            <div class="share-header">
-                <span class="roman-num">I.</span>
-                <h3>Distribution Channels</h3>
-            </div>
-            
-            <div class="share-grid">
-                <div class="share-group">
-                    <span class="share-label">Social</span>
-                    <div class="share-buttons">
-                        <a :href="twitterUrl" target="_blank" rel="noopener" class="share-btn" title="Twitter/X">𝕏</a>
-                        <a :href="whatsappUrl" target="_blank" rel="noopener" class="share-btn" title="WhatsApp">W</a>
-                        <a :href="telegramUrl" target="_blank" rel="noopener" class="share-btn" title="Telegram">T</a>
-                        <a :href="linkedinUrl" target="_blank" rel="noopener" class="share-btn" title="LinkedIn">L</a>
-                        <a :href="facebookUrl" target="_blank" rel="noopener" class="share-btn" title="Facebook">F</a>
-                    </div>
-                </div>
-
-                <div class="share-group">
-                    <span class="share-label">QR Code</span>
-                    <div class="share-buttons">
-                        <a :href="qrSvgUrl" class="qr-btn">SVG</a>
-                        <a :href="qrPngUrl" class="qr-btn">PNG</a>
-                    </div>
-                </div>
-
-                <div class="share-group">
-                    <span class="share-label">Embed</span>
-                    <button @click="showEmbed = !showEmbed" class="qr-btn">{{ showEmbed ? 'Hide' : 'Get Code' }}</button>
-                </div>
-            </div>
-
-            <!-- Embed panel -->
-            <div v-if="showEmbed" class="embed-panel">
-                <code class="embed-code">{{ embedCode }}</code>
-                <button @click="copyEmbed" class="copy-btn">{{ embedCopied ? '✓ Copied' : 'Copy' }}</button>
-            </div>
-        </section>
-
-        <!-- Period filter -->
-        <section class="period-section">
-            <div class="period-bar">
-                <span class="period-label">Time Period</span>
-                <button
-                    v-for="p in periods"
-                    :key="p.key"
-                    @click="setPeriod(p.key)"
-                    class="period-btn"
-                    :class="activePeriod === p.key ? 'period-btn--active' : ''"
-                >{{ p.label }}</button>
-            </div>
-        </section>
-
-        <!-- Analytics grid with editorial spec-item style -->
-        <section class="analytics-section">
-            <div class="analytics-grid">
-                <!-- Devices -->
-                <div class="analytics-card">
-                    <div class="card-header">
-                        <span class="roman-num">II.</span>
-                        <h3 class="card-title">Device Analytics</h3>
-                    </div>
-                    <div v-if="!analytics.clicks_by_device?.length" class="no-data">No data yet</div>
-                    <div v-else class="spec-list">
-                        <div v-for="(row, index) in analytics.clicks_by_device" :key="row.device_type" class="spec-item">
-                            <span class="spec-num">{{ String(index + 1).padStart(2, '0') }}</span>
-                            <span class="spec-label">{{ row.device_type || 'Unknown' }}</span>
-                            <span class="spec-val">{{ row.total }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Countries with flag emojis (Story 3.10) -->
-                <div class="analytics-card">
-                    <div class="card-header">
-                        <span class="roman-num">III.</span>
-                        <h3 class="card-title">Geographic Reach</h3>
-                    </div>
-                    <div v-if="!analytics.clicks_by_country?.length" class="no-data">No data yet</div>
-                    <div v-else class="spec-list">
-                        <div v-for="(row, index) in topCountries" :key="row.country_code" class="spec-item">
-                            <span class="spec-num">{{ String(index + 1).padStart(2, '0') }}</span>
-                            <span class="spec-label"><span class="country-flag">{{ row.country_emoji }}</span> {{ row.country_name }}</span>
-                            <span class="spec-val">{{ row.total }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Referrers -->
-                <div class="analytics-card">
-                    <div class="card-header">
-                        <span class="roman-num">IV.</span>
-                        <h3 class="card-title">Traffic Sources</h3>
-                    </div>
-                    <div v-if="!topReferrers.length" class="no-data">No data yet</div>
-                    <div v-else class="spec-list">
-                        <div v-for="(row, index) in topReferrers" :key="row.referrer_domain || 'Direct'" class="spec-item">
-                            <span class="spec-num">{{ String(index + 1).padStart(2, '0') }}</span>
-                            <span class="spec-label">{{ row.referrer_domain || 'Direct / None' }}</span>
-                            <span class="spec-val">{{ row.total }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Browsers -->
-                <div class="analytics-card">
-                    <div class="card-header">
-                        <span class="roman-num">V.</span>
-                        <h3 class="card-title">Browser Analytics</h3>
-                    </div>
-                    <div v-if="!analytics.clicks_by_browser?.length" class="no-data">No data yet</div>
-                    <div v-else class="spec-list">
-                        <div v-for="(row, index) in analytics.clicks_by_browser" :key="row.browser_name" class="spec-item">
-                            <span class="spec-num">{{ String(index + 1).padStart(2, '0') }}</span>
-                            <span class="spec-label">{{ row.browser_name }}</span>
-                            <span class="spec-val">{{ row.total }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Time series -->
-        <section v-if="analytics.clicks_over_time?.length" class="time-section">
-            <div class="time-header">
-                <span class="roman-num">VI.</span>
-                <h3>Engagement Timeline</h3>
-            </div>
-            <div class="time-chart">
-                <div
-                    v-for="point in analytics.clicks_over_time"
-                    :key="point.date"
-                    class="time-bar"
-                    :style="{ height: `${Math.max(20, (point.clicks / Math.max(...analytics.clicks_over_time.map(p => p.clicks))) * 160)}px` }"
-                    :title="`${point.date}: ${point.clicks} clicks`"
-                >
-                    <span class="time-value">{{ point.clicks }}</span>
-                </div>
-            </div>
-            <div class="time-labels">
-                <span v-for="point in analytics.clicks_over_time" :key="point.date" class="time-label">
-                    {{ point.date }}
-                </span>
-            </div>
-        </section>
-
-        <!-- Editorial Footer -->
-        <footer class="editorial-footer">
-            <p> MMXXV ShortLink Analytics — Link #{{ link.id }}</p>
-            <Link :href="route('dashboard')" class="footer-link">Return to Dashboard</Link>
-        </footer>
-
-        <!-- Report Modal -->
-        <div v-if="showReportModal" class="modal-overlay">
-            <div class="modal-panel">
-                <h3 class="modal-title">Report Link</h3>
-                
-                <div v-if="reportSubmitted" class="modal-success">
-                    Thank you for your report. We'll review it shortly.
-                </div>
-                
-                <form v-else @submit.prevent="submitReport">
-                    <p class="modal-desc">
-                        Report this link if it contains spam, malware, phishing, or harmful content.
-                    </p>
-                    
-                    <div class="modal-field">
-                        <label>Reason</label>
-                        <select v-model="reportForm.reason" class="editorial-select">
-                            <option v-for="opt in reasonOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
-                        </select>
-                    </div>
-                    
-                    <div class="modal-field">
-                        <label>Details (optional)</label>
-                        <textarea v-model="reportForm.details" rows="3" class="editorial-textarea" placeholder="Provide additional context..."></textarea>
-                    </div>
-                    
-                    <p v-if="reportError" class="modal-error">{{ reportError }}</p>
-                    
-                    <div class="modal-actions">
-                        <button type="button" @click="showReportModal = false" class="btn-ghost">Cancel</button>
-                        <button type="submit" :disabled="reportForm.processing" class="btn-danger">
-                            {{ reportForm.processing ? 'Submitting...' : 'Submit Report' }}
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
-    </div>
+    </AuthenticatedLayout>
 </template>
 
 <style scoped>
@@ -580,9 +586,20 @@ h1 span {
     border: 1px solid;
 }
 
-.meta-badge--active { color: #27ae60; border-color: #27ae60; }
-.meta-badge--inactive { color: #e74c3c; border-color: #e74c3c; }
-.meta-badge--tag { color: #d4af37; border-color: #d4af37; }
+.meta-badge--active {
+    color: #27ae60;
+    border-color: #27ae60;
+}
+
+.meta-badge--inactive {
+    color: #e74c3c;
+    border-color: #e74c3c;
+}
+
+.meta-badge--tag {
+    color: #d4af37;
+    border-color: #d4af37;
+}
 
 .meta-created {
     font-size: 13px;
@@ -693,7 +710,7 @@ h1 span {
     margin-bottom: 20px;
 }
 
-.blueprint > p {
+.blueprint>p {
     font-size: 16px;
     line-height: 1.8;
     margin-bottom: 40px;
@@ -1048,7 +1065,7 @@ h1 span {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: center;
     justify-content: center;

@@ -12,6 +12,8 @@ const page = usePage();
 const user = computed(() => page.props.auth?.user);
 const canLogin = computed(() => page.props.canLogin ?? true);
 const canRegister = computed(() => page.props.canRegister ?? true);
+const features = computed(() => page.props.features ?? { affiliate: true, ads: true, gdpr: true });
+const affiliateEnabled = computed(() => features.value.affiliate !== false);
 
 const scrolled = ref(false);
 const handleScroll = () => { scrolled.value = window.scrollY > 60; };
@@ -39,7 +41,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll));
                     <span class="masthead__link-num">II.</span>
                     My Links
                 </Link>
-                <Link href="/partners" class="masthead__link">
+                <Link v-if="affiliateEnabled" href="/partners" class="masthead__link">
                     <span class="masthead__link-num">III.</span>
                     Affiliate
                 </Link>
@@ -49,7 +51,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll));
                 </Link>
             </template>
             <template v-else>
-                <Link href="/partners" class="masthead__link">
+                <Link v-if="affiliateEnabled" href="/partners" class="masthead__link">
                     <span class="masthead__link-num">I.</span>
                     Affiliate
                 </Link>

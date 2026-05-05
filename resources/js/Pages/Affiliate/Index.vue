@@ -167,21 +167,39 @@ const countryName = (code) => {
                 </div>
             </div>
         </section>
-
-        <!-- CTA -->
+        <!-- CTA SECTION -->
         <section class="cta-section">
-            <div class="cta-container">
-                <h2 class="cta-headline">Ready to Start Earning?</h2>
-                <p class="cta-sub">Join thousands of affiliates earning passive income</p>
-                <div class="cta-actions">
-                    <Link v-if="canRegister" :href="route('register')" class="cta-btn cta-btn--primary">
-                        Join Now
-                    </Link>
-                    <Link v-if="canLogin" :href="route('login')" class="cta-btn cta-btn--secondary">
-                        Partner Login
-                    </Link>
-                </div>
+            <div class="cta-backdrop">
+                <div class="cta-noise"></div>
             </div>
+
+            <div class="cta-content">
+                <h2 class="cta-headline">Ready to start earning?</h2>
+                <p class="cta-sub">Join thousands who've already joined our affiliate program.</p>
+
+                <div class="cta-actions">
+                    <template v-if="!canLogin">
+                        <Link :href="route('register')" class="cta-btn cta-btn--primary">
+                            Join Now
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7" />
+                            </svg>
+                        </Link>
+                    </template>
+                    <template v-else>
+                        <Link :href="route('affiliate.index')" class="cta-btn cta-btn--primary">
+                            Go to Dashboard
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7" />
+                            </svg>
+                        </Link>
+                        <Link :href="route('dashboard')" class="cta-btn cta-btn--ghost">View Links</Link>
+                    </template>
+                </div>
+
+                <p class="cta-footnote">No credit card required. Free to join.</p>
+            </div>
+            <!-- ... -->
         </section>
 
         <!-- Countries Modal -->
@@ -498,15 +516,33 @@ const countryName = (code) => {
     color: #e74c3c;
 }
 
-/* ── CTA Section ───────────────────────────────── */
+/* ── CTA SECTION ───────────────────────────────── */
 .cta-section {
-    padding: 120px 24px;
-    background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+    position: relative;
+    padding: 160px 60px;
+    background: #0a0a0a;
     text-align: center;
+    overflow: hidden;
 }
 
-.cta-container {
-    max-width: 600px;
+.cta-backdrop {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 60% 40% at 50% 100%, rgba(231, 76, 60, 0.15) 0%, transparent 60%);
+}
+
+.cta-noise {
+    position: absolute;
+    inset: 0;
+    opacity: 0.02;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.cta-content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
     margin: 0 auto;
 }
 
@@ -515,13 +551,69 @@ const countryName = (code) => {
     font-size: clamp(36px, 5vw, 56px);
     font-weight: 700;
     color: #fff;
+    letter-spacing: -1px;
     margin: 0 0 20px;
 }
 
 .cta-sub {
-    font-size: 18px;
+    font-size: 20px;
     color: #888;
     margin: 0 0 40px;
+}
+
+.cta-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+}
+
+.cta-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 36px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.cta-btn--primary {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+}
+
+.cta-btn--primary:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(231, 76, 60, 0.3);
+}
+
+.cta-btn--primary svg {
+    width: 18px;
+    height: 18px;
+}
+
+.cta-btn--ghost {
+    background: transparent;
+    color: #888;
+    border: 1px solid #444;
+}
+
+.cta-btn--ghost:hover {
+    border-color: #d4af37;
+    color: #d4af37;
+}
+
+.cta-footnote {
+    font-size: 14px;
+    color: #555;
+    margin: 0;
 }
 
 /* ── Countries Link ───────────────────────────── */

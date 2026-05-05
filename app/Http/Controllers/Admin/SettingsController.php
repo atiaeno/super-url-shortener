@@ -90,9 +90,9 @@ class SettingsController extends Controller
             'footer_text' => 'nullable|string',
             'donation_enabled' => 'boolean',
             'donation_button_id' => 'nullable|string',
-            'features_affiliate' => 'boolean',
-            'features_ads' => 'boolean',
-            'features_gdpr' => 'boolean',
+            'features_affiliate' => 'nullable|boolean',
+            'features_ads' => 'nullable|boolean',
+            'features_gdpr' => 'nullable|boolean',
             'cache_ttl_redirect' => 'integer|min:60',
             'cache_ttl_analytics' => 'integer|min:60',
             'maintenance_mode' => 'boolean',
@@ -111,7 +111,9 @@ class SettingsController extends Controller
         ]);
 
         foreach ($validated as $key => $value) {
-            Setting::set($key, $value);
+            // Convert null booleans to 'false' string for storage
+            $storedValue = $value === null ? 'false' : ($value ? 'true' : 'false');
+            Setting::set($key, $storedValue);
         }
 
         // Update maintenance mode

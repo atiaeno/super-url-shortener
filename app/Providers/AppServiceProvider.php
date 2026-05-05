@@ -1,13 +1,16 @@
 <?php
-// © Atia Hegazy — atiaeno.com
+// Atia Hegazy — atiaeno.com
 
 namespace App\Providers;
 
+use App\Models\Setting;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,5 +38,17 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Vite::prefetch(concurrency: 3);
+
+        // Share feature settings globally
+        Inertia::share('features', function () {
+            $settings = Setting::whereIn('key', ['features_affiliate', 'features_ads', 'features_gdpr'])
+                ->pluck('value', 'key')
+                ->toArray();
+            return [
+                'affiliate' => ($settings['features_affiliate'] ?? 'true') === 'true',
+                'ads' => ($settings['features_ads'] ?? 'true') === 'true',
+                'gdpr' => ($settings['features_gdpr'] ?? 'true') === 'true',
+            ];
+        });
     }
 }
