@@ -51,11 +51,15 @@ class AffiliateController extends Controller
             }
         }
 
+        $payoutMethods = Setting::get('affiliate_payout_methods', 'PayPal');
+        $payoutMethods = array_filter(array_map('trim', explode(',', $payoutMethods)));
+
         return Inertia::render('Affiliate/Dashboard', [
             'affiliate' => $affiliate,
             'tiers' => $tiers,
             'visitsByTier' => $visitsByTier,
             'minPayout' => (float) Setting::get('affiliate_min_payout', 50),
+            'payoutMethods' => $payoutMethods,
         ]);
     }
 
@@ -101,14 +105,16 @@ class AffiliateController extends Controller
         }
 
         $validated = $request->validate([
-            'paypal_email' => ['required', 'email', 'max:255'],
+            'payment_method' => ['required', 'string', 'max:100'],
+            'payment_email' => ['required', 'string', 'max:255'],
         ]);
 
         Payout::create([
             'affiliate_id' => $affiliate->id,
             'amount' => $affiliate->pending_earnings,
             'status' => Payout::STATUS_PENDING,
-            'paypal_email' => $validated['paypal_email'],
+            'payment_method' => $validated['payment_method'],
+            'payment_email' => $validated['payment_email'],
         ]);
 
         return back()->with('success', 'Payout request submitted. We will review it shortly.');

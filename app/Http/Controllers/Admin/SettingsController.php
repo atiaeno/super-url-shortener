@@ -40,6 +40,8 @@ class SettingsController extends Controller
         'redirect_countdown',
         'redirect_mode',
         'redirect_captcha',
+        'affiliate_min_payout',
+        'affiliate_payout_methods',
     ];
 
     public function index(): Response
@@ -67,6 +69,8 @@ class SettingsController extends Controller
             'redirect_countdown' => '5',
             'redirect_mode' => 'auto',
             'redirect_captcha' => 'false',
+            'affiliate_min_payout' => '50',
+            'affiliate_payout_methods' => 'PayPal,Bank Transfer,Crypto',
         ];
 
         $settings = array_merge($defaults, $settings);
@@ -108,11 +112,17 @@ class SettingsController extends Controller
             'redirect_countdown' => 'integer|min:0|max:60',
             'redirect_mode' => 'in:auto,click',
             'redirect_captcha' => 'boolean',
+            'affiliate_min_payout' => 'nullable|numeric|min:1',
+            'affiliate_payout_methods' => 'nullable|string|max:255',
         ]);
 
         foreach ($validated as $key => $value) {
-            // Convert null booleans to 'false' string for storage
-            $storedValue = $value === null ? 'false' : ($value ? 'true' : 'false');
+            // Only convert boolean fields to 'true'/'false' strings
+            if (in_array($key, ['features_affiliate', 'features_ads', 'features_gdpr', 'maintenance_mode', 'captcha_enabled', 'safe_browsing_enabled', 'sitemap_enabled', 'redirect_captcha', 'donation_enabled'])) {
+                $storedValue = $value ? 'true' : 'false';
+            } else {
+                $storedValue = $value;
+            }
             Setting::set($key, $storedValue);
         }
 

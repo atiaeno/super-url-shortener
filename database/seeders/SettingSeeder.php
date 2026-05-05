@@ -19,17 +19,16 @@ class SettingSeeder extends Seeder
             ['key' => 'donation_button_id', 'value' => 'DEMO_BUTTON_ID', 'group' => 'branding'],
             ['key' => 'sitemap_enabled', 'value' => 'true', 'group' => 'branding'],
             ['key' => 'robots_txt', 'value' => "User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /dashboard/\nSitemap: /sitemap.xml", 'group' => 'branding'],
-
             // Features
             ['key' => 'features_affiliate', 'value' => 'true', 'group' => 'features'],
             ['key' => 'features_ads', 'value' => 'true', 'group' => 'features'],
             ['key' => 'features_gdpr', 'value' => 'false', 'group' => 'features'],
             ['key' => 'auto_suspend_threshold', 'value' => '3', 'group' => 'features'],
-
+            ['key' => 'affiliate_min_payout', 'value' => '50', 'group' => 'features'],
+            ['key' => 'affiliate_payout_methods', 'value' => 'PayPal,Bank Transfer,Crypto', 'group' => 'features'],
             // Cache
             ['key' => 'cache_ttl_redirect', 'value' => '86400', 'group' => 'cache'],
             ['key' => 'cache_ttl_analytics', 'value' => '3600', 'group' => 'cache'],
-
             // Security
             ['key' => 'captcha_enabled', 'value' => 'false', 'group' => 'security'],
             ['key' => 'safe_browsing_enabled', 'value' => 'false', 'group' => 'security'],
@@ -38,7 +37,7 @@ class SettingSeeder extends Seeder
         ];
 
         foreach ($settings as $setting) {
-            Setting::create($setting);
+            Setting::updateOrCreate(['key' => $setting['key']], $setting);
         }
     }
 }

@@ -9,10 +9,11 @@ const props = defineProps({
     tiers: { type: Array, default: () => [] },
     visitsByTier: { type: Array, default: () => [] },
     minPayout: { type: Number, default: 50 },
+    payoutMethods: { type: Array, default: () => ['PayPal'] },
 });
 
 const enrollForm = useForm({});
-const payoutForm = useForm({ paypal_email: '' });
+const payoutForm = useForm({ payment_method: '', payment_email: '' });
 const syncForm = useForm({});
 
 const progressPercent = computed(() => {
@@ -153,11 +154,19 @@ const statusClass = (status) => ({
                         <form v-else @submit.prevent="payoutForm.post(route('affiliate.payout.request'))"
                             class="payout-form">
                             <div class="field">
-                                <label class="field__label">PayPal Email</label>
-                                <input v-model="payoutForm.paypal_email" type="email" class="field__input"
-                                    placeholder="you@paypal.com" required />
-                                <span v-if="payoutForm.errors.paypal_email" class="field__error">{{
-                                    payoutForm.errors.paypal_email }}</span>
+                                <label class="field__label">Payment Method</label>
+                                <select v-model="payoutForm.payment_method" class="field__input" required>
+                                    <option value="" disabled>Select payment method</option>
+                                    <option v-for="method in payoutMethods" :key="method" :value="method">{{ method }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label class="field__label">{{ payoutForm.payment_method }} Email/Address</label>
+                                <input v-model="payoutForm.payment_email" type="text" class="field__input"
+                                    :placeholder="`Your ${payoutForm.payment_method} email or address`" required />
+                                <span v-if="payoutForm.errors.payment_email" class="field__error">{{
+                                    payoutForm.errors.payment_email }}</span>
                             </div>
                             <button type="submit" class="btn-primary" :disabled="payoutForm.processing">
                                 Request ${{ parseFloat(affiliate.pending_earnings).toFixed(2) }} Payout
@@ -561,6 +570,11 @@ const statusClass = (status) => ({
     display: flex;
     flex-direction: column;
     gap: 16px;
+}
+
+.payout-form .field__input {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .field {

@@ -35,6 +35,8 @@ const form = useForm({
     redirect_countdown: parseInt(props.settings.redirect_countdown),
     redirect_mode: props.settings.redirect_mode,
     redirect_captcha: props.settings.redirect_captcha === 'true',
+    affiliate_min_payout: parseFloat(props.settings.affiliate_min_payout) || 50,
+    affiliate_payout_methods: props.settings.affiliate_payout_methods || 'PayPal',
 });
 
 const cacheForm = useForm({ type: 'all' });
@@ -217,6 +219,24 @@ const icons = {
                                     <p class="field__hint">Number of unique reports within 24h to auto-suspend a link.
                                     </p>
                                 </div>
+
+                                <template v-if="form.features_affiliate">
+                                    <div class="divider"></div>
+
+                                    <div class="field">
+                                        <label class="field__label">Minimum Payout ($)</label>
+                                        <input v-model="form.affiliate_min_payout" type="number" min="1" step="1"
+                                            class="field__input field__input--sm" />
+                                        <p class="field__hint">Minimum earnings required to request a payout.</p>
+                                    </div>
+
+                                    <div class="field">
+                                        <label class="field__label">Payout Methods</label>
+                                        <input v-model="form.affiliate_payout_methods" type="text"
+                                            class="field__input field__input--sm" />
+                                        <p class="field__hint">Comma-separated: PayPal, Bank Transfer, Crypto</p>
+                                    </div>
+                                </template>
                             </div>
                         </div>
 
@@ -412,7 +432,7 @@ const icons = {
                                     <div>
                                         <label for="maintenance" class="maintenance-banner__title">{{
                                             form.maintenance_mode ?
-                                            'Maintenance Mode Active' : 'Enable Maintenance Mode' }}</label>
+                                                'Maintenance Mode Active' : 'Enable Maintenance Mode' }}</label>
                                         <p class="maintenance-banner__desc">When enabled, only admins can access the
                                             site.</p>
                                     </div>
