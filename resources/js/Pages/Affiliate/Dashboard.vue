@@ -51,14 +51,14 @@ const statusClass = (status) => ({
     <Head title="Affiliate Dashboard" />
 
     <AuthenticatedLayout>
-        <template #header>💰 Affiliate Program</template>
+        <template #header><span class="material-icons">trending_up</span> Affiliate Program</template>
 
         <div class="page-content">
 
             <!-- Not enrolled yet -->
             <div v-if="!affiliate" class="enroll-section">
                 <div class="enroll-hero">
-                    <span class="enroll-icon">💰</span>
+                    <span class="enroll-icon material-icons">attach_money</span>
                     <h2 class="enroll-title">Earn with Every Click</h2>
                     <p class="enroll-desc">
                         Join our affiliate program and earn commissions for every visit your short links generate.
@@ -76,7 +76,8 @@ const statusClass = (status) => ({
 
                 <form @submit.prevent="enrollForm.post(route('affiliate.enroll'))" class="enroll-action">
                     <button type="submit" class="btn-primary btn-large" :disabled="enrollForm.processing">
-                        {{ enrollForm.processing ? 'Enrolling…' : '🚀 Become an Affiliate' }}
+                        <span v-if="enrollForm.processing">Enrolling…</span>
+                        <span v-else><span class="material-icons">star</span> Become an Affiliate</span>
                     </button>
                 </form>
             </div>
@@ -107,7 +108,8 @@ const statusClass = (status) => ({
                     <p class="sync-note">Earnings update daily. Click to sync now:</p>
                     <form @submit.prevent="syncForm.post(route('affiliate.sync'))">
                         <button type="submit" class="btn-sync" :disabled="syncForm.processing">
-                            {{ syncForm.processing ? 'Syncing…' : '🔄 Sync Earnings' }}
+                            <span v-if="syncForm.processing">Syncing…</span>
+                            <span v-else><span class="material-icons">sync</span> Sync Earnings</span>
                         </button>
                     </form>
                 </div>
@@ -141,7 +143,7 @@ const statusClass = (status) => ({
                         <div v-if="!canPayout" class="payout-locked">
                             <p>Minimum payout is <strong>${{ minPayout }}</strong>.</p>
                             <p>You currently have <strong>${{ parseFloat(affiliate.pending_earnings).toFixed(2)
-                                    }}</strong> pending.</p>
+                            }}</strong> pending.</p>
                             <div class="payout-progress-track">
                                 <div class="payout-progress-fill"
                                     :style="{ width: Math.min(100, Math.round((parseFloat(affiliate.pending_earnings) / minPayout) * 100)) + '%' }" />
@@ -228,6 +230,13 @@ const statusClass = (status) => ({
     padding: 24px;
 }
 
+/* Material Icons */
+.material-icons {
+    font-size: 20px;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
 /* ── Enroll Section ─────────────────────────────── */
 .enroll-section {
     max-width: 600px;
@@ -240,22 +249,23 @@ const statusClass = (status) => ({
 }
 
 .enroll-icon {
-    font-size: 48px;
+    font-size: 56px;
     display: block;
     margin-bottom: 16px;
+    color: #1a1a1a;
 }
 
 .enroll-title {
     font-family: var(--font-display);
-    font-size: 32px;
+    font-size: 38px;
     font-weight: 700;
-    color: var(--ink);
+    color: #1a1a1a;
     margin: 0 0 12px 0;
 }
 
 .enroll-desc {
-    font-size: 15px;
-    color: var(--muted);
+    font-size: 17px;
+    color: #444;
     line-height: 1.6;
     margin: 0;
 }
@@ -286,23 +296,23 @@ const statusClass = (status) => ({
 
 .tier-name {
     font-family: var(--font-display);
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: var(--muted);
+    color: #333;
 }
 
 .tier-rate {
     font-family: var(--font-display);
-    font-size: 36px;
+    font-size: 42px;
     font-weight: 700;
-    color: var(--red);
+    color: #c00;
 }
 
 .tier-label {
-    font-size: 11px;
-    color: var(--muted);
+    font-size: 13px;
+    color: #555;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -319,6 +329,12 @@ const statusClass = (status) => ({
     letter-spacing: 1px;
 }
 
+.btn-large .material-icons,
+.btn-sync .material-icons {
+    font-size: 20px;
+    margin-right: 6px;
+}
+
 /* ── Sync bar ───────────────────────────────── */
 .sync-bar {
     display: flex;
@@ -332,8 +348,8 @@ const statusClass = (status) => ({
 }
 
 .sync-note {
-    font-size: 13px;
-    color: var(--muted);
+    font-size: 15px;
+    color: #444;
     margin: 0;
 }
 
@@ -383,15 +399,15 @@ const statusClass = (status) => ({
 
 .mini-stat__val {
     font-family: var(--font-display);
-    font-size: 22px;
+    font-size: 26px;
     font-weight: 700;
-    color: var(--ink);
+    color: #1a1a1a;
     letter-spacing: -0.02em;
 }
 
 .mini-stat__label {
-    font-size: 11px;
-    color: var(--muted);
+    font-size: 13px;
+    color: #555;
     text-transform: uppercase;
     letter-spacing: 0.06em;
 }
@@ -417,9 +433,9 @@ const statusClass = (status) => ({
 
 .card-title {
     font-family: var(--font-display);
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 600;
-    color: var(--ink);
+    color: #1a1a1a;
     text-transform: uppercase;
     letter-spacing: 0.07em;
     margin-bottom: 18px;
@@ -728,17 +744,17 @@ const statusClass = (status) => ({
 
 .how-to-use__title {
     font-family: var(--font-display);
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--ink);
+    color: #1a1a1a;
     margin: 0;
 }
 
 .how-to-use__step {
-    font-size: 12px;
-    color: var(--muted);
+    font-size: 14px;
+    color: #444;
     margin: 0;
 }
 
