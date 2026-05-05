@@ -33,6 +33,22 @@ class HandleInertiaRequests extends Middleware
     {
         $captcha = app(CaptchaService::class);
 
+        $toasts = [];
+        foreach (['success', 'error', 'warning', 'info'] as $type) {
+            $message = $request->session()->get($type);
+            if ($message) {
+                $toasts[] = ['id' => uniqid(), 'type' => $type, 'message' => $message];
+            }
+        }
+
+        // Add validation errors as error toasts
+        $errors = $request->session()->get('errors');
+        if ($errors && $errors->any()) {
+            foreach ($errors->all() as $message) {
+                $toasts[] = ['id' => uniqid(), 'type' => 'error', 'message' => $message];
+            }
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -40,6 +56,9 @@ class HandleInertiaRequests extends Middleware
             ],
             'recaptchaEnabled' => $captcha->isEnabled(),
             'recaptchaSiteKey' => $captcha->isEnabled() ? $captcha->siteKey() : '',
+            'flash' => [
+                'toast' => $toasts,
+            ],
         ];
     }
 }

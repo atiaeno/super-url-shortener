@@ -1,8 +1,11 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { ref, watch, computed } from 'vue';
+
+const page = usePage();
+const user = computed(() => page.props.auth?.user);
 
 const props = defineProps({
     links: {
@@ -12,6 +15,21 @@ const props = defineProps({
 });
 
 const copiedId = ref(null);
+const showDeleteModal = ref(false);
+const linkToDelete = ref(null);
+const activeFilter = ref(page.props.ziggy?.query?.status || 'all');
+const searchQuery = ref(page.props.ziggy?.query?.search || '');
+
+let searchTimeout = null;
+watch([activeFilter, searchQuery], () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        router.get(route('links.index'), {
+            status: activeFilter.value === 'all' ? null : activeFilter.value,
+            search: searchQuery.value || null,
+        }, { preserveState: true, replace: true });
+    }, 300);
+});
 
 const copyShortUrl = async (shortCode) => {
     const url = `${window.location.origin}/${shortCode}`;
@@ -20,9 +38,17 @@ const copyShortUrl = async (shortCode) => {
     setTimeout(() => { copiedId.value = null; }, 2000);
 };
 
-const deleteLink = (id) => {
-    if (!confirm('Delete this link? This cannot be undone.')) return;
-    router.delete(route('links.destroy', id));
+const confirmDelete = (link) => {
+    linkToDelete.value = link;
+    showDeleteModal.value = true;
+};
+
+const deleteLink = () => {
+    if (linkToDelete.value) {
+        router.delete(route('links.destroy', linkToDelete.value.id));
+        showDeleteModal.value = false;
+        linkToDelete.value = null;
+    }
 };
 
 const formatDate = (dateStr) => {
@@ -40,99 +66,511 @@ const icons = {
 
 <template>
 
-    <Head title="My Links — Editorial" />
+    <Head title="My Links" />
 
     <AuthenticatedLayout>
-        <template #header>My Links</template>
+        <template #header><span class="material-icons">link</span> My Links</template>
 
-        <!-- Editorial Header -->
-        <div class="editorial-header">
-            <div class="issue-meta">
-                <span class="roman-num">I.</span>
-                <span class="meta-label">Archive</span>
+        <!-- Dashboard Header -->
+        <header class="page-header">
+            <div class="page-header__left">
+                <span class="page-header__marker">Links</span>
+                <h1 class="page-header__title">
+                    Welcome back<span>, {{ user?.name?.split(' ')[0] ?? 'User' }}</span>
+                </h1>
+                <p class="page-header__sub">Here's what's happening with your links today.</p>
             </div>
-            <p class="page-sub">{{ links.total ?? 0 }} entries catalogued</p>
-            <Link :href="route('links.create')" class="btn-primary">
-                New Entry
+            <Link :href="route('links.create')" class="create-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                New Link
             </Link>
+        </header>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="search-box">
+                <span class="material-icons">search</span>
+                <input v-model="searchQuery" type="text" placeholder="Search links..." class="search-input" />
+            </div>
+            <div class="filter-tabs">
+                <button class="filter-tab" :class="{ active: activeFilter === 'all' }"
+                    @click="activeFilter = 'all'">All</button>
+                <button class="filter-tab" :class="{ active: activeFilter === 'active' }"
+                    @click="activeFilter = 'active'">
+                    <span class="material-icons">check_circle</span> Active
+                </button>
+                <button class="filter-tab" :class="{ active: activeFilter === 'inactive' }"
+                    @click="activeFilter = 'inactive'">
+                    <span class="material-icons">cancel</span> Inactive
+                </button>
+            </div>
         </div>
 
         <!-- Empty State -->
         <div v-if="links.data?.length === 0" class="empty">
-            <div class="empty__roman">I.</div>
-            <h2 class="empty__title">No entries yet</h2>
-            <p class="empty__sub">Begin your collection by creating the first short link.</p>
-            <Link :href="route('links.create')" class="btn-primary">Create Entry</Link>
+            <span class="material-icons empty-icon">link_off</span>
+            <h2 class="empty__title">No links yet</h2>
+            <p class="empty__sub">Create your first short link to get started.</p>
+            <Link :href="route('links.create')" class="btn-primary">Create Link</Link>
         </div>
 
-        <!-- Links Table -->
-        <div v-else class="links-table">
-            <div class="links-table__head">
-                <span>Short URL</span>
-                <span>Destination</span>
-                <span class="col-center">Clicks</span>
-                <span class="col-center">Status</span>
-                <span class="col-center">Created</span>
-                <span></span>
-            </div>
-
-            <div v-for="link in links.data" :key="link.id" class="link-row">
-                <!-- Short URL -->
-                <div class="link-row__short">
+        <!-- Links Grid -->
+        <div v-else class="links-grid">
+            <div v-for="link in links.data" :key="link.id" class="link-card">
+                <div class="link-card__header">
                     <a :href="`/${link.short_code}`" target="_blank" class="short-link">
-                        <span class="short-link__slash">/</span>{{ link.short_code }}
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            class="short-link__ext" v-html="icons.external" />
+                        /{{ link.short_code }}
+                        <span class="material-icons">open_in_new</span>
                     </a>
+                    <span class="status-badge" :class="link.is_active ? 'active' : 'inactive'">
+                        <span class="material-icons">{{ link.is_active ? 'check_circle' : 'cancel' }}</span>
+                        {{ link.is_active ? 'Active' : 'Inactive' }}
+                    </span>
                 </div>
 
-                <!-- Destination -->
-                <div class="link-row__dest">
-                    <span :title="link.destination_url">{{ link.destination_url }}</span>
+                <div class="link-card__dest" :title="link.destination_url">
+                    {{ link.destination_url }}
                 </div>
 
-                <!-- Clicks -->
-                <div class="link-row__clicks col-center">
-                    {{ (link.clicks_count ?? 0).toLocaleString() }}
-                </div>
-
-                <!-- Status -->
-                <span class="col-center cell-status" :class="link.is_active ? 'status--active' : 'status--inactive'">
-                    {{ link.is_active ? 'Active' : 'Inactive' }}
-                </span>
-
-                <!-- Date -->
-                <span class="link-row__date col-center">{{ formatDate(link.created_at) }}</span>
-
-                <!-- Actions -->
-                <div class="link-row__actions">
-                    <Link :href="route('links.show', link.id)" class="icon-btn icon-btn--chart" title="Analytics">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            v-html="icons.chart" />
-                    </Link>
-                    <Link :href="route('links.edit', link.id)" class="icon-btn" title="Edit">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            v-html="icons.edit" />
-                    </Link>
-                    <button @click="deleteLink(link.id)" class="icon-btn icon-btn--danger" title="Delete">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            v-html="icons.trash" />
-                    </button>
+                <div class="link-card__footer">
+                    <div class="link-card__stats">
+                        <span class="stat">
+                            <span class="material-icons">touch_app</span>
+                            {{ (link.clicks_count ?? 0).toLocaleString() }} clicks
+                        </span>
+                        <span class="stat">
+                            <span class="material-icons">calendar_today</span>
+                            {{ formatDate(link.created_at) }}
+                        </span>
+                    </div>
+                    <div class="link-card__actions">
+                        <Link :href="route('links.show', link.id)" class="icon-btn icon-btn--chart" title="Analytics">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                v-html="icons.chart" />
+                        </Link>
+                        <Link :href="route('links.edit', link.id)" class="icon-btn" title="Edit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                v-html="icons.edit" />
+                        </Link>
+                        <button @click="confirmDelete(link)" class="icon-btn icon-btn--danger" title="Delete">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                v-html="icons.trash" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Editorial Pagination -->
+        <!-- Pagination -->
         <div v-if="links.last_page > 1" class="pagination">
             <Link v-if="links.prev_page_url" :href="links.prev_page_url" class="page-btn">← Previous</Link>
             <span class="page-info">Page {{ links.current_page }} of {{ links.last_page }}</span>
             <Link v-if="links.next_page_url" :href="links.next_page_url" class="page-btn">Next →</Link>
         </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div v-if="showDeleteModal" class="modal-overlay" @click.self="showDeleteModal = false">
+            <div class="modal">
+                <div class="modal-icon">
+                    <span class="material-icons">warning</span>
+                </div>
+                <h3 class="modal-title">Delete Link</h3>
+                <p class="modal-desc">
+                    Are you sure you want to delete <strong>/{{ linkToDelete?.short_code }}</strong>?<br>
+                    This action cannot be undone.
+                </p>
+                <div class="modal-actions">
+                    <button @click="showDeleteModal = false" class="btn-secondary">Cancel</button>
+                    <button @click="deleteLink" class="btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
     </AuthenticatedLayout>
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&display=swap');
+
+/* ── Dashboard Header ────────────────────────────── */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.page-header__left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.page-header__marker {
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--red);
+}
+
+.page-header__title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.page-header__title span {
+    color: var(--red);
+}
+
+.page-header__sub {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+}
+
+.create-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 200ms;
+}
+
+.create-btn:hover {
+    opacity: 0.9;
+}
+
+.create-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* ── Filters ────────────────────────────── */
+.filters {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    flex: 1;
+    max-width: 300px;
+}
+
+.search-box .material-icons {
+    font-size: 18px;
+    color: #999;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: #333;
+    outline: none;
+    font-family: inherit;
+}
+
+.search-input::placeholder {
+    color: #999;
+}
+
+.filter-tabs {
+    display: flex;
+    gap: 8px;
+}
+
+.filter-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    transition: all 200ms;
+}
+
+.filter-tab:hover {
+    background: #f5f5f5;
+    color: #333;
+}
+
+.filter-tab.active {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+}
+
+.filter-tab .material-icons {
+    font-size: 16px;
+}
+
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 200ms;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.btn-primary .material-icons {
+    font-size: 18px;
+}
+
+/* ── Empty State ────────────────────────────── */
+.empty {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+.empty-icon {
+    font-size: 48px;
+    color: #ccc;
+    margin-bottom: 16px;
+}
+
+.empty__title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+}
+
+.empty__sub {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 20px 0;
+}
+
+/* ── Links Grid ────────────────────────────── */
+.links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+}
+
+.link-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+    transition: border-color 200ms;
+}
+
+.link-card:hover {
+    border-color: #ccc;
+}
+
+.link-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.short-link {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--red);
+    text-decoration: none;
+}
+
+.short-link:hover {
+    text-decoration: underline;
+}
+
+.short-link .material-icons {
+    font-size: 14px;
+    color: #999;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.status-badge .material-icons {
+    font-size: 12px;
+}
+
+.status-badge.active {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status-badge.inactive {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.link-card__dest {
+    font-size: 13px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.link-card__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.link-card__stats {
+    display: flex;
+    gap: 16px;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #888;
+}
+
+.stat .material-icons {
+    font-size: 14px;
+}
+
+.link-card__actions {
+    display: flex;
+    gap: 8px;
+}
+
+.icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: #666;
+    cursor: pointer;
+    transition: all 200ms;
+    text-decoration: none;
+}
+
+.icon-btn:hover {
+    background: #f5f5f5;
+    color: #333;
+}
+
+.icon-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.icon-btn--danger:hover {
+    background: #fee2e2;
+    border-color: #dc2626;
+    color: #dc2626;
+}
+
+.icon-btn--chart:hover {
+    background: #dbeafe;
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+
+/* ── Pagination ────────────────────────────── */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 32px;
+}
+
+.page-btn {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    color: #666;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transition: all 200ms;
+}
+
+.page-btn:hover {
+    background: #f5f5f5;
+    color: #333;
+}
+
+.page-info {
+    font-size: 13px;
+    color: #888;
+}
 
 /* ── Editorial Header ────────────────────────────── */
 .editorial-header {
@@ -502,5 +940,104 @@ const icons = {
         padding-top: 8px;
         border-top: 1px solid #eee;
     }
+}
+
+/* Delete Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: #fff;
+    border-radius: 4px;
+    padding: 32px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 16px;
+    background: #fee2e2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-icon .material-icons {
+    font-size: 28px;
+    color: #dc2626;
+}
+
+.modal-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.modal-desc {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 24px 0;
+    line-height: 1.6;
+}
+
+.modal-desc strong {
+    color: #1a1a1a;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.btn-secondary {
+    padding: 10px 24px;
+    background: #fff;
+    color: #666;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 200ms;
+}
+
+.btn-secondary:hover {
+    background: #f5f5f5;
+    color: #333;
+}
+
+.btn-danger {
+    padding: 10px 24px;
+    background: #dc2626;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 200ms;
+}
+
+.btn-danger:hover {
+    opacity: 0.9;
 }
 </style>

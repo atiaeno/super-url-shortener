@@ -22,12 +22,27 @@ class LinkController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $links = Link::forUser(Auth::id())
-            ->withCount('clicks')
-            ->latest()
-            ->paginate(20);
+        $query = Link::forUser(Auth::id())->withCount('clicks');
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $isActive = $request->status === 'active';
+            $query->where('is_active', $isActive);
+        }
+
+        // Search by short_code or destination_url
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q
+                    ->where('short_code', 'like', "%{$search}%")
+                    ->orWhere('destination_url', 'like', "%{$search}%");
+            });
+        }
+
+        $links = $query->latest()->paginate(20)->appends($request->query());
 
         return Inertia::render('Links/Index', [
             'links' => $links,
@@ -186,19 +201,24 @@ class LinkController extends Controller
     {
         $this->authorize('update', $link);
 
-        $validated = $request->validate([
+        $rules = [
             'destination_url' => ['required', 'url', 'max:2048'],
             'campaign_tag' => ['nullable', 'string', 'max:100'],
             'og_title' => ['nullable', 'string', 'max:255'],
             'og_description' => ['nullable', 'string'],
-            'ad_override' => ['required', 'in:inherit,disable,force'],
-            'ad_id' => ['nullable', 'exists:ads,id'],
-            'visibility' => ['required', 'in:public,private'],
-            'password' => ['required_if:visibility,private', 'nullable', 'string', 'min:6', 'max:255'],
-        ]);
+            'is_active' => ['boolean'],
+        ];
+
+        // Admin-only fields
+        if ($request->user()->is_admin) {
+            $rules['ad_override'] = ['required', 'in:inherit,disable,force'];
+            $rules['ad_id'] = ['nullable', 'exists:ads,id'];
+        }
+
+        $validated = $request->validate($rules);
 
         // Clear ad_id if not using force override
-        if ($validated['ad_override'] !== 'force') {
+        if (isset($validated['ad_override']) && $validated['ad_override'] !== 'force') {
             $validated['ad_id'] = null;
         }
 

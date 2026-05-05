@@ -20,6 +20,11 @@ const endpoints = [
     { id: 'tokensList', label: 'List Tokens', method: 'GET', path: '/tokens', num: 'VII.' },
     { id: 'tokensCreate', label: 'Create Token', method: 'POST', path: '/tokens', num: 'VIII.' },
     { id: 'tokensDelete', label: 'Revoke Token', method: 'DELETE', path: '/tokens/{id}', num: 'IX.' },
+    { id: 'affiliateGet', label: 'Get Affiliate', method: 'GET', path: '/affiliate', num: 'X.' },
+    { id: 'affiliateEnroll', label: 'Enroll Affiliate', method: 'POST', path: '/affiliate/enroll', num: 'XI.' },
+    { id: 'affiliateTiers', label: 'List Tiers', method: 'GET', path: '/affiliate/tiers', num: 'XII.' },
+    { id: 'affiliatePayout', label: 'Request Payout', method: 'POST', path: '/affiliate/payout', num: 'XIII.' },
+    { id: 'affiliatePayouts', label: 'Payout History', method: 'GET', path: '/affiliate/payouts', num: 'XIV.' },
 ];
 
 const endpointDetails = {
@@ -196,6 +201,122 @@ Authorization: Bearer YOUR_API_KEY`,
   "success": true,
   "message": "Token revoked successfully"
 }`
+    },
+    affiliateGet: {
+        description: 'Get affiliate profile and stats. Returns enrollment status, earnings, and visits by tier. Returns 403 if affiliate program is disabled.',
+        request: `GET ${baseUrl}/affiliate
+Authorization: Bearer YOUR_API_KEY`,
+        response: `{
+  "enrolled": true,
+  "affiliate": {
+    "id": 1,
+    "referral_code": "ABC123XYZ",
+    "tier": "Gold",
+    "total_earnings": 150.00,
+    "pending_earnings": 25.50,
+    "paid_earnings": 124.50,
+    "total_visits": 1250,
+    "is_active": true,
+    "created_at": "2025-01-15T10:30:00Z"
+  },
+  "visits_by_tier": [
+    { "tier_id": 1, "name": "Gold", "visits": 800, "rate": 0.05, "multiplier": 1000, "earned": 0.04 }
+  ],
+  "min_payout": 50,
+  "payout_methods": ["PayPal", "Bank Transfer"]
+}`
+    },
+    affiliateEnroll: {
+        description: 'Enroll in the affiliate program. Returns 403 if disabled, 409 if already enrolled.',
+        request: `POST ${baseUrl}/affiliate/enroll
+Authorization: Bearer YOUR_API_KEY`,
+        response: `{
+  "success": true,
+  "message": "Successfully enrolled in affiliate program",
+  "affiliate": {
+    "id": 1,
+    "referral_code": "ABC123XYZ",
+    "tier": "Bronze",
+    "total_earnings": 0,
+    "pending_earnings": 0,
+    "paid_earnings": 0,
+    "total_visits": 0
+  }
+}`
+    },
+    affiliateTiers: {
+        description: 'List all available affiliate tiers with commission rates and country multipliers.',
+        request: `GET ${baseUrl}/affiliate/tiers
+Authorization: Bearer YOUR_API_KEY`,
+        response: `{
+  "tiers": [
+    {
+      "id": 1,
+      "name": "Bronze",
+      "commission_rate": 5,
+      "visit_threshold": 0,
+      "view_rate": 0.02,
+      "view_multiplier": 1000,
+      "countries": []
+    },
+    {
+      "id": 2,
+      "name": "Gold",
+      "commission_rate": 10,
+      "visit_threshold": 1000,
+      "view_rate": 0.05,
+      "view_multiplier": 1000,
+      "countries": [
+        { "country_code": "US", "multiplier": 2.0 },
+        { "country_code": "UK", "multiplier": 1.5 }
+      ]
+    }
+  ]
+}`
+    },
+    affiliatePayout: {
+        description: 'Request a payout. Requires minimum balance ($50). Returns 422 if insufficient, 409 if pending payout exists.',
+        request: `POST ${baseUrl}/affiliate/payout
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+
+{
+  "payment_method": "PayPal",
+  "payment_email": "you@example.com"
+}`,
+        response: `{
+  "success": true,
+  "message": "Payout request submitted successfully",
+  "payout": {
+    "id": 1,
+    "amount": 50.00,
+    "status": "pending",
+    "payment_method": "PayPal",
+    "created_at": "2025-01-15T10:30:00Z"
+  }
+}`
+    },
+    affiliatePayouts: {
+        description: 'Get payout history with pagination.',
+        request: `GET ${baseUrl}/affiliate/payouts?per_page=15
+Authorization: Bearer YOUR_API_KEY`,
+        response: `{
+  "data": [
+    {
+      "id": 1,
+      "amount": 50.00,
+      "status": "paid",
+      "payment_method": "PayPal",
+      "created_at": "2025-01-10T08:00:00Z",
+      "processed_at": "2025-01-12T14:30:00Z"
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "total_pages": 1,
+    "total_count": 1
+  }
+}`
     }
 };
 
@@ -208,7 +329,21 @@ curl -X POST ${baseUrl}/links \\
 
 # List your links
 curl -H "Authorization: Bearer YOUR_API_KEY" \\
-  ${baseUrl}/links`,
+  ${baseUrl}/links
+
+# Get affiliate profile
+curl -H "Authorization: Bearer YOUR_API_KEY" \\
+  ${baseUrl}/affiliate
+
+# Enroll in affiliate program
+curl -X POST ${baseUrl}/affiliate/enroll \\
+  -H "Authorization: Bearer YOUR_API_KEY"
+
+# Request payout
+curl -X POST ${baseUrl}/affiliate/payout \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{"payment_method": "PayPal", "payment_email": "you@example.com"}'`,
     javascript: `// Using fetch API
 const createLink = async (url) => {
   const response = await fetch('${baseUrl}/links', {
@@ -228,6 +363,33 @@ const listLinks = async () => {
     headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
   });
   return data;
+};
+
+// Affiliate: Get profile
+const getAffiliate = async () => {
+  const { data } = await axios.get('${baseUrl}/affiliate', {
+    headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
+  });
+  return data;
+};
+
+// Affiliate: Enroll
+const enrollAffiliate = async () => {
+  const { data } = await axios.post('${baseUrl}/affiliate/enroll', {}, {
+    headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
+  });
+  return data;
+};
+
+// Affiliate: Request payout
+const requestPayout = async (method, email) => {
+  const { data } = await axios.post('${baseUrl}/affiliate/payout', {
+    payment_method: method,
+    payment_email: email
+  }, {
+    headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
+  });
+  return data;
 };`,
     php: `<?php
 // Using Guzzle
@@ -243,7 +405,32 @@ $response = $client->post('${baseUrl}/links', [
 ]);
 
 $data = json_decode($response->getBody(), true);
-echo $data['short_url'];`,
+echo $data['short_url'];
+
+// Affiliate: Get profile
+$response = $client->get('${baseUrl}/affiliate', [
+    'headers' => ['Authorization' => 'Bearer YOUR_API_KEY']
+]);
+$affiliate = json_decode($response->getBody(), true);
+
+// Affiliate: Enroll
+$response = $client->post('${baseUrl}/affiliate/enroll', [
+    'headers' => ['Authorization' => 'Bearer YOUR_API_KEY']
+]);
+$result = json_decode($response->getBody(), true);
+
+// Affiliate: Request payout
+$response = $client->post('${baseUrl}/affiliate/payout', [
+    'headers' => [
+        'Authorization' => 'Bearer YOUR_API_KEY',
+        'Content-Type' => 'application/json'
+    ],
+    'json' => [
+        'payment_method' => 'PayPal',
+        'payment_email' => 'you@example.com'
+    ]
+]);
+$payout = json_decode($response->getBody(), true);`,
     python: `# Using requests
 import requests
 
@@ -265,6 +452,39 @@ print(link['short_url'])
 analytics = requests.get(
     f"${baseUrl}/links/{link['id']}/analytics",
     headers=headers
+).json()
+
+# --- Affiliate Examples ---
+
+# Get affiliate profile
+affiliate = requests.get(
+    '${baseUrl}/affiliate',
+    headers=headers
+).json()
+
+# Enroll in affiliate program
+enroll = requests.post(
+    '${baseUrl}/affiliate/enroll',
+    headers=headers
+).json()
+
+# List affiliate tiers
+tiers = requests.get(
+    '${baseUrl}/affiliate/tiers',
+    headers=headers
+).json()
+
+# Request payout
+payout = requests.post(
+    '${baseUrl}/affiliate/payout',
+    headers=headers,
+    json={'payment_method': 'PayPal', 'payment_email': 'you@example.com'}
+).json()
+
+# Get payout history
+payouts = requests.get(
+    '${baseUrl}/affiliate/payouts',
+    headers=headers
 ).json()`
 };
 
@@ -280,6 +500,7 @@ const copyCode = async (text, key) => {
 </script>
 
 <template>
+
     <Head title="API Documentation — ShortLink" />
 
     <div class="api-page">
@@ -290,7 +511,8 @@ const copyCode = async (text, key) => {
             <header class="api-header">
                 <div class="issue-label">Developer Resources</div>
                 <h1>API<br><span>Documentation</span></h1>
-                <p class="deck">Integrate URL shortening into your applications with our RESTful API. Simple, powerful, and well-documented.</p>
+                <p class="deck">Integrate URL shortening into your applications with our RESTful API. Simple, powerful,
+                    and well-documented.</p>
                 <div class="meta-badge">Version 1.0</div>
             </header>
 
@@ -304,7 +526,8 @@ const copyCode = async (text, key) => {
                     <div class="quick-card">
                         <div class="quick-num">01</div>
                         <h3>Generate API Key</h3>
-                        <p>Navigate to your Profile settings or use the <code>POST /api/v1/tokens</code> endpoint to create a new token.</p>
+                        <p>Navigate to your Profile settings or use the <code>POST /api/v1/tokens</code> endpoint to
+                            create a new token.</p>
                     </div>
                     <div class="quick-card">
                         <div class="quick-num">02</div>
@@ -314,7 +537,8 @@ const copyCode = async (text, key) => {
                     <div class="quick-card">
                         <div class="quick-num">03</div>
                         <h3>Build & Deploy</h3>
-                        <p>Integrate the API into your application. All endpoints return JSON with consistent structure.</p>
+                        <p>Integrate the API into your application. All endpoints return JSON with consistent structure.
+                        </p>
                     </div>
                 </div>
             </section>
@@ -342,7 +566,9 @@ const copyCode = async (text, key) => {
                         <span>Per user</span>
                     </div>
                 </div>
-                <p class="limit-note">Rate limit headers are included in every response: <code>X-RateLimit-Limit</code>, <code>X-RateLimit-Remaining</code>, <code>X-RateLimit-Reset</code></p>
+                <p class="limit-note">Rate limit headers are included in every response: <code>X-RateLimit-Limit</code>,
+                    <code>X-RateLimit-Remaining</code>, <code>X-RateLimit-Reset</code>
+                </p>
             </section>
 
             <!-- Endpoints -->
@@ -355,13 +581,8 @@ const copyCode = async (text, key) => {
                 <div class="endpoint-layout">
                     <!-- Endpoint Navigation -->
                     <nav class="endpoint-nav">
-                        <button
-                            v-for="ep in endpoints"
-                            :key="ep.id"
-                            class="endpoint-btn"
-                            :class="{ 'active': activeEndpoint === ep.id }"
-                            @click="activeEndpoint = ep.id"
-                        >
+                        <button v-for="ep in endpoints" :key="ep.id" class="endpoint-btn"
+                            :class="{ 'active': activeEndpoint === ep.id }" @click="activeEndpoint = ep.id">
                             <span class="endpoint-method" :class="ep.method.toLowerCase()">{{ ep.method }}</span>
                             <span class="endpoint-label">{{ ep.label }}</span>
                             <span class="endpoint-num">{{ ep.num }}</span>
@@ -371,10 +592,11 @@ const copyCode = async (text, key) => {
                     <!-- Endpoint Details -->
                     <div class="endpoint-detail" v-if="endpointDetails[activeEndpoint]">
                         <div class="detail-header">
-                            <span class="detail-method" :class="endpoints.find(e => e.id === activeEndpoint).method.toLowerCase()">
-                                {{ endpoints.find(e => e.id === activeEndpoint).method }}
+                            <span class="detail-method"
+                                :class="endpoints.find(e => e.id === activeEndpoint).method.toLowerCase()">
+                                {{endpoints.find(e => e.id === activeEndpoint).method}}
                             </span>
-                            <code class="detail-path">{{ endpoints.find(e => e.id === activeEndpoint).path }}</code>
+                            <code class="detail-path">{{endpoints.find(e => e.id === activeEndpoint).path}}</code>
                         </div>
                         <p class="detail-desc">{{ endpointDetails[activeEndpoint].description }}</p>
 
@@ -382,10 +604,8 @@ const copyCode = async (text, key) => {
                             <div class="code-block">
                                 <div class="code-header">
                                     <span>Request</span>
-                                    <button
-                                        class="copy-btn"
-                                        @click="copyCode(endpointDetails[activeEndpoint].request, 'request')"
-                                    >
+                                    <button class="copy-btn"
+                                        @click="copyCode(endpointDetails[activeEndpoint].request, 'request')">
                                         {{ copyFeedback['request'] ? 'Copied!' : 'Copy' }}
                                     </button>
                                 </div>
@@ -395,10 +615,8 @@ const copyCode = async (text, key) => {
                             <div class="code-block">
                                 <div class="code-header">
                                     <span>Response</span>
-                                    <button
-                                        class="copy-btn"
-                                        @click="copyCode(endpointDetails[activeEndpoint].response, 'response')"
-                                    >
+                                    <button class="copy-btn"
+                                        @click="copyCode(endpointDetails[activeEndpoint].response, 'response')">
                                         {{ copyFeedback['response'] ? 'Copied!' : 'Copy' }}
                                     </button>
                                 </div>
@@ -417,13 +635,8 @@ const copyCode = async (text, key) => {
                 </div>
 
                 <div class="lang-tabs">
-                    <button
-                        v-for="(code, lang) in codeExamples"
-                        :key="lang"
-                        class="lang-tab"
-                        :class="{ 'active': activeLanguage === lang }"
-                        @click="activeLanguage = lang"
-                    >
+                    <button v-for="(code, lang) in codeExamples" :key="lang" class="lang-tab"
+                        :class="{ 'active': activeLanguage === lang }" @click="activeLanguage = lang">
                         {{ lang }}
                     </button>
                 </div>
@@ -431,10 +644,7 @@ const copyCode = async (text, key) => {
                 <div class="example-code">
                     <div class="code-header">
                         <span>{{ activeLanguage }}.example</span>
-                        <button
-                            class="copy-btn"
-                            @click="copyCode(codeExamples[activeLanguage], 'example')"
-                        >
+                        <button class="copy-btn" @click="copyCode(codeExamples[activeLanguage], 'example')">
                             {{ copyFeedback['example'] ? 'Copied!' : 'Copy' }}
                         </button>
                     </div>

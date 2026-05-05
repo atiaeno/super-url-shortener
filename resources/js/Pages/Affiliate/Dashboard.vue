@@ -144,7 +144,7 @@ const statusClass = (status) => ({
                         <div v-if="!canPayout" class="payout-locked">
                             <p>Minimum payout is <strong>${{ minPayout }}</strong>.</p>
                             <p>You currently have <strong>${{ parseFloat(affiliate.pending_earnings).toFixed(2)
-                            }}</strong> pending.</p>
+                                    }}</strong> pending.</p>
                             <div class="payout-progress-track">
                                 <div class="payout-progress-fill"
                                     :style="{ width: Math.min(100, Math.round((parseFloat(affiliate.pending_earnings) / minPayout) * 100)) + '%' }" />
@@ -237,6 +237,8 @@ const statusClass = (status) => ({
     max-width: 1000px;
     margin: 0 auto;
     padding: 24px;
+    width: 100%;
+    overflow-x: hidden;
 }
 
 /* Material Icons */
@@ -948,14 +950,28 @@ const statusClass = (status) => ({
 @media (max-width: 768px) {
     .page-content {
         padding: 16px;
+        max-width: 100%;
+    }
+
+    * {
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .enroll-section {
         margin: 20px auto;
     }
 
+    .enroll-hero {
+        padding: 24px 16px;
+    }
+
     .enroll-title {
         font-size: 24px;
+    }
+
+    .enroll-desc {
+        font-size: 14px;
     }
 
     .tiers-grid {
@@ -975,10 +991,118 @@ const statusClass = (status) => ({
 
     .stat-row {
         grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .mini-stat {
+        padding: 16px;
+    }
+
+    .mini-stat__val {
+        font-size: 20px;
+    }
+
+    .mini-stat__label {
+        font-size: 11px;
+    }
+
+    .sync-bar {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
     }
 
     .grid-2 {
         grid-template-columns: 1fr;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .card-title {
+        font-size: 14px;
+    }
+
+    .how-to-use__step {
+        font-size: 13px;
+    }
+
+    .referral-box {
+        padding: 16px;
+    }
+
+    .referral-input {
+        font-size: 14px;
+        padding: 12px;
+    }
+
+    .payout-form {
+        padding: 20px;
+    }
+
+    .field {
+        margin-bottom: 16px;
+    }
+
+    .field__label {
+        font-size: 13px;
+    }
+
+    .field__input {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .toggle-group {
+        flex-direction: column;
+    }
+
+    .toggle-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .amount-display {
+        padding: 20px;
+    }
+
+    .amount-value {
+        font-size: 32px;
+    }
+
+    .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-sync {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .payout-history {
+        padding: 16px;
+    }
+
+    .history-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .history-table table {
+        min-width: 600px;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 12px 8px;
+        font-size: 12px;
+    }
+
+    .status-badge {
+        padding: 4px 8px;
+        font-size: 10px;
     }
 }
 </style>

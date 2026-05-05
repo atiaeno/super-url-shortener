@@ -28,7 +28,7 @@ class LinkController extends ApiController
             ->latest()
             ->paginate($perPage);
 
-        $transformed = $links->map(fn (Link $link) => $this->transformLink($link));
+        $transformed = $links->map(fn(Link $link) => $this->transformLink($link));
 
         return $this->paginated(new \Illuminate\Pagination\LengthAwarePaginator(
             $transformed,
@@ -49,8 +49,12 @@ class LinkController extends ApiController
             'url' => ['required', 'url', 'max:2048'],
             'alias' => ['nullable', 'string', 'min:3', 'max:50', 'alpha_dash', 'unique:links,short_code', 'unique:links,custom_alias'],
             'campaign_tag' => ['nullable', 'string', 'max:100'],
-            'visibility' => ['required', 'in:public,private'],
+            'visibility' => ['nullable', 'in:public,private'],
             'password' => ['required_if:visibility,private', 'nullable', 'string', 'min:6', 'max:255'],
+            'expires_at' => ['nullable', 'date', 'after:now'],
+            'og_title' => ['nullable', 'string', 'max:200'],
+            'og_description' => ['nullable', 'string', 'max:500'],
+            'og_image' => ['nullable', 'url', 'max:2048'],
         ]);
 
         if ($validator->fails()) {
@@ -68,6 +72,10 @@ class LinkController extends ApiController
             'campaign_tag' => $validated['campaign_tag'] ?? null,
             'visibility' => $validated['visibility'] ?? 'public',
             'password' => $validated['password'] ?? null,
+            'expires_at' => $validated['expires_at'] ?? null,
+            'og_title' => $validated['og_title'] ?? null,
+            'og_description' => $validated['og_description'] ?? null,
+            'og_image' => $validated['og_image'] ?? null,
         ]);
 
         // Cache the redirect
@@ -89,7 +97,8 @@ class LinkController extends ApiController
         $link = Link::forUser(auth()->id())
             ->withCount('clicks')
             ->where(function ($q) use ($id) {
-                $q->where('id', $id)
+                $q
+                    ->where('id', $id)
                     ->orWhere('short_code', $id);
             })
             ->first();
@@ -109,7 +118,8 @@ class LinkController extends ApiController
     {
         $link = Link::forUser(auth()->id())
             ->where(function ($q) use ($id) {
-                $q->where('id', $id)
+                $q
+                    ->where('id', $id)
                     ->orWhere('short_code', $id);
             })
             ->first();
@@ -122,8 +132,12 @@ class LinkController extends ApiController
             'url' => ['required', 'url', 'max:2048'],
             'alias' => ['nullable', 'string', 'min:3', 'max:50', 'alpha_dash', 'unique:links,short_code,' . $link->id, 'unique:links,custom_alias,' . $link->id],
             'campaign_tag' => ['nullable', 'string', 'max:100'],
-            'visibility' => ['required', 'in:public,private'],
+            'visibility' => ['nullable', 'in:public,private'],
             'password' => ['required_if:visibility,private', 'nullable', 'string', 'min:6', 'max:255'],
+            'expires_at' => ['nullable', 'date', 'after:now'],
+            'og_title' => ['nullable', 'string', 'max:200'],
+            'og_description' => ['nullable', 'string', 'max:500'],
+            'og_image' => ['nullable', 'url', 'max:2048'],
         ]);
 
         if ($validator->fails()) {
@@ -166,7 +180,8 @@ class LinkController extends ApiController
     {
         $link = Link::forUser(auth()->id())
             ->where(function ($q) use ($id) {
-                $q->where('id', $id)
+                $q
+                    ->where('id', $id)
                     ->orWhere('short_code', $id);
             })
             ->first();
@@ -199,6 +214,10 @@ class LinkController extends ApiController
             'campaign_tag' => $link->campaign_tag,
             'is_active' => $link->is_active,
             'visibility' => $link->visibility,
+            'expires_at' => $link->expires_at?->toIso8601String(),
+            'og_title' => $link->og_title,
+            'og_description' => $link->og_description,
+            'og_image' => $link->og_image,
             'clicks' => $link->clicks_count ?? 0,
             'created_at' => $link->created_at?->toIso8601String(),
             'updated_at' => $link->updated_at?->toIso8601String(),

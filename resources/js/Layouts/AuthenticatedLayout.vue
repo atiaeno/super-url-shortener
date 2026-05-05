@@ -2,6 +2,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import Toast from '@/Components/Toast.vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -184,6 +185,9 @@ const icons = {
             </main>
         </div>
     </div>
+
+    <!-- Toast Notifications -->
+    <Toast :toasts="$page.props.flash?.toast || []" @dismiss="(id) => { }" />
 </template>
 
 <style>

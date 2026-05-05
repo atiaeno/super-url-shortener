@@ -1,21 +1,22 @@
 <?php
 // © Atia Hegazy — atiaeno.com
 
+use App\Http\Controllers\Api\AffiliateController;
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\LinkController;
 use App\Http\Controllers\Api\TokenController;
 use Illuminate\Support\Facades\Route;
 
 /*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| These routes are loaded by the RouteServiceProvider within the
-| api route group. All routes use the ApiAuth middleware for token
-| authentication and have the /api/v1 prefix.
-|
-*/
+ * |--------------------------------------------------------------------------
+ * | API Routes
+ * |--------------------------------------------------------------------------
+ * |
+ * | These routes are loaded by the RouteServiceProvider within the
+ * | api route group. All routes use the ApiAuth middleware for token
+ * | authentication and have the /api/v1 prefix.
+ * |
+ */
 
 // Health check (no auth required)
 Route::get('/health', function () {
@@ -36,7 +37,6 @@ Route::get('/', function () {
 
 // Authenticated API routes with rate limiting
 Route::middleware(['api.auth', 'throttle:api'])->group(function () {
-
     // Rate limit headers are added automatically
     Route::get('/user', function () {
         return response()->json([
@@ -84,6 +84,22 @@ Route::middleware(['api.auth', 'throttle:api'])->group(function () {
         Route::get('/', [TokenController::class, 'index'])->name('index');
         Route::post('/', [TokenController::class, 'store'])->name('store');
         Route::delete('{token}', [TokenController::class, 'destroy'])->name('destroy');
+    });
+
+    /*
+     * Affiliate Program
+     * GET    /api/v1/affiliate           - Get affiliate profile & stats
+     * POST   /api/v1/affiliate/enroll    - Enroll in affiliate program
+     * GET    /api/v1/affiliate/tiers     - List available tiers
+     * POST   /api/v1/affiliate/payout    - Request payout
+     * GET    /api/v1/affiliate/payouts   - Get payout history
+     */
+    Route::prefix('affiliate')->name('api.affiliate.')->group(function () {
+        Route::get('/', [AffiliateController::class, 'index'])->name('index');
+        Route::post('/enroll', [AffiliateController::class, 'enroll'])->name('enroll');
+        Route::get('/tiers', [AffiliateController::class, 'tiers'])->name('tiers');
+        Route::post('/payout', [AffiliateController::class, 'requestPayout'])->name('payout');
+        Route::get('/payouts', [AffiliateController::class, 'payouts'])->name('payouts');
     });
 });
 
