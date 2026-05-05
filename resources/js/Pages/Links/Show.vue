@@ -23,6 +23,11 @@ const props = defineProps({
 const copied = ref(false);
 const showEmbed = ref(false);
 const embedCopied = ref(false);
+const loading = ref({
+    qrSvg: false,
+    qrPng: false,
+    embed: false,
+});
 
 const shortUrl = computed(() => props.link.short_url ?? `${window.location.origin}/${props.link.short_code}`);
 
@@ -75,6 +80,33 @@ const hasTimeData = computed(() => {
 
 const qrSvgUrl = computed(() => route('links.qr', { link: props.link.id, format: 'svg' }));
 const qrPngUrl = computed(() => route('links.qr', { link: props.link.id, format: 'png' }));
+
+const downloadQr = async (format) => {
+    const key = format === 'svg' ? 'qrSvg' : 'qrPng';
+    loading.value[key] = true;
+    try {
+        const response = await fetch(route('links.qr', { link: props.link.id, format }));
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `qr-${props.link.short_code}.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    } catch (e) {
+        console.error('Download failed:', e);
+    } finally {
+        loading.value[key] = false;
+    }
+};
+
+const toggleEmbed = async () => {
+    loading.value.embed = true;
+    showEmbed.value = !showEmbed.value;
+    loading.value.embed = false;
+};
 </script>
 
 <template>
@@ -204,10 +236,18 @@ const qrPngUrl = computed(() => route('links.qr', { link: props.link.id, format:
 
             <!-- Quick Actions -->
             <div class="actions-row">
-                <a :href="qrSvgUrl" class="action-btn" download>Download QR (SVG)</a>
-                <a :href="qrPngUrl" class="action-btn" download>Download QR (PNG)</a>
-                <button @click="showEmbed = !showEmbed" class="action-btn">{{ showEmbed ? 'Hide' : 'Embed Code'
-                    }}</button>
+                <button @click="downloadQr('svg')" class="action-btn" :disabled="loading.qrSvg">
+                    <span v-if="loading.qrSvg" class="spinner"></span>
+                    <span v-else>Download QR (SVG)</span>
+                </button>
+                <button @click="downloadQr('png')" class="action-btn" :disabled="loading.qrPng">
+                    <span v-if="loading.qrPng" class="spinner"></span>
+                    <span v-else>Download QR (PNG)</span>
+                </button>
+                <button @click="toggleEmbed" class="action-btn" :disabled="loading.embed">
+                    <span v-if="loading.embed" class="spinner"></span>
+                    <span v-else>{{ showEmbed ? 'Hide' : 'Embed Code' }}</span>
+                </button>
             </div>
 
             <div v-if="showEmbed" class="embed-box">
@@ -562,6 +602,27 @@ const qrPngUrl = computed(() => route('links.qr', { link: props.link.id, format:
     background: var(--ink);
     color: #fff;
     border-color: var(--ink);
+}
+
+.action-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--ink);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Embed Box */
