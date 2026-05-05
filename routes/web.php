@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AffiliateController;
 use App\Http\Controllers\AffiliatePublicController;
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\BulkLinkController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GuestLinkController;
@@ -72,6 +73,11 @@ require __DIR__ . '/auth.php';
 Route::get('/dashboard', DashboardController::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
+
+// ── Analytics ─────────────────────────────────────────────────────────────────
+Route::get('/analytics', AnalyticsController::class)
+    ->middleware(['auth', 'verified'])
+    ->name('analytics');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

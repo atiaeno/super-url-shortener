@@ -32,24 +32,46 @@ class BulkLinkController extends Controller
             'urls.*' => ['required', 'string', 'max:2048'],
         ]);
 
-        $userId  = $request->user()->id;
+        $userId = $request->user()->id;
         $results = [];
 
-        foreach ($request->urls as $rawUrl) {
-            $url = trim($rawUrl);
+        // Deduplicate URLs first
+        $uniqueUrls = array_unique(array_map('trim', $request->urls));
+        $uniqueUrls = array_filter($uniqueUrls, fn($url) => !empty($url));
 
-            if (empty($url)) {
+        // Check for existing links to avoid duplicates
+        $existingLinks = Link::where('user_id', $userId)
+            ->whereIn('destination_url', $uniqueUrls)
+            ->pluck('destination_url', 'short_code')
+            ->toArray();
+
+        $createdLinks = [];
+
+        foreach ($uniqueUrls as $url) {
+            // Basic URL validation
+            if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                $results[] = [
+                    'original_url' => $url,
+                    'short_url' => null,
+                    'short_code' => null,
+                    'status' => 'error',
+                    'error' => 'Invalid URL format.',
+                ];
                 continue;
             }
 
-            // Basic URL validation
-            if (! filter_var($url, FILTER_VALIDATE_URL)) {
+            // Check if link already exists
+            $existingCode = array_search($url, $existingLinks);
+            if ($existingCode !== false) {
+                $link = Link::where('short_code', $existingCode)->first();
                 $results[] = [
                     'original_url' => $url,
-                    'short_url'    => null,
-                    'short_code'   => null,
-                    'status'       => 'error',
-                    'error'        => 'Invalid URL format.',
+                    'short_url' => $link?->short_url,
+                    'short_code' => $existingCode,
+                    'status' => 'success',
+                    'error' => null,
+                    'created_at' => $link?->created_at?->toISOString(),
+                    'duplicate' => true,
                 ];
                 continue;
             }
@@ -58,27 +80,29 @@ class BulkLinkController extends Controller
                 $code = $this->generateCode();
 
                 $link = Link::create([
-                    'user_id'         => $userId,
-                    'short_code'      => $code,
+                    'user_id' => $userId,
+                    'short_code' => $code,
                     'destination_url' => $url,
-                    'is_active'       => true,
+                    'is_active' => true,
                 ]);
+
+                $createdLinks[$url] = $code;
 
                 $results[] = [
                     'original_url' => $url,
-                    'short_url'    => $link->short_url,
-                    'short_code'   => $code,
-                    'status'       => 'success',
-                    'error'        => null,
-                    'created_at'   => $link->created_at->toISOString(),
+                    'short_url' => $link->short_url,
+                    'short_code' => $code,
+                    'status' => 'success',
+                    'error' => null,
+                    'created_at' => $link->created_at->toISOString(),
                 ];
             } catch (\Throwable $e) {
                 $results[] = [
                     'original_url' => $url,
-                    'short_url'    => null,
-                    'short_code'   => null,
-                    'status'       => 'error',
-                    'error'        => 'Failed to create link.',
+                    'short_url' => null,
+                    'short_code' => null,
+                    'status' => 'error',
+                    'error' => 'Failed to create link.',
                 ];
             }
         }
@@ -92,7 +116,7 @@ class BulkLinkController extends Controller
     public function export(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
     {
         $request->validate([
-            'results'   => ['required', 'array'],
+            'results' => ['required', 'array'],
         ]);
 
         $results = $request->results;
@@ -104,11 +128,11 @@ class BulkLinkController extends Controller
             foreach ($results as $row) {
                 fputcsv($handle, [
                     $row['original_url'] ?? '',
-                    $row['short_url']    ?? '',
-                    $row['short_code']   ?? '',
-                    $row['status']       ?? '',
-                    $row['error']        ?? '',
-                    $row['created_at']   ?? '',
+                    $row['short_url'] ?? '',
+                    $row['short_code'] ?? '',
+                    $row['status'] ?? '',
+                    $row['error'] ?? '',
+                    $row['created_at'] ?? '',
                 ]);
             }
 
@@ -127,4 +151,3 @@ class BulkLinkController extends Controller
         return $code;
     }
 }
-

@@ -63,7 +63,7 @@ const copyUrl = async (url) => {
     <Head title="Bulk URL Shortener" />
 
     <AuthenticatedLayout>
-        <template #header>Bulk URL Shortener</template>
+        <template #header>📋 Bulk Create</template>
 
         <div class="bulk-layout">
             <div class="bulk-main">
@@ -114,7 +114,7 @@ const copyUrl = async (url) => {
                         <div v-for="(row, i) in results" :key="i" class="results-row"
                             :class="row.status === 'error' ? 'results-row--error' : ''">
                             <span class="cell-url cell-url--original" :title="row.original_url">{{ row.original_url
-                            }}</span>
+                                }}</span>
                             <a v-if="row.short_url" :href="row.short_url" target="_blank"
                                 class="cell-url cell-url--short">{{
                                     row.short_url }}</a>
@@ -150,7 +150,9 @@ const copyUrl = async (url) => {
     display: grid;
     grid-template-columns: 1fr 280px;
     gap: 32px;
-    max-width: 1200px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px;
 }
 
 .bulk-main {
@@ -401,13 +403,33 @@ const copyUrl = async (url) => {
     border-radius: 50%;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
     .bulk-layout {
         grid-template-columns: 1fr;
+        padding: 16px;
     }
 
     .bulk-sidebar {
         display: none;
+    }
+
+    .results-head {
+        grid-template-columns: 1fr 80px 50px;
+        font-size: 10px;
+        padding: 8px 12px;
+    }
+
+    .results-row {
+        grid-template-columns: 1fr 80px 50px;
+        padding: 10px 12px;
+    }
+
+    .cell-url--original {
+        max-width: 100px;
+    }
+
+    .cell-url--short {
+        max-width: 80px;
     }
 }
 

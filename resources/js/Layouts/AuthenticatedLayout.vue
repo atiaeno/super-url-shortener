@@ -17,6 +17,7 @@ const mainNavItems = [
 ];
 
 const toolsNavItems = [
+    { label: 'Analytics', icon: 'analytics', route: 'analytics' },
     { label: 'Affiliate', icon: 'affiliate', route: 'affiliate.index' },
 ];
 

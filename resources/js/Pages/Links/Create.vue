@@ -32,9 +32,9 @@ const submit = () => {
     <Head title="Create Link" />
 
     <AuthenticatedLayout>
-        <template #header>New Link</template>
+        <template #header>🔗 New Link</template>
 
-        <div class="page-layout">
+        <div class="page-content">
             <div class="form-card">
                 <form @submit.prevent="submit" class="form">
                     <div class="field">
@@ -122,7 +122,7 @@ const submit = () => {
                     <li>Custom aliases make links more memorable</li>
                     <li>Campaign tags help organize your links</li>
                     <li>OG fields control social media previews</li>
-                    <li>Private links need a password to view stats</li>
+                    <li>Private links require a password</li>
                 </ul>
             </aside>
         </div>
@@ -140,11 +140,13 @@ const submit = () => {
     --surface: #fff;
 }
 
-.page-layout {
+.page-content {
     display: grid;
     grid-template-columns: 1fr 280px;
     gap: 32px;
-    max-width: 900px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px;
 }
 
 .form-card {
@@ -418,13 +420,18 @@ const submit = () => {
     border-radius: 50%;
 }
 
-@media (max-width: 900px) {
-    .page-layout {
+@media (max-width: 768px) {
+    .page-content {
         grid-template-columns: 1fr;
+        padding: 16px;
     }
 
     .sidebar {
         display: none;
+    }
+
+    .form-card {
+        padding: 20px;
     }
 }
 </style>
