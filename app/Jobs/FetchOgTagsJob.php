@@ -18,13 +18,15 @@ class FetchOgTagsJob implements ShouldQueue
     public int $tries = 2;
     public int $timeout = 15;
 
-    public function __construct(private int $linkId) {}
+    public function __construct(
+        private int $linkId
+    ) {}
 
     public function handle(): void
     {
         $link = Link::find($this->linkId);
 
-        if (! $link || ($link->og_title && $link->og_description)) {
+        if (!$link || ($link->og_title && $link->og_description)) {
             return;
         }
 
@@ -33,16 +35,18 @@ class FetchOgTagsJob implements ShouldQueue
                 ->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; ShortlinkBot/1.0)'])
                 ->get($link->destination_url);
 
-            if (! $response->successful()) {
+            if (!$response->successful()) {
                 return;
             }
 
             $html = $response->body();
 
-            $ogTitle       = $this->extractMeta($html, 'og:title')
-                          ?? $this->extractTitle($html);
+            $ogTitle = $this->extractMeta($html, 'og:title')
+                ?? $this->extractTitle($html);
             $ogDescription = $this->extractMeta($html, 'og:description')
-                          ?? $this->extractMeta($html, 'description');
+                ?? $this->extractMeta($html, 'description');
+            $ogImage = $this->extractMeta($html, 'og:image')
+                ?? $this->extractMeta($html, 'twitter:image');
 
             $updates = [];
 
@@ -54,7 +58,11 @@ class FetchOgTagsJob implements ShouldQueue
                 $updates['og_description'] = mb_substr(strip_tags($ogDescription), 0, 500);
             }
 
-            if (! empty($updates)) {
+            if ($ogImage && empty($link->og_image)) {
+                $updates['og_image'] = $ogImage;
+            }
+
+            if (!empty($updates)) {
                 $link->update($updates);
             }
         } catch (\Throwable) {
