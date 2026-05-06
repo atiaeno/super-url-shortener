@@ -3,12 +3,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 
 class Payout extends Model
 {
+    use HasFactory;
+
     const STATUS_PENDING = 'pending';
     const STATUS_APPROVED = 'approved';
     const STATUS_REJECTED = 'rejected';
@@ -18,8 +21,7 @@ class Payout extends Model
         'affiliate_id',
         'amount',
         'status',
-        'payment_method',
-        'payment_email',
+        'paypal_email',
         'admin_note',
         'processed_by',
         'processed_at',

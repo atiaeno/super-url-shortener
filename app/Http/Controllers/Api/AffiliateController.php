@@ -55,14 +55,18 @@ class AffiliateController extends Controller
         }
 
         $tiers = AffiliateTier::active()->orderBy('id')->get();
-        // Use summary table for fast queries
+        // Use AffiliateStat summary table for fast queries
         $stats = AffiliateStat::where('affiliate_id', $affiliate->id)->get()->keyBy('affiliate_tier_id');
 
         $visitsByTier = [];
+        $totalStatsVisits = 0;
+        $totalStatsEarnings = 0;
         foreach ($tiers as $tier) {
             $stat = $stats->get($tier->id);
             $visits = $stat?->visits ?? 0;
             $earned = $stat?->earnings ?? 0;
+            $totalStatsVisits += $visits;
+            $totalStatsEarnings += $earned;
             $visitsByTier[] = [
                 'tier_id' => $tier->id,
                 'name' => $tier->name,
@@ -83,6 +87,8 @@ class AffiliateController extends Controller
                 'pending_earnings' => (float) $affiliate->pending_earnings,
                 'paid_earnings' => (float) $affiliate->paid_earnings,
                 'total_visits' => $affiliate->total_visits,
+                'stats_visits' => $totalStatsVisits,
+                'stats_earnings' => round($totalStatsEarnings, 4),
                 'is_active' => $affiliate->is_active,
                 'created_at' => $affiliate->created_at->toIso8601String(),
             ],
@@ -123,6 +129,7 @@ class AffiliateController extends Controller
 
         return response()->json([
             'success' => true,
+            'enrolled' => true,
             'message' => 'Successfully enrolled in affiliate program',
             'affiliate' => [
                 'id' => $affiliate->id,
@@ -174,16 +181,14 @@ class AffiliateController extends Controller
         }
 
         $validated = $request->validate([
-            'payment_method' => ['required', 'string', 'max:100'],
-            'payment_email' => ['required', 'string', 'max:255'],
+            'payment_email' => ['required', 'string', 'email', 'max:255'],
         ]);
 
         $payout = Payout::create([
             'affiliate_id' => $affiliate->id,
             'amount' => $affiliate->pending_earnings,
             'status' => Payout::STATUS_PENDING,
-            'payment_method' => $validated['payment_method'],
-            'payment_email' => $validated['payment_email'],
+            'paypal_email' => $validated['payment_email'],
         ]);
 
         return response()->json([
@@ -193,7 +198,7 @@ class AffiliateController extends Controller
                 'id' => $payout->id,
                 'amount' => (float) $payout->amount,
                 'status' => $payout->status,
-                'payment_method' => $payout->payment_method,
+                'payment_email' => $payout->paypal_email,
                 'created_at' => $payout->created_at->toIso8601String(),
             ],
         ], 201);

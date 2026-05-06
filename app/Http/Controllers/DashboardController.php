@@ -3,8 +3,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Click;
 use App\Models\Link;
+use App\Models\LinkAnalyticsDaily;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -23,51 +23,43 @@ class DashboardController extends Controller
         $activeLinks = Link::forUser($userId)->active()->count();
         $totalClicks = Link::forUser($userId)->sum('clicks_count');
 
-        $clicksToday = Click::whereHas('link', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })->whereDate('created_at', today())->count();
+        // Get user's link IDs
+        $linkIds = Link::forUser($userId)->pluck('id');
+
+        // Get summary data
+        $today = now()->toDateString();
+        $weekAgo = now()->subDays(7)->toDateString();
+
+        $summaries = LinkAnalyticsDaily::whereIn('link_id', $linkIds)->get();
+
+        // Clicks today from summary
+        $clicksToday = $summaries->where('date', $today)->sum('total_clicks');
 
         $recentLinks = Link::forUser($userId)
             ->latest()
             ->limit(5)
             ->get(['id', 'short_code', 'destination_url', 'clicks_count', 'is_active', 'created_at']);
 
-        // Chart data: clicks over last 7 days
-        $clicksData = Click::whereHas('link', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })
-            ->where('created_at', '>=', now()->subDays(7))
-            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
+        // Chart data: clicks over last 7 days from summary
+        $clicksData = $summaries->where('date', '>=', $weekAgo)->keyBy(fn($r) => $r->date->toDateString());
 
-        // Build array with all 7 days, filling missing with 0
         $clicksOverTime = [];
         for ($i = 6; $i >= 0; $i--) {
-            $date = now()->subDays($i)->format('Y-m-d');
-            $found = $clicksData->firstWhere('date', $date);
+            $date = now()->subDays($i)->toDateString();
+            $found = $clicksData->get($date);
             $clicksOverTime[] = [
                 'date' => now()->subDays($i)->format('M d'),
-                'count' => $found ? (int) $found->count : 0,
+                'count' => $found ? (int) $found->total_clicks : 0,
             ];
         }
 
-        // Top countries
-        $topCountries = Click::whereHas('link', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })
-            ->whereNotNull('country_code')
-            ->selectRaw('country_code, COUNT(*) as count')
-            ->groupBy('country_code')
-            ->orderByDesc('count')
-            ->limit(5)
-            ->get()
-            ->map(fn($item) => [
-                'country' => $item->country_code,
-                'flag' => $this->countryFlag($item->country_code),
-                'count' => $item->count,
-            ]);
+        // Top countries from summary
+        $byCountry = $summaries->pluck('by_country')->filter()->flatMap(fn($c) => (array) $c)->groupBy(fn($v, $k) => $k)->map(fn($v) => $v->sum());
+
+        $topCountries = $byCountry->map(fn($count, $code) => [
+            'country' => strtoupper($code),
+            'count' => $count,
+        ])->sortByDesc('count')->take(5)->values();
 
         return Inertia::render('Dashboard', [
             'stats' => [
@@ -82,18 +74,5 @@ class DashboardController extends Controller
                 'top_countries' => $topCountries,
             ],
         ]);
-    }
-
-    private function countryFlag(?string $code): string
-    {
-        if (!$code || strlen($code) !== 2) {
-            return '🌐';
-        }
-        $code = strtoupper($code);
-        $flag = '';
-        foreach (str_split($code) as $char) {
-            $flag .= mb_chr(ord($char) - ord('A') + 0x1F1E6);
-        }
-        return $flag;
     }
 }
