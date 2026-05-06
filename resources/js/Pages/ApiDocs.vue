@@ -7,8 +7,257 @@ import EditorialFooter from '@/Components/EditorialFooter.vue';
 
 const activeEndpoint = ref('create');
 const copyFeedback = ref({});
+const expandedSections = ref({ 'links': true });
 
-const baseUrl = 'https://short.link/api/v1';
+const toggleSection = (section) => {
+    expandedSections.value[section] = !expandedSections.value[section];
+};
+
+const getCodeExamples = () => {
+    const examples = { curl: '', javascript: '', php: '' };
+    const ep = activeEndpoint.value;
+
+    if (ep === 'create') {
+        examples.curl = `curl -X POST ${baseUrl}/links \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{"url": "https://example.com"}'`;
+        examples.javascript = `fetch('${baseUrl}/links', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_API_KEY'
+  },
+  body: JSON.stringify({ url: 'https://example.com' })
+})
+  .then(r => r.json())
+  .then(data => console.log(data.data.short_url));`;
+        examples.php = `<?php
+$client = new GuzzleHttp\\Client();
+$response = $client->post('${baseUrl}/links', [
+    'headers' => [
+        'Authorization' => 'Bearer YOUR_API_KEY',
+        'Content-Type' => 'application/json'
+    ],
+    'json' => ['url' => 'https://example.com']
+]);
+$data = json_decode($response->getBody(), true);
+echo $data['data']['short_url'];`;
+    } else if (ep === 'list') {
+        examples.curl = `curl -H "Authorization: Bearer YOUR_API_KEY" \\
+  "${baseUrl}/links?per_page=20"`;
+        examples.javascript = `fetch('${baseUrl}/links?per_page=20', {
+  headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
+})
+  .then(r => r.json())
+  .then(data => console.log(data.data));`;
+        examples.php = `<?php
+$client = new GuzzleHttp\\Client();
+$response = $client->get('${baseUrl}/links', [
+    'headers' => ['Authorization' => 'Bearer YOUR_API_KEY']
+]);
+$data = json_decode($response->getBody(), true);
+print_r($data['data']);`;
+    } else if (ep === 'get') {
+        examples.curl = `curl -H "Authorization: Bearer YOUR_API_KEY" \\
+  ${baseUrl}/links/abc123`;
+        examples.javascript = `fetch('${baseUrl}/links/abc123', {
+  headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
+})
+  .then(r => r.json())
+  .then(data => console.log(data.data));`;
+        examples.php = `<?php
+$client = new GuzzleHttp\\Client();
+$response = $client->get('${baseUrl}/links/abc123', [
+    'headers' => ['Authorization' => 'Bearer YOUR_API_KEY']
+]);
+$data = json_decode($response->getBody(), true);
+echo $data['data']['short_url'];`;
+    } else if (ep === 'update') {
+        examples.curl = `curl -X PUT ${baseUrl}/links/abc123 \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{"url": "https://new-url.com"}'`;
+        examples.javascript = `fetch('${baseUrl}/links/abc123', {
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_API_KEY'
+  },
+  body: JSON.stringify({ url: 'https://new-url.com' })
+})
+  .then(r => r.json())
+  .then(data => console.log(data));`;
+        examples.php = `<?php
+$client = new GuzzleHttp\\Client();
+$response = $client->put('${baseUrl}/links/abc123', [
+    'headers' => [
+        'Authorization' => 'Bearer YOUR_API_KEY',
+        'Content-Type' => 'application/json'
+    ],
+    'json' => ['url' => 'https://new-url.com']
+]);
+$data = json_decode($response->getBody(), true);
+echo $data['message'];`;
+    } else if (ep === 'delete') {
+        examples.curl = `curl -X DELETE ${baseUrl}/links/abc123 \\
+  -H "Authorization: Bearer YOUR_API_KEY"`;
+        examples.javascript = `fetch('${baseUrl}/links/abc123', {
+  method: 'DELETE',
+  headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
+})
+  .then(r => r.json())
+  .then(data => console.log(data));`;
+        examples.php = `<?php
+$client = new GuzzleHttp\\Client();
+$response = $client->delete('${baseUrl}/links/abc123', [
+    'headers' => ['Authorization' => 'Bearer YOUR_API_KEY']
+]);
+echo $response->getBody();`;
+    } else if (ep === 'affiliateGet') {
+        examples.curl = `curl -H "Authorization: Bearer YOUR_API_KEY" \\
+  ${baseUrl}/affiliate`;
+        examples.javascript = `fetch('${baseUrl}/affiliate', {
+  headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
+})
+  .then(r => r.json())
+  .then(data => console.log(data));`;
+        examples.php = `<?php
+$client = new GuzzleHttp\\Client();
+$response = $client->get('${baseUrl}/affiliate', [
+    'headers' => ['Authorization' => 'Bearer YOUR_API_KEY']
+]);
+$data = json_decode($response->getBody(), true);
+echo $data['enrolled'];`;
+    } else if (ep === 'affiliateEnroll') {
+        examples.curl = `curl -X POST ${baseUrl}/affiliate/enroll \\
+  -H "Authorization: Bearer YOUR_API_KEY"`;
+        examples.javascript = `fetch('${baseUrl}/affiliate/enroll', {
+  method: 'POST',
+  headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
+})
+  .then(r => r.json())
+  .then(data => console.log(data));`;
+        examples.php = `<?php
+$client = new GuzzleHttp\\Client();
+$response = $client->post('${baseUrl}/affiliate/enroll', [
+    'headers' => ['Authorization' => 'Bearer YOUR_API_KEY']
+]);
+echo $response->getBody();`;
+    } else if (ep === 'affiliateTiers') {
+        examples.curl = `curl -H "Authorization: Bearer YOUR_API_KEY" \\
+  ${baseUrl}/affiliate/tiers`;
+        examples.javascript = `fetch('${baseUrl}/affiliate/tiers', {
+  headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
+})
+  .then(r => r.json())
+  .then(data => console.log(data.tiers));`;
+        examples.php = `<?php
+$client = new GuzzleHttp\\Client();
+$response = $client->get('${baseUrl}/affiliate/tiers', [
+    'headers' => ['Authorization' => 'Bearer YOUR_API_KEY']
+]);
+$data = json_decode($response->getBody(), true);
+print_r($data['tiers']);`;
+    } else if (ep === 'affiliatePayout') {
+        examples.curl = `curl -X POST ${baseUrl}/affiliate/payout \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{"payment_email": "you@example.com"}'`;
+        examples.javascript = `fetch('${baseUrl}/affiliate/payout', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_API_KEY'
+  },
+  body: JSON.stringify({ payment_email: 'you@example.com' })
+})
+  .then(r => r.json())
+  .then(data => console.log(data));`;
+        examples.php = `<?php
+$client = new GuzzleHttp\\Client();
+$response = $client->post('${baseUrl}/affiliate/payout', [
+    'headers' => [
+        'Authorization' => 'Bearer YOUR_API_KEY',
+        'Content-Type' => 'application/json'
+    ],
+    'json' => ['payment_email' => 'you@example.com']
+]);
+echo $response->getBody();`;
+    } else if (ep === 'tokensList') {
+        examples.curl = `curl -H "Authorization: Bearer YOUR_API_KEY" \\
+  ${baseUrl}/tokens`;
+        examples.javascript = `fetch('${baseUrl}/tokens', {
+  headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
+})
+  .then(r => r.json())
+  .then(data => console.log(data.data));`;
+        examples.php = `<?php
+$client = new GuzzleHttp\\Client();
+$response = $client->get('${baseUrl}/tokens', [
+    'headers' => ['Authorization' => 'Bearer YOUR_API_KEY']
+]);
+$data = json_decode($response->getBody(), true);
+print_r($data['data']);`;
+    } else if (ep === 'tokensCreate') {
+        examples.curl = `curl -X POST ${baseUrl}/tokens \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{"name": "My Token"}'`;
+        examples.javascript = `fetch('${baseUrl}/tokens', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization' => 'Bearer YOUR_API_KEY'
+  },
+  body: JSON.stringify({ name: 'My Token' })
+})
+  .then(r => r.json())
+  .then(data => console.log(data.token));`;
+        examples.php = `<?php
+$client = new GuzzleHttp\\Client();
+$response = $client->post('${baseUrl}/tokens', [
+    'headers' => [
+        'Authorization' => 'Bearer YOUR_API_KEY',
+        'Content-Type' => 'application/json'
+    ],
+    'json' => ['name' => 'My Token']
+]);
+$data = json_decode($response->getBody(), true);
+echo $data['token'];`;
+    } else if (ep === 'tokensDelete') {
+        examples.curl = `curl -X DELETE ${baseUrl}/tokens/1 \\
+  -H "Authorization: Bearer YOUR_API_KEY"`;
+        examples.javascript = `fetch('${baseUrl}/tokens/1', {
+  method: 'DELETE',
+  headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
+})
+  .then(r => r.json())
+  .then(data => console.log(data));`;
+        examples.php = `<?php
+$client = new GuzzleHttp\\Client();
+$response = $client->delete('${baseUrl}/tokens/1', [
+    'headers' => ['Authorization' => 'Bearer YOUR_API_KEY']
+]);
+echo $response->getBody();`;
+    } else {
+        examples.curl = `curl -H "Authorization: Bearer YOUR_API_KEY" ${baseUrl}/${ep}`;
+        examples.javascript = `fetch('${baseUrl}/${ep}', {
+  headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
+})
+  .then(r => r.json())
+  .then(data => console.log(data));`;
+        examples.php = `<?php
+$client = new GuzzleHttp\\Client();
+$response = $client->get('${baseUrl}/${ep}', [
+    'headers' => ['Authorization' => 'Bearer YOUR_API_KEY']
+]);
+echo $response->getBody();`;
+    }
+    return examples;
+};
+
+const baseUrl = window.location.origin + '/api/v1';
 
 const endpoints = [
     { id: 'create', label: 'Create Link', method: 'POST', path: '/links', num: 'I.' },
@@ -37,28 +286,22 @@ Authorization: Bearer YOUR_API_KEY
 {
   "url": "https://example.com/very/long/path/to/resource",
   "alias": "my-link",
-  "campaign_tag": "summer-sale",
-  "visibility": "public",
-  "expires_at": "2025-12-31T23:59:59Z",
-  "og_title": "My Awesome Product",
-  "og_description": "Check out this amazing product!",
-  "og_image": "https://example.com/og-image.jpg"
+  "visibility": "private",
+  "password": "secret123"
 }`,
         response: `{
-  "id": "abc123",
-  "short_code": "my-link",
-  "short_url": "https://short.link/my-link",
-  "original_url": "https://example.com/very/long/path/to/resource",
-  "alias": "my-link",
-  "campaign_tag": "summer-sale",
-  "visibility": "public",
-  "expires_at": "2025-12-31T23:59:59Z",
-  "og_title": "My Awesome Product",
-  "og_description": "Check out this amazing product!",
-  "og_image": "https://example.com/og-image.jpg",
-  "qr_code": "https://short.link/qr/my-link.svg",
-  "clicks": 0,
-  "created_at": "2025-01-15T10:30:00Z"
+  "success": true,
+  "message": "Link created successfully",
+  "data": {
+    "short_code": "abc123",
+    "short_url": "http://localhost:8000/abc123",
+    "original_url": "https://example.com/very/long/path/to/resource",
+    "alias": "my-link",
+    "visibility": "private",
+    "clicks": 0,
+    "qr_code": "http://localhost:8000/qr/abc123/svg",
+    "created_at": "2026-05-06T10:30:00Z"
+  }
 }`
     },
     list: {
@@ -66,81 +309,86 @@ Authorization: Bearer YOUR_API_KEY
         request: `GET ${baseUrl}/links?page=1&per_page=20
 Authorization: Bearer YOUR_API_KEY`,
         response: `{
+  "success": true,
   "data": [
     {
-      "id": "abc123",
-      "short_code": "my-link",
-      "short_url": "https://short.link/my-link",
+      "short_code": "abc123",
+      "short_url": "http://localhost:8000/abc123",
       "original_url": "https://example.com",
       "alias": "my-link",
       "campaign_tag": "summer-sale",
+      "is_active": true,
       "visibility": "public",
-      "expires_at": "2025-12-31T23:59:59Z",
-      "og_title": "My Product",
       "clicks": 42,
-      "created_at": "2025-01-15T10:30:00Z"
+      "created_at": "2026-05-06T10:30:00Z"
     }
   ],
   "meta": {
     "current_page": 1,
     "total_pages": 5,
-    "total_count": 87
+    "total_count": 87,
+    "per_page": 20
+  },
+  "links": {
+    "first_page": "http://127.0.0.1:8001/api/v1/links?page=1",
+    "prev_page": null,
+    "next_page": "http://127.0.0.1:8001/api/v1/links?page=2",
+    "last_page": "http://127.0.0.1:8001/api/v1/links?page=5"
   }
 }`
     },
     get: {
-        description: 'Retrieve details for a specific link by its ID.',
+        description: 'Retrieve details for a specific link by its ID or short code.',
         request: `GET ${baseUrl}/links/abc123
 Authorization: Bearer YOUR_API_KEY`,
         response: `{
-  "id": "abc123",
-  "short_code": "my-link",
-  "short_url": "https://short.link/my-link",
-  "original_url": "https://example.com",
-  "alias": "my-link",
-  "campaign_tag": "summer-sale",
-  "visibility": "public",
-  "expires_at": "2025-12-31T23:59:59Z",
-  "og_title": "My Product",
-  "og_description": "Check it out!",
-  "og_image": "https://example.com/og.jpg",
-  "qr_code": "https://short.link/qr/my-link.svg",
-  "clicks": 42,
-  "created_at": "2025-01-15T10:30:00Z",
-  "updated_at": "2025-01-15T14:20:00Z"
+  "success": true,
+  "message": "Success",
+  "data": {
+    "short_code": "abc123",
+    "short_url": "http://localhost:8000/abc123",
+    "original_url": "https://example.com",
+    "alias": "my-link",
+    "is_active": true,
+    "visibility": "public",
+    "clicks": 42,
+    "qr_code": "http://localhost:8000/qr/abc123/svg",
+    "created_at": "2026-05-06T10:30:00Z",
+    "updated_at": "2026-05-06T14:20:00Z"
+  }
 }`
     },
     update: {
-        description: 'Update link properties including URL, alias, campaign_tag, visibility, password, expires_at, and OG fields.',
-        request: `PATCH ${baseUrl}/links/abc123
+        description: 'Update link properties. URL is required, other fields optional.',
+        request: `PUT ${baseUrl}/links/abc123
 Content-Type: application/json
 Authorization: Bearer YOUR_API_KEY
 
 {
   "url": "https://new-destination.com/updated-path",
-  "alias": "new-alias",
-  "campaign_tag": "winter-sale",
-  "og_title": "Updated Title"
+  "alias": "new-alias"
 }`,
         response: `{
-  "id": "abc123",
-  "short_code": "new-alias",
-  "short_url": "https://short.link/new-alias",
-  "original_url": "https://new-destination.com/updated-path",
-  "alias": "new-alias",
-  "campaign_tag": "winter-sale",
-  "visibility": "public",
-  "og_title": "Updated Title",
-  "updated_at": "2025-01-15T16:45:00Z"
+  "success": true,
+  "message": "Link updated successfully",
+  "data": {
+    "short_code": "new-alias",
+    "short_url": "http://localhost:8000/new-alias",
+    "original_url": "https://new-destination.com/updated-path",
+    "alias": "new-alias"
+  }
 }`
     },
     delete: {
-        description: 'Permanently delete a link and its associated analytics data.',
+        description: 'Delete a link (soft delete).',
         request: `DELETE ${baseUrl}/links/abc123
 Authorization: Bearer YOUR_API_KEY`,
         response: `{
+  "success": true,
   "message": "Link deleted successfully",
-  "deleted_at": "2025-01-15T16:50:00Z"
+  "data": {
+    "deleted_at": "2026-05-06T16:50:00Z"
+  }
 }`
     },
     analytics: {
@@ -193,11 +441,12 @@ Authorization: Bearer YOUR_API_KEY`,
     {
       "id": 1,
       "name": "Production API",
-      "last_used_at": "2025-01-15T14:30:00Z",
-      "expires_at": null,
-      "created_at": "2025-01-01T10:00:00Z"
+      "last_used_at": "2026-05-06T14:30:00Z",
+      "expires_at": "2027-05-06T10:00:00Z",
+      "created_at": "2026-01-01T10:00:00Z"
     }
-  ]
+  ],
+  "meta": { "total_count": 1 }
 }`
     },
     tokensCreate: {
@@ -212,14 +461,8 @@ Authorization: Bearer YOUR_API_KEY
 }`,
         response: `{
   "success": true,
-  "message": "API token created successfully. Store this token securely - it will not be shown again.",
-  "data": {
-    "id": 2,
-    "name": "My New Token",
-    "token": "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ12",
-    "expires_at": "2025-02-14T10:00:00Z",
-    "created_at": "2025-01-15T10:00:00Z"
-  }
+  "message": "Token created successfully",
+  "token": "abc123...xyz"
 }`
     },
     tokensDelete: {
@@ -239,20 +482,22 @@ Authorization: Bearer YOUR_API_KEY`,
   "enrolled": true,
   "affiliate": {
     "id": 1,
-    "referral_code": "ABC123XYZ",
-    "tier": "Gold",
-    "total_earnings": 150.00,
-    "pending_earnings": 25.50,
-    "paid_earnings": 124.50,
-    "total_visits": 1250,
+    "referral_code": "ABC123",
+    "tier": "Tier 1",
+    "total_earnings": 250.50,
+    "pending_earnings": 75.25,
+    "paid_earnings": 175.25,
+    "total_visits": 1500,
+    "stats_visits": 1500,
+    "stats_earnings": 250.50,
     "is_active": true,
-    "created_at": "2025-01-15T10:30:00Z"
+    "created_at": "2026-05-06T10:30:00Z"
   },
   "visits_by_tier": [
-    { "tier_id": 1, "name": "Gold", "visits": 800, "rate": 0.05, "multiplier": 1000, "earned": 0.04 }
+    { "tier_id": 1, "name": "Tier 1", "visits": 800, "rate": "3.0000", "multiplier": 10000, "earned": 150 }
   ],
   "min_payout": 50,
-  "payout_methods": ["PayPal", "Bank Transfer"]
+  "payout_methods": ["PayPal", "Bank Transfer", "Crypto"]
 }`
     },
     affiliateEnroll: {
@@ -261,11 +506,12 @@ Authorization: Bearer YOUR_API_KEY`,
 Authorization: Bearer YOUR_API_KEY`,
         response: `{
   "success": true,
+  "enrolled": true,
   "message": "Successfully enrolled in affiliate program",
   "affiliate": {
     "id": 1,
-    "referral_code": "ABC123XYZ",
-    "tier": "Bronze",
+    "referral_code": "XYZ789",
+    "tier": "Tier 1",
     "total_earnings": 0,
     "pending_earnings": 0,
     "paid_earnings": 0,
@@ -310,7 +556,6 @@ Content-Type: application/json
 Authorization: Bearer YOUR_API_KEY
 
 {
-  "payment_method": "PayPal",
   "payment_email": "you@example.com"
 }`,
         response: `{
@@ -318,10 +563,10 @@ Authorization: Bearer YOUR_API_KEY
   "message": "Payout request submitted successfully",
   "payout": {
     "id": 1,
-    "amount": 50.00,
+    "amount": 75.25,
     "status": "pending",
-    "payment_method": "PayPal",
-    "created_at": "2025-01-15T10:30:00Z"
+    "payment_email": "you@example.com",
+    "created_at": "2026-05-06T10:30:00Z"
   }
 }`
     },
@@ -333,11 +578,10 @@ Authorization: Bearer YOUR_API_KEY`,
   "data": [
     {
       "id": 1,
-      "amount": 50.00,
-      "status": "paid",
-      "payment_method": "PayPal",
-      "created_at": "2025-01-10T08:00:00Z",
-      "processed_at": "2025-01-12T14:30:00Z"
+      "amount": "75.25",
+      "status": "pending",
+      "paypal_email": "you@example.com",
+      "created_at": "2026-05-06T10:00:00Z"
     }
   ],
   "meta": {
@@ -657,72 +901,91 @@ const copyCode = async (text, key) => {
             </section>
 
             <!-- Code Examples -->
-            <section class="code-examples">
-                <div class="section-marker">
+            <section class="code-examples" :class="{ 'collapsed': !expandedSections['code'] }">
+                <div class="section-marker" @click="toggleSection('code')">
                     <span class="roman-num">IV.</span>
                     <h2>Code Examples</h2>
+                    <span class="expand-icon">{{ expandedSections['code'] ? '−' : '+' }}</span>
                 </div>
-
-                <div class="lang-tabs">
-                    <button v-for="(code, lang) in codeExamples" :key="lang" class="lang-tab"
-                        :class="{ 'active': activeLanguage === lang }" @click="activeLanguage = lang">
-                        {{ lang }}
-                    </button>
-                </div>
-
-                <div class="example-code">
-                    <div class="code-header">
-                        <span>{{ activeLanguage }}.example</span>
-                        <button class="copy-btn" @click="copyCode(codeExamples[activeLanguage], 'example')">
-                            {{ copyFeedback['example'] ? 'Copied!' : 'Copy' }}
+                <div class="section-content" v-show="expandedSections['code']">
+                    <div class="lang-tabs">
+                        <button v-for="(code, lang) in getCodeExamples()" :key="lang" class="lang-tab"
+                            :class="{ 'active': activeLanguage === lang }" @click="activeLanguage = lang">
+                            {{ lang }}
                         </button>
                     </div>
-                    <pre><code>{{ codeExamples[activeLanguage] }}</code></pre>
+
+                    <div class="example-code">
+                        <div class="code-header">
+                            <span>{{ activeLanguage }}.example</span>
+                            <button class="copy-btn" @click="copyCode(getCodeExamples()[activeLanguage], 'example')">
+                                {{ copyFeedback['example'] ? 'Copied!' : 'Copy' }}
+                            </button>
+                        </div>
+                        <pre><code>{{ getCodeExamples()[activeLanguage] }}</code></pre>
+                    </div>
                 </div>
             </section>
 
             <!-- Error Reference -->
-            <section class="error-ref">
-                <div class="section-marker">
+            <section class="error-ref" :class="{ 'collapsed': !expandedSections['error'] }">
+                <div class="section-marker" @click="toggleSection('error')">
                     <span class="roman-num">V.</span>
                     <h2>Error Reference</h2>
+                    <span class="expand-icon">{{ expandedSections['error'] ? '−' : '+' }}</span>
                 </div>
-                <div class="error-grid">
-                    <div class="error-item">
-                        <code class="error-code">400</code>
-                        <span class="error-name">Bad Request</span>
-                        <span class="error-desc">Invalid request parameters</span>
-                    </div>
-                    <div class="error-item">
-                        <code class="error-code">401</code>
-                        <span class="error-name">Unauthorized</span>
-                        <span class="error-desc">Invalid or missing API key</span>
-                    </div>
-                    <div class="error-item">
-                        <code class="error-code">404</code>
-                        <span class="error-name">Not Found</span>
-                        <span class="error-desc">Link or resource not found</span>
-                    </div>
-                    <div class="error-item">
-                        <code class="error-code">409</code>
-                        <span class="error-name">Conflict</span>
-                        <span class="error-desc">Alias already exists</span>
-                    </div>
-                    <div class="error-item">
-                        <code class="error-code">422</code>
-                        <span class="error-name">Unprocessable</span>
-                        <span class="error-desc">Validation error (invalid parameters)</span>
-                    </div>
-                    <div class="error-item">
-                        <code class="error-code">429</code>
-                        <span class="error-name">Too Many Requests</span>
-                        <span class="error-desc">Rate limit exceeded</span>
-                    </div>
-                    <div class="error-item">
-                        <code class="error-code">500</code>
-                        <span class="error-name">Server Error</span>
-                        <span class="error-desc">Internal server error</span>
-                    </div>
+                <div class="section-content" v-show="expandedSections['error']">
+                    <table class="error-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Error</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code class="error-code">400</code></td>
+                                <td>Bad Request</td>
+                                <td>Invalid request parameters</td>
+                            </tr>
+                            <tr>
+                                <td><code class="error-code">401</code></td>
+                                <td>Unauthorized</td>
+                                <td>Invalid or missing API key</td>
+                            </tr>
+                            <tr>
+                                <td><code class="error-code">403</code></td>
+                                <td>Forbidden</td>
+                                <td>Access denied or affiliate program disabled</td>
+                            </tr>
+                            <tr>
+                                <td><code class="error-code">404</code></td>
+                                <td>Not Found</td>
+                                <td>Link or resource not found</td>
+                            </tr>
+                            <tr>
+                                <td><code class="error-code">409</code></td>
+                                <td>Conflict</td>
+                                <td>Alias already exists or already enrolled</td>
+                            </tr>
+                            <tr>
+                                <td><code class="error-code">422</code></td>
+                                <td>Unprocessable</td>
+                                <td>Validation error (invalid parameters)</td>
+                            </tr>
+                            <tr>
+                                <td><code class="error-code">429</code></td>
+                                <td>Too Many Requests</td>
+                                <td>Rate limit exceeded</td>
+                            </tr>
+                            <tr>
+                                <td><code class="error-code">500</code></td>
+                                <td>Server Error</td>
+                                <td>Internal server error</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </section>
         </main>
@@ -806,6 +1069,7 @@ h1 span {
     align-items: center;
     gap: 16px;
     margin-bottom: 32px;
+    cursor: pointer;
 }
 
 .section-marker .roman-num {
@@ -816,11 +1080,19 @@ h1 span {
 }
 
 .section-marker h2 {
+    flex: 1;
     font-family: 'Oswald', sans-serif;
     font-size: 18px;
     letter-spacing: 3px;
     text-transform: uppercase;
     margin: 0;
+}
+
+.expand-icon {
+    font-size: 20px;
+    font-weight: bold;
+    color: #666;
+    margin-left: auto;
 }
 
 /* ── Quick Start ─────────────────────────────────────────────── */
@@ -1223,27 +1495,43 @@ code {
     margin-bottom: 60px;
 }
 
-.error-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-}
-
-.error-item {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 20px;
+.error-table {
+    width: 100%;
+    border-collapse: collapse;
     background: #fff;
     border: 1px solid #e5e5e5;
 }
 
+.error-table th,
+.error-table td {
+    padding: 16px 20px;
+    text-align: left;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.error-table th {
+    background: #f5f5f5;
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+.error-table tr:last-child td {
+    border-bottom: none;
+}
+
+.error-table tr:hover {
+    background: #fafafa;
+}
+
 .error-code {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     color: #e74c3c;
-    background: transparent;
+    background: #fef2f2;
+    padding: 4px 8px;
+    border-radius: 4px;
 }
 
 .error-name {

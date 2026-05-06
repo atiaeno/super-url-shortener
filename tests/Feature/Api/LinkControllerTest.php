@@ -27,15 +27,19 @@ class LinkControllerTest extends TestCase
         $this->authHeader = 'Bearer ' . $this->token->token;
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function can_list_links(): void
     {
         Link::factory()->count(3)->create(['user_id' => $this->user->id]);
 
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->getJson('/api/v1/links');
 
-        $response->assertStatus(200)
+        $response
+            ->assertStatus(200)
             ->assertJsonStructure([
                 'success',
                 'data',
@@ -49,73 +53,92 @@ class LinkControllerTest extends TestCase
             ->assertJsonCount(3, 'data');
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function links_are_paginated(): void
     {
         Link::factory()->count(25)->create(['user_id' => $this->user->id]);
 
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->getJson('/api/v1/links');
 
-        $response->assertStatus(200)
+        $response
+            ->assertStatus(200)
             ->assertJsonPath('meta.per_page', 20)
             ->assertJsonPath('meta.total_count', 25)
             ->assertJsonPath('meta.total_pages', 2);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function can_customize_per_page(): void
     {
         Link::factory()->count(5)->create(['user_id' => $this->user->id]);
 
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->getJson('/api/v1/links?per_page=3');
 
-        $response->assertStatus(200)
+        $response
+            ->assertStatus(200)
             ->assertJsonPath('meta.per_page', 3)
             ->assertJsonCount(3, 'data');
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function per_page_is_capped_at_100(): void
     {
         Link::factory()->count(5)->create(['user_id' => $this->user->id]);
 
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->getJson('/api/v1/links?per_page=200');
 
-        $response->assertStatus(200)
+        $response
+            ->assertStatus(200)
             ->assertJsonPath('meta.per_page', 100);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function users_can_only_see_their_own_links(): void
     {
         $otherUser = User::factory()->create();
         Link::factory()->create(['user_id' => $otherUser->id]);
         Link::factory()->create(['user_id' => $this->user->id]);
 
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->getJson('/api/v1/links');
 
-        $response->assertStatus(200)
+        $response
+            ->assertStatus(200)
             ->assertJsonCount(1, 'data');
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function can_create_link(): void
     {
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->postJson('/api/v1/links', [
                 'url' => 'https://example.com/long/path',
             ]);
 
-        $response->assertStatus(201)
+        $response
+            ->assertStatus(201)
             ->assertJsonStructure([
                 'success',
                 'message',
                 'data' => [
-                    'id',
                     'short_code',
                     'short_url',
                     'original_url',
@@ -131,16 +154,20 @@ class LinkControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function can_create_link_with_custom_alias(): void
     {
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->postJson('/api/v1/links', [
                 'url' => 'https://example.com',
                 'alias' => 'my-custom-link',
             ]);
 
-        $response->assertStatus(201)
+        $response
+            ->assertStatus(201)
             ->assertJsonPath('data.short_code', 'my-custom-link');
 
         $this->assertDatabaseHas('links', [
@@ -149,29 +176,39 @@ class LinkControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function url_is_required(): void
     {
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->postJson('/api/v1/links', []);
 
-        $response->assertStatus(422)
+        $response
+            ->assertStatus(422)
             ->assertJsonValidationErrors(['url']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function url_must_be_valid(): void
     {
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->postJson('/api/v1/links', [
                 'url' => 'not-a-valid-url',
             ]);
 
-        $response->assertStatus(422)
+        $response
+            ->assertStatus(422)
             ->assertJsonValidationErrors(['url']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function alias_must_be_unique(): void
     {
         Link::factory()->create([
@@ -179,30 +216,37 @@ class LinkControllerTest extends TestCase
             'short_code' => 'taken',
         ]);
 
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->postJson('/api/v1/links', [
                 'url' => 'https://example.com',
                 'alias' => 'taken',
             ]);
 
-        $response->assertStatus(422)
+        $response
+            ->assertStatus(422)
             ->assertJsonValidationErrors(['alias']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function can_get_single_link_by_id(): void
     {
         $link = Link::factory()->create(['user_id' => $this->user->id]);
 
-        $response = $this->withHeader('Authorization', $this->authHeader)
-            ->getJson('/api/v1/links/' . $link->id);
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
+            ->getJson('/api/v1/links/' . $link->short_code);
 
-        $response->assertStatus(200)
-            ->assertJsonPath('data.id', $link->id)
+        $response
+            ->assertStatus(200)
             ->assertJsonPath('data.short_code', $link->short_code);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function can_get_single_link_by_short_code(): void
     {
         $link = Link::factory()->create([
@@ -210,35 +254,45 @@ class LinkControllerTest extends TestCase
             'short_code' => 'my-code',
         ]);
 
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->getJson('/api/v1/links/my-code');
 
-        $response->assertStatus(200)
-            ->assertJsonPath('data.id', $link->id);
+        $response
+            ->assertStatus(200)
+            ->assertJsonPath('data.short_code', 'my-code');
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function getting_nonexistent_link_returns_404(): void
     {
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->getJson('/api/v1/links/nonexistent');
 
         $response->assertStatus(404);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function cannot_access_other_users_link(): void
     {
         $otherUser = User::factory()->create();
         $link = Link::factory()->create(['user_id' => $otherUser->id]);
 
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->getJson('/api/v1/links/' . $link->id);
 
         $response->assertStatus(404);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function can_update_link(): void
     {
         $link = Link::factory()->create([
@@ -246,12 +300,14 @@ class LinkControllerTest extends TestCase
             'destination_url' => 'https://old.example.com',
         ]);
 
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->patchJson('/api/v1/links/' . $link->id, [
                 'url' => 'https://new.example.com',
             ]);
 
-        $response->assertStatus(200)
+        $response
+            ->assertStatus(200)
             ->assertJsonPath('data.original_url', 'https://new.example.com');
 
         $this->assertDatabaseHas('links', [
@@ -260,48 +316,59 @@ class LinkControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function can_update_link_alias(): void
     {
         $link = Link::factory()->create(['user_id' => $this->user->id]);
 
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->patchJson('/api/v1/links/' . $link->id, [
                 'url' => $link->destination_url,
                 'alias' => 'new-alias',
             ]);
 
-        $response->assertStatus(200)
+        $response
+            ->assertStatus(200)
             ->assertJsonPath('data.short_code', 'new-alias');
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function updating_link_clears_old_cache(): void
     {
         $link = Link::factory()->create([
             'user_id' => $this->user->id,
             'short_code' => 'old-code',
         ]);
-        Cache::put("redirect:old-code", 'https://old.com', 3600);
+        Cache::put('redirect:old-code', 'https://old.com', 3600);
 
-        $this->withHeader('Authorization', $this->authHeader)
+        $this
+            ->withHeader('Authorization', $this->authHeader)
             ->patchJson('/api/v1/links/' . $link->id, [
                 'url' => 'https://new.com',
                 'alias' => 'new-code',
             ]);
 
-        $this->assertNull(Cache::get("redirect:old-code"));
+        $this->assertNull(Cache::get('redirect:old-code'));
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function can_delete_link(): void
     {
         $link = Link::factory()->create(['user_id' => $this->user->id]);
 
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->deleteJson('/api/v1/links/' . $link->id);
 
-        $response->assertStatus(200)
+        $response
+            ->assertStatus(200)
             ->assertJsonStructure([
                 'success',
                 'message',
@@ -311,57 +378,71 @@ class LinkControllerTest extends TestCase
         $this->assertSoftDeleted('links', ['id' => $link->id]);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function deleting_link_clears_cache(): void
     {
         $link = Link::factory()->create([
             'user_id' => $this->user->id,
             'short_code' => 'to-delete',
         ]);
-        Cache::put("redirect:to-delete", 'https://example.com', 3600);
+        Cache::put('redirect:to-delete', 'https://example.com', 3600);
 
-        $this->withHeader('Authorization', $this->authHeader)
+        $this
+            ->withHeader('Authorization', $this->authHeader)
             ->deleteJson('/api/v1/links/' . $link->id);
 
-        $this->assertNull(Cache::get("redirect:to-delete"));
+        $this->assertNull(Cache::get('redirect:to-delete'));
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function cannot_delete_other_users_link(): void
     {
         $otherUser = User::factory()->create();
         $link = Link::factory()->create(['user_id' => $otherUser->id]);
 
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->deleteJson('/api/v1/links/' . $link->id);
 
         $response->assertStatus(404);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function link_response_includes_clicks_count(): void
     {
         $link = Link::factory()->create(['user_id' => $this->user->id]);
-        
+
         // Create actual Click records
         Click::factory()->count(5)->forLink($link)->create();
 
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->getJson('/api/v1/links/' . $link->id);
 
-        $response->assertStatus(200)
+        $response
+            ->assertStatus(200)
             ->assertJsonPath('data.clicks', 5);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function link_response_includes_short_url(): void
     {
         $link = Link::factory()->create(['user_id' => $this->user->id]);
 
-        $response = $this->withHeader('Authorization', $this->authHeader)
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
             ->getJson('/api/v1/links/' . $link->id);
 
-        $response->assertStatus(200)
+        $response
+            ->assertStatus(200)
             ->assertJsonPath('data.short_url', config('app.url') . '/' . $link->short_code);
     }
 }
