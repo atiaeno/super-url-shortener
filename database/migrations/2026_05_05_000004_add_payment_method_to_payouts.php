@@ -9,6 +9,9 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('payouts', function (Blueprint $table) {
+            if (!Schema::hasColumn('payouts', 'payment_method')) {
+                $table->string('payment_method', 100)->nullable()->after('status');
+            }
             if (!Schema::hasColumn('payouts', 'payment_email')) {
                 $table->string('payment_email', 255)->nullable()->after('payment_method');
             }

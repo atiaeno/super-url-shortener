@@ -22,3 +22,6 @@ Schedule::command('disposable:update')->weekly();
 
 // Affiliate: sync earnings + prune old visits daily at 01:00
 Schedule::command('affiliates:daily-sync')->dailyAt('01:00');
+
+// Aggregate link analytics daily at 03:30
+Schedule::command('analytics:aggregate')->dailyAt('03:30');

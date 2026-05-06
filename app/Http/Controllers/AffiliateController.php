@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\SyncAffiliateEarningsJob;
 use App\Models\Affiliate;
+use App\Models\AffiliateStat;
 use App\Models\AffiliateTier;
 use App\Models\AffiliateVisit;
 use App\Models\Payout;
@@ -32,21 +33,20 @@ class AffiliateController extends Controller
         // Per-tier visit breakdown for the enrolled affiliate
         $visitsByTier = [];
         if ($affiliate) {
-            $rows = AffiliateVisit::where('affiliate_id', $affiliate->id)
-                ->selectRaw('affiliate_tier_id, COUNT(*) as visits')
-                ->groupBy('affiliate_tier_id')
-                ->get()
-                ->keyBy('affiliate_tier_id');
+            // Use summary table for fast queries
+            $stats = AffiliateStat::where('affiliate_id', $affiliate->id)->get()->keyBy('affiliate_tier_id');
 
             foreach ($tiers as $tier) {
-                $visits = $rows->get($tier->id)?->visits ?? 0;
+                $stat = $stats->get($tier->id);
+                $visits = $stat?->visits ?? 0;
+                $earned = $stat?->earnings ?? 0;
                 $visitsByTier[] = [
                     'tier_id' => $tier->id,
                     'name' => $tier->name,
                     'visits' => $visits,
                     'rate' => $tier->view_rate,
                     'multiplier' => $tier->view_multiplier,
-                    'earned' => round(($visits / $tier->view_multiplier) * $tier->view_rate, 4),
+                    'earned' => round($earned, 4),
                 ];
             }
         }

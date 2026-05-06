@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 use App\Jobs\FetchOgTagsJob;
 use App\Models\Ad;
 use App\Models\Link;
+use App\Models\LinkAnalyticsDaily;
+use App\Models\Setting;
 use App\Services\ShortCodeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -103,52 +105,38 @@ class LinkController extends Controller
 
         $period = $request->query('period', 'all');
 
-        $clicksQuery = $link->clicks();
-
-        $clicksQuery = match ($period) {
-            'today' => $clicksQuery->whereDate('created_at', today()),
-            'week' => $clicksQuery->where('created_at', '>=', now()->subDays(7)),
-            'month' => $clicksQuery->where('created_at', '>=', now()->subDays(30)),
-            default => $clicksQuery,
+        // Build date range from summary table
+        $dateRange = match ($period) {
+            'today' => [now()->toDateString(), now()->toDateString()],
+            'week' => [now()->subDays(7)->toDateString(), now()->toDateString()],
+            'month' => [now()->subDays(30)->toDateString(), now()->toDateString()],
+            default => [null, null],
         };
 
-        // Clone the base filtered query for each aggregate
-        $base = clone $clicksQuery;
+        $summaryQuery = LinkAnalyticsDaily::where('link_id', $link->id);
+
+        if ($dateRange[0]) {
+            $summaryQuery->whereBetween('date', $dateRange);
+        }
+
+        $summaries = $summaryQuery->get();
+
+        // Aggregate from summary table
+        $totalClicks = $summaries->sum('total_clicks');
+        $byCountry = $summaries->pluck('by_country')->filter()->flatMap(fn($c) => (array) $c)->groupBy(fn($v, $k) => $k)->map(fn($v) => $v->sum());
+        $byDevice = $summaries->pluck('by_device')->filter()->flatMap(fn($c) => (array) $c)->groupBy(fn($v, $k) => $k)->map(fn($v) => $v->sum());
+        $byBrowser = $summaries->pluck('by_browser')->filter()->flatMap(fn($c) => (array) $c)->groupBy(fn($v, $k) => $k)->map(fn($v) => $v->sum());
+        $byReferrer = $summaries->pluck('by_referrer')->filter()->flatMap(fn($c) => (array) $c)->groupBy(fn($v, $k) => $k)->map(fn($v) => $v->sum());
+        $clicksOverTime = $summaries->sortBy('date')->map(fn($s) => ['date' => $s->date->toDateString(), 'total' => $s->total_clicks]);
 
         $analytics = [
-            'total_clicks' => (clone $base)->count(),
+            'total_clicks' => $totalClicks,
             'period' => $period,
-            'clicks_by_device' => (clone $base)
-                ->selectRaw('device_type, COUNT(*) as total')
-                ->groupBy('device_type')
-                ->orderByDesc('total')
-                ->get(),
-            'clicks_by_country' => (clone $base)
-                ->selectRaw('country_code, COUNT(*) as total')
-                ->groupBy('country_code')
-                ->orderByDesc('total')
-                ->limit(10)
-                ->get()
-                ->map(fn($row) => array_merge($row->toArray(), [
-                    'flag' => $this->countryFlag($row->country_code),
-                ])),
-            'clicks_by_browser' => (clone $base)
-                ->selectRaw('browser, COUNT(*) as total')
-                ->groupBy('browser')
-                ->orderByDesc('total')
-                ->limit(6)
-                ->get(),
-            'clicks_by_referrer' => (clone $base)
-                ->selectRaw('referrer_domain, COUNT(*) as total')
-                ->groupBy('referrer_domain')
-                ->orderByDesc('total')
-                ->limit(6)
-                ->get(),
-            'clicks_over_time' => (clone $base)
-                ->selectRaw('DATE(created_at) as date, COUNT(*) as total')
-                ->groupBy('date')
-                ->orderBy('date')
-                ->get(),
+            'clicks_by_device' => $byDevice->map(fn($total, $name) => ['device_type' => $name, 'total' => $total])->values(),
+            'clicks_by_country' => $byCountry->map(fn($total, $code) => ['country_code' => $code, 'total' => $total, 'flag' => $this->countryFlag($code)])->sortByDesc('total')->take(10)->values(),
+            'clicks_by_browser' => $byBrowser->map(fn($total, $name) => ['browser' => $name, 'total' => $total])->sortByDesc('total')->take(6)->values(),
+            'clicks_by_referrer' => $byReferrer->map(fn($total, $name) => ['referrer_domain' => $name, 'total' => $total])->sortByDesc('total')->take(6)->values(),
+            'clicks_over_time' => $clicksOverTime->values(),
         ];
 
         return Inertia::render('Links/Show', [

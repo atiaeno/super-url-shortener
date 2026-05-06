@@ -65,6 +65,7 @@ class DashboardController extends Controller
             ->get()
             ->map(fn($item) => [
                 'country' => $item->country_code,
+                'flag' => $this->countryFlag($item->country_code),
                 'count' => $item->count,
             ]);
 
@@ -81,5 +82,18 @@ class DashboardController extends Controller
                 'top_countries' => $topCountries,
             ],
         ]);
+    }
+
+    private function countryFlag(?string $code): string
+    {
+        if (!$code || strlen($code) !== 2) {
+            return '🌐';
+        }
+        $code = strtoupper($code);
+        $flag = '';
+        foreach (str_split($code) as $char) {
+            $flag .= mb_chr(ord($char) - ord('A') + 0x1F1E6);
+        }
+        return $flag;
     }
 }

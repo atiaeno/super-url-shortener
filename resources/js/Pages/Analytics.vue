@@ -408,9 +408,11 @@ const statCards = computed(() => [
     padding-bottom: 0;
 }
 
-.data-label {
-    font-size: 13px;
+.data-label  {
+    font-size: 12px;
     color: var(--ink);
+     
+    font-family: 'DM Sans';
 }
 
 .data-value {

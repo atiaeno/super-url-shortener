@@ -5,10 +5,12 @@ namespace App\Jobs;
 
 use App\Models\Affiliate;
 use App\Models\AffiliateCountryRate;
+use App\Models\AffiliateStat;
 use App\Models\AffiliateTier;
 use App\Models\AffiliateVisit;
 use App\Models\Click;
 use App\Models\Link;
+use App\Models\LinkAnalyticsDaily;
 use App\Models\Setting;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -29,6 +31,9 @@ class LogClickJob implements ShouldQueue
             'link_id' => $this->linkId,
             ...$this->clickData,
         ]);
+
+        // Record to analytics summary table
+        LinkAnalyticsDaily::recordClick($this->linkId, $this->clickData);
 
         // Skip affiliate processing if feature is disabled
         $affiliateEnabled = (Setting::where('key', 'features_affiliate')->value('value') ?? 'true') === 'true';
@@ -95,6 +100,9 @@ class LogClickJob implements ShouldQueue
 
         $affiliate->increment('total_earnings', $earning);
         $affiliate->increment('pending_earnings', $earning);
+
+        // Record to affiliate stats summary
+        AffiliateStat::incrementStats($affiliate->id, $tier->id, $earning);
     }
 
     private function resolveTierForCountry(?string $countryCode): ?AffiliateTier

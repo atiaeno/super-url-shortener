@@ -3,10 +3,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Click;
 use App\Models\Link;
+use App\Models\LinkAnalyticsDaily;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,92 +17,47 @@ class AnalyticsController extends Controller
     {
         $userId = Auth::id();
 
-        // Clicks by time period
-        $clicksToday = Click::whereHas('link', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })->whereDate('created_at', today())->count();
+        // Get user's link IDs
+        $linkIds = Link::where('user_id', $userId)->pluck('id');
 
-        $clicksWeek = Click::whereHas('link', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })->where('created_at', '>=', now()->subDays(7))->count();
-
-        $clicksMonth = Click::whereHas('link', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })->where('created_at', '>=', now()->subDays(30))->count();
-
-        $clicksYear = Click::whereHas('link', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })->where('created_at', '>=', now()->subDays(365))->count();
-
-        // Device breakdown
-        $devices = Click::whereHas('link', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })
-            ->selectRaw('device_type, COUNT(*) as total')
-            ->groupBy('device_type')
-            ->orderByDesc('total')
+        // Get summary data for last 365 days
+        $summaries = LinkAnalyticsDaily::whereIn('link_id', $linkIds)
+            ->where('date', '>=', now()->subDays(365)->toDateString())
             ->get();
 
-        // OS breakdown
-        $os = Click::whereHas('link', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })
-            ->selectRaw('os, COUNT(*) as total')
-            ->groupBy('os')
-            ->orderByDesc('total')
-            ->limit(10)
-            ->get();
+        // Aggregate by period
+        $today = now()->toDateString();
+        $weekAgo = now()->subDays(7)->toDateString();
+        $monthAgo = now()->subDays(30)->toDateString();
+        $yearAgo = now()->subDays(365)->toDateString();
 
-        // Browser breakdown
-        $browsers = Click::whereHas('link', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })
-            ->selectRaw('browser, COUNT(*) as total')
-            ->groupBy('browser')
-            ->orderByDesc('total')
-            ->limit(10)
-            ->get();
+        $clicksToday = $summaries->where('date', $today)->sum('total_clicks');
+        $clicksWeek = $summaries->where('date', '>=', $weekAgo)->sum('total_clicks');
+        $clicksMonth = $summaries->where('date', '>=', $monthAgo)->sum('total_clicks');
+        $clicksYear = $summaries->sum('total_clicks');
 
-        // Countries
-        $countries = Click::whereHas('link', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })
-            ->selectRaw('country_code, COUNT(*) as total')
-            ->groupBy('country_code')
-            ->orderByDesc('total')
-            ->limit(10)
-            ->get()
-            ->map(fn($row) => array_merge($row->toArray(), [
-                'flag' => $this->countryFlag($row->country_code),
-            ]));
+        // Aggregate JSON fields efficiently using SQL
+        $byDevice = $this->aggregateJsonFieldSql($linkIds, $yearAgo, 'by_device');
+        $byOs = $this->aggregateJsonFieldSql($linkIds, $yearAgo, 'by_os');
+        $byBrowser = $this->aggregateJsonFieldSql($linkIds, $yearAgo, 'by_browser');
+        $byCountry = $this->aggregateJsonFieldSql($linkIds, $yearAgo, 'by_country');
+        $byReferrer = $this->aggregateJsonFieldSql($linkIds, $yearAgo, 'by_referrer');
 
-        // Referrers
-        $referrers = Click::whereHas('link', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })
-            ->selectRaw('referrer_domain, COUNT(*) as total')
-            ->groupBy('referrer_domain')
-            ->orderByDesc('total')
-            ->limit(10)
-            ->get();
+        $devices = $byDevice->map(fn($total, $name) => ['device_type' => $name, 'total' => $total])->values();
+        $os = $byOs->map(fn($total, $name) => ['os' => $name, 'total' => $total])->sortByDesc('total')->take(10)->values();
+        $browsers = $byBrowser->map(fn($total, $name) => ['browser' => $name, 'total' => $total])->sortByDesc('total')->take(10)->values();
+        $countries = $byCountry->map(fn($total, $code) => ['country_code' => $code, 'total' => $total, 'flag' => $this->countryFlag($code)])->sortByDesc('total')->take(10)->values();
+        $referrers = $byReferrer->map(fn($total, $name) => ['referrer_domain' => $name, 'total' => $total])->sortByDesc('total')->take(10)->values();
 
         // Clicks over time (last 30 days)
-        $clicksData = Click::whereHas('link', function ($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })
-            ->where('created_at', '>=', now()->subDays(30))
-            ->selectRaw('DATE(created_at) as date, COUNT(*) as clicks')
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
-
+        $clicksData = $summaries->where('date', '>=', $monthAgo)->keyBy(fn($r) => $r->date->toDateString());
         $clicksOverTime = [];
         for ($i = 29; $i >= 0; $i--) {
-            $date = now()->subDays($i)->format('Y-m-d');
-            $found = $clicksData->firstWhere('date', $date);
+            $date = now()->subDays($i)->toDateString();
+            $found = $clicksData->get($date);
             $clicksOverTime[] = [
                 'date' => now()->subDays($i)->format('M d'),
-                'clicks' => $found ? (int) $found->clicks : 0,
+                'clicks' => $found ? (int) $found->total_clicks : 0,
             ];
         }
 
@@ -132,5 +88,27 @@ class AnalyticsController extends Controller
             $flag .= mb_chr(ord($char) - ord('A') + 0x1F1E6);
         }
         return $flag;
+    }
+
+    private function aggregateJsonFieldSql($linkIds, string $yearAgo, string $field): \Illuminate\Support\Collection
+    {
+        // Only fetch the JSON column we need - much less data transfer
+        $rows = DB::table('link_analytics_daily')
+            ->whereIn('link_id', $linkIds)
+            ->where('date', '>=', $yearAgo)
+            ->whereNotNull($field)
+            ->pluck($field);
+
+        $totals = [];
+        foreach ($rows as $json) {
+            $data = json_decode($json, true);
+            if (!is_array($data))
+                continue;
+            foreach ($data as $key => $value) {
+                $totals[$key] = ($totals[$key] ?? 0) + $value;
+            }
+        }
+
+        return collect($totals);
     }
 }

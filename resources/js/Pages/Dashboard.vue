@@ -217,6 +217,7 @@ const icons = {
                                 <div v-for="(item, index) in charts.top_countries" :key="item.country"
                                     class="country-item">
                                     <span class="country-rank">{{ index + 1 }}</span>
+                                    <span class="country-flag">{{ item.flag }}</span>
                                     <span class="country-code">{{ item.country }}</span>
                                     <span class="country-count">{{ item.count.toLocaleString() }}</span>
                                 </div>
@@ -760,6 +761,11 @@ const icons = {
     font-size: 12px;
     color: var(--red);
     min-width: 20px;
+}
+
+.country-flag {
+    font-size: 16px;
+    margin-right: 4px;
 }
 
 .country-code {
