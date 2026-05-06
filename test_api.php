@@ -17,30 +17,35 @@ $token = App\Models\ApiToken::create([
 ]);
 
 $headers = ['Authorization' => 'Bearer ' . $token->token, 'Accept' => 'application/json'];
+$baseUrl = 'http://127.0.0.1:8001';
 
-// Get affiliate info (with test data)
-echo "=== GET /api/v1/affiliate ===\n";
-$response = Illuminate\Support\Facades\Http::withHeaders($headers)->get('http://127.0.0.1:8000/api/v1/affiliate');
-echo '<pre>' . json_encode(json_decode($response->body()), JSON_PRETTY_PRINT) . '</pre>' . "\n\n";
+// Get links
+echo "=== GET /api/v1/links ===\n";
+$response = Illuminate\Support\Facades\Http::withHeaders($headers)->get($baseUrl . '/api/v1/links?per_page=2');
+echo $response->body() . "\n\n";
 
-// Get tiers
-echo "=== GET /api/v1/affiliate/tiers ===\n";
-$response = Illuminate\Support\Facades\Http::withHeaders($headers)->get('http://127.0.0.1:8000/api/v1/affiliate/tiers');
-echo '<pre>' . json_encode(json_decode($response->body()), JSON_PRETTY_PRINT) . '</pre>' . "\n\n";
-
-// Get payouts
-echo "=== GET /api/v1/affiliate/payouts ===\n";
-$response = Illuminate\Support\Facades\Http::withHeaders($headers)->get('http://127.0.0.1:8000/api/v1/affiliate/payouts');
-echo '<pre>' . json_encode(json_decode($response->body()), JSON_PRETTY_PRINT) . '</pre>' . "\n\n";
-
-// Request payout
-echo "=== POST /api/v1/affiliate/payout ===\n";
-$response = Illuminate\Support\Facades\Http::withHeaders($headers)->post('http://127.0.0.1:8000/api/v1/affiliate/payout', [
-    'payment_email' => 'test@example.com',
+// Create link
+echo "=== POST /api/v1/links ===\n";
+$response = Illuminate\Support\Facades\Http::withHeaders($headers)->post($baseUrl . '/api/v1/links', [
+    'url' => 'https://example.com/new-link',
 ]);
-echo '<pre>' . json_encode(json_decode($response->body()), JSON_PRETTY_PRINT) . '</pre>' . "\n\n";
+echo $response->body() . "\n\n";
 
-// Get payouts after request
-echo "=== GET /api/v1/affiliate/payouts (after request) ===\n";
-$response = Illuminate\Support\Facades\Http::withHeaders($headers)->get('http://127.0.0.1:8000/api/v1/affiliate/payouts');
-echo '<pre>' . json_encode(json_decode($response->body()), JSON_PRETTY_PRINT) . '</pre>' . "\n";
+// Get single link by short code
+echo "=== GET /api/v1/links/mQ16We ===\n";
+$response = Illuminate\Support\Facades\Http::withHeaders($headers)->get($baseUrl . '/api/v1/links/mQ16We');
+echo $response->body() . "\n\n";
+
+// Test QR code (public - no auth)
+echo "=== GET /qr/Fw8XRL/svg (public) ===\n";
+$qrResponse = Illuminate\Support\Facades\Http::get($baseUrl . '/qr/Fw8XRL/svg');
+echo 'Status: ' . $qrResponse->status() . ', Content-Type: ' . $qrResponse->header('Content-Type') . "\n\n";
+
+// Create private link with password
+echo "=== POST /api/v1/links (private with password) ===\n";
+$response = Illuminate\Support\Facades\Http::withHeaders($headers)->post($baseUrl . '/api/v1/links', [
+    'url' => 'https://example.com/private',
+    'visibility' => 'private',
+    'password' => 'secret123',
+]);
+echo $response->body() . "\n";

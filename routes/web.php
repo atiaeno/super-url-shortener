@@ -46,6 +46,11 @@ Route::post('/guest/shorten', [GuestLinkController::class, 'store'])
 Route::get('/guest/qr/{shortCode}', [QrCodeController::class, 'guestQr'])
     ->name('guest.qr');
 
+// ── Public QR code for any link (API & web) ─────────────────────────────────
+Route::get('/qr/{shortCode}/{format?}', [QrCodeController::class, 'generate'])
+    ->where('format', 'svg|png')
+    ->name('qr.generate');
+
 // ── Legal Pages ───────────────────────────────────────────────────────────────
 Route::get('/privacy', fn() => Inertia::render('Legal/Privacy'))->name('legal.privacy');
 Route::get('/terms', fn() => Inertia::render('Legal/Terms'))->name('legal.terms');
