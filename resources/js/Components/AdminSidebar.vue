@@ -129,6 +129,10 @@ const icons = {
 </template>
 
 <style scoped>
+:root {
+    --font-sidebar: 'DM Sans', sans-serif;
+}
+
 .sidebar {
     position: fixed;
     top: 0;
@@ -188,7 +192,7 @@ const icons = {
 }
 
 .sidebar__logo-text {
-    font-family: var(--font-display);
+    font-family: var(--font-sidebar);
     font-weight: 600;
     font-size: 15px;
     letter-spacing: 1.5px;
@@ -259,11 +263,11 @@ const icons = {
 }
 
 .nav-section__label {
-    font-family: var(--font-display);
-    font-size: 9px;
-    font-weight: 600;
+    font-family: var(--font-sidebar);
+    font-size: 10px;
+    font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     color: var(--muted);
     padding: 0 8px;
     margin-bottom: 2px;
@@ -277,18 +281,17 @@ const icons = {
 }
 
 .nav-item {
+    font-family: var(--font-sidebar);
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 8px 10px;
+    padding: 10px 12px;
     border-radius: var(--radius);
     text-decoration: none;
     color: var(--ink-soft);
-    font-family: var(--font-display);
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
+    letter-spacing: 0.2px;
     transition: var(--transition);
     position: relative;
 }
@@ -344,6 +347,9 @@ const icons = {
 
 .nav-item__label {
     white-space: nowrap;
+    font-family: var(--font-sidebar);
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .sidebar__user {
@@ -399,8 +405,8 @@ const icons = {
 }
 
 .user-card__name {
-    font-family: var(--font-display);
-    font-size: 12px;
+    font-family: var(--font-sidebar);
+    font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.3px;
     color: var(--ink);
@@ -427,11 +433,10 @@ const icons = {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     color: var(--muted);
-    font-family: var(--font-display);
-    font-size: 11px;
+    font-family: var(--font-sidebar);
+    font-size: 12px;
     font-weight: 500;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
+    letter-spacing: 0.3px;
     cursor: pointer;
     transition: var(--transition);
     width: 100%;
