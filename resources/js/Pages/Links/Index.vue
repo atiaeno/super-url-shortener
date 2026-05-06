@@ -14,6 +14,22 @@ const props = defineProps({
     },
 });
 
+const pageNumbers = computed(() => {
+    const total = props.links.last_page;
+    const current = props.links.current_page;
+    const pages = [];
+    const delta = 2;
+
+    for (let i = 1; i <= total; i++) {
+        if (i === 1 || i === total || (i >= current - delta && i <= current + delta)) {
+            pages.push(i);
+        } else if (pages[pages.length - 1] !== '...') {
+            pages.push('...');
+        }
+    }
+    return pages;
+});
+
 const copiedId = ref(null);
 const showDeleteModal = ref(false);
 const linkToDelete = ref(null);
@@ -166,8 +182,14 @@ const icons = {
 
         <!-- Pagination -->
         <div v-if="links.last_page > 1" class="pagination">
-            <Link v-if="links.prev_page_url" :href="links.prev_page_url" class="page-btn">← Previous</Link>
-            <span class="page-info">Page {{ links.current_page }} of {{ links.last_page }}</span>
+            <Link v-if="links.prev_page_url" :href="links.prev_page_url" class="page-btn">← Prev</Link>
+            <template v-for="page in pageNumbers" :key="page">
+                <span v-if="page === '...'" class="page-ellipsis">...</span>
+                <Link v-else :href="`?page=${page}`" class="page-btn"
+                    :class="{ 'page-btn--active': page === links.current_page }">
+                    {{ page }}
+                </Link>
+            </template>
             <Link v-if="links.next_page_url" :href="links.next_page_url" class="page-btn">Next →</Link>
         </div>
 
@@ -565,6 +587,17 @@ const icons = {
 .page-btn:hover {
     background: #f5f5f5;
     color: #333;
+}
+
+.page-btn--active {
+    background: var(--red);
+    color: #fff;
+    border-color: var(--red);
+}
+
+.page-ellipsis {
+    color: #888;
+    padding: 0 4px;
 }
 
 .page-info {

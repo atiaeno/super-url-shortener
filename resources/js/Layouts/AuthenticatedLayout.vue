@@ -26,6 +26,7 @@ const supportNavItems = [
     { label: 'Help Center', icon: 'help', route: 'help.center' },
     { label: 'API Docs', icon: 'api', route: 'api-docs' },
     { label: 'Settings', icon: 'settings', route: 'profile.edit' },
+    { label: 'Visit Site', icon: 'external', route: null, href: '/', external: true },
 ];
 
 
@@ -45,6 +46,7 @@ const icons = {
     logout: `<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>`,
     menu: `<line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/>`,
     'chevron-left': `<polyline points="15 18 9 12 15 6"/>`,
+    external: `<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>`,
 };
 </script>
 
@@ -124,8 +126,10 @@ const icons = {
                         <span v-if="!sidebarCollapsed" class="nav-section__label">Support</span>
                     </Transition>
                     <div class="nav-section__items">
-                        <Link v-for="item in supportNavItems" :key="item.route" :href="route(item.route)"
-                            class="nav-item" :class="{ 'nav-item--active': route().current(item.route) }">
+                        <a v-for="item in supportNavItems" :key="item.label"
+                            :href="item.external ? item.href : route(item.route)"
+                            :target="item.external ? '_blank' : '_self'" class="nav-item"
+                            :class="{ 'nav-item--active': !item.external && route().current(item.route) }">
                             <span class="nav-item__icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                                     v-html="icons[item.icon]" />
@@ -133,7 +137,7 @@ const icons = {
                             <Transition name="fade">
                                 <span v-if="!sidebarCollapsed" class="nav-item__label">{{ item.label }}</span>
                             </Transition>
-                        </Link>
+                        </a>
                     </div>
                 </nav>
 

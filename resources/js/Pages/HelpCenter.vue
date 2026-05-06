@@ -291,7 +291,7 @@ h1 span {
 .category-nav {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 5px;
     margin-bottom: 48px;
 }
 
@@ -299,7 +299,7 @@ h1 span {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 16px 24px;
+    padding: 16px 16px;
     background: #fff;
     border: 1px solid #ddd;
     font-family: 'Oswald', sans-serif;

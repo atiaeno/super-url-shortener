@@ -117,6 +117,11 @@ class AffiliateController extends Controller
             'payment_email' => $validated['payment_email'],
         ]);
 
+        // Deduct from pending_earnings
+        $affiliate->update([
+            'pending_earnings' => 0,
+        ]);
+
         return back()->with('success', 'Payout request submitted. We will review it shortly.');
     }
 

@@ -129,14 +129,14 @@ const tabs = [
                                 <input v-model="profileForm.name" type="text" required autocomplete="name"
                                     class="field__input" placeholder="Your name" />
                                 <span v-if="profileForm.errors.name" class="field__error">{{ profileForm.errors.name
-                                    }}</span>
+                                }}</span>
                             </div>
                             <div class="field">
                                 <label class="field__label">Email Address</label>
                                 <input v-model="profileForm.email" type="email" required autocomplete="username"
                                     class="field__input" placeholder="your@email.com" />
                                 <span v-if="profileForm.errors.email" class="field__error">{{ profileForm.errors.email
-                                    }}</span>
+                                }}</span>
                             </div>
                             <div v-if="mustVerifyEmail && user.email_verified_at === null" class="verify-notice">
                                 <p>Your email address is unverified.</p>
@@ -155,8 +155,8 @@ const tabs = [
                     </div>
                 </div>
 
-                <!-- Profile Photo -->
-                <div class="card">
+                <!-- Profile Photo (only in Profile tab) -->
+                <div v-if="activeTab === 'profile'" class="card">
                     <div class="card-header">
                         <span class="material-icons">photo_camera</span>
                         <h3>Profile Photo</h3>
@@ -295,7 +295,7 @@ const tabs = [
                         <input v-model="deleteForm.password" type="password" class="field__input"
                             placeholder="Enter password" @keyup.enter="confirmDelete" />
                         <span v-if="deleteForm.errors.password" class="field__error">{{ deleteForm.errors.password
-                        }}</span>
+                            }}</span>
                     </div>
                     <div class="modal-actions">
                         <button @click="showDeleteModal = false; deleteForm.reset();" class="btn-ghost">Cancel</button>
