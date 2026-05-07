@@ -49,6 +49,29 @@ class DashboardController extends Controller
                 'count' => (int) $item->count,
             ]);
 
+        // Latest registered users
+        $latestUsers = User::orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get(['id', 'name', 'email', 'created_at']);
+
+        // Latest payment requests with user info
+        $latestPayouts = Payout::with('affiliate.user')
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($payout) {
+                return [
+                    'id' => $payout->id,
+                    'amount' => $payout->amount,
+                    'status' => $payout->status,
+                    'created_at' => $payout->created_at,
+                    'user' => $payout->affiliate?->user ? [
+                        'name' => $payout->affiliate->user->name,
+                        'email' => $payout->affiliate->user->email,
+                    ] : null,
+                ];
+            });
+
         return Inertia::render('Admin/Dashboard', [
             'stats' => [
                 'totalUsers' => User::count(),
@@ -62,6 +85,8 @@ class DashboardController extends Controller
                 'clicksOverTime' => $clicksOverTime,
                 'topCountries' => $topCountries,
             ],
+            'latestUsers' => $latestUsers,
+            'latestPayouts' => $latestPayouts,
         ]);
     }
 }

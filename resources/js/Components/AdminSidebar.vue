@@ -21,7 +21,7 @@ const adminNavItems = [
     { label: 'Links', icon: 'links', route: 'admin.links.index' },
     { label: 'Payouts', icon: 'payouts', route: 'admin.payouts.index' },
     { label: 'Affiliate Tiers', icon: 'tiers', route: 'admin.affiliate-tiers.index' },
-    { label: 'Ads', icon: 'ads', route: 'admin.ads.index' },
+    { label: 'Advertising', icon: 'ads', route: 'admin.advertising.index' },
     { label: 'Moderation', icon: 'moderation', route: 'admin.moderation.index' },
     { label: 'Settings', icon: 'settings', route: 'admin.settings.index' },
 ];
@@ -129,6 +129,8 @@ const icons = {
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
 :root {
     --font-sidebar: 'DM Sans', sans-serif;
 }

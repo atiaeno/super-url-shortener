@@ -14,7 +14,7 @@ class AdController extends Controller
     public function index(): Response
     {
         $ads = Ad::all();
-        return Inertia::render('Admin/Ads/Index', [
+        return Inertia::render('Admin/Advertising/Index', [
             'ads' => $ads,
         ]);
     }

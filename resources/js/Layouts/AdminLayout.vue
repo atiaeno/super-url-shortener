@@ -49,7 +49,7 @@ const toggleMobileSidebar = () => { mobileSidebarOpen.value = !mobileSidebarOpen
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Oswald:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Oswald:wght@400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 :root {
     --sidebar-width: 240px;
@@ -66,6 +66,8 @@ const toggleMobileSidebar = () => { mobileSidebarOpen.value = !mobileSidebarOpen
     --surface-2: #f5f3ef;
     --font-display: 'Oswald', sans-serif;
     --font-body: 'Crimson Pro', serif;
+    --font-admin: 'DM Sans', sans-serif;
+    --font-sidebar: 'DM Sans', sans-serif;
     --shadow: 0 2px 12px rgba(26, 26, 26, 0.07);
     --radius: 4px;
     --transition: all 0.2s ease;

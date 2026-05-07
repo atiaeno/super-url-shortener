@@ -168,7 +168,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     });
 
     // Advertising Management (Stories 5.1 - 5.4)
-    Route::prefix('ads')->name('ads.')->group(function () {
+    Route::prefix('advertising')->name('advertising.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\AdController::class, 'index'])->name('index');
         Route::post('/', [\App\Http\Controllers\Admin\AdController::class, 'store'])->name('store');
         Route::patch('{ad}', [\App\Http\Controllers\Admin\AdController::class, 'update'])->name('update');

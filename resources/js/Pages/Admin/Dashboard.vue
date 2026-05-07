@@ -26,6 +26,14 @@ const props = defineProps({
             topCountries: [],
         }),
     },
+    latestUsers: {
+        type: Array,
+        default: () => [],
+    },
+    latestPayouts: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const statItems = computed(() => [
@@ -243,7 +251,75 @@ const getCountryBarWidth = (count) => {
                     </div>
                 </div>
             </section>
-            <!-- ... -->
+
+            <!-- Latest Data Tables -->
+            <section class="tables-section">
+                <div class="tables-grid">
+                    <!-- Latest Registered Users -->
+                    <div class="table-card">
+                        <div class="table-card__header">
+                            <span class="table-card__marker">VII.</span>
+                            <span class="table-card__title">Latest Registered Users</span>
+                            <Link :href="route('admin.users.index')" class="table-card__view-all">View All</Link>
+                        </div>
+                        <div class="table-card__body">
+                            <div v-if="latestUsers.length === 0" class="table-placeholder">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                </svg>
+                                <span>No users registered yet</span>
+                            </div>
+                            <div v-else class="data-table">
+                                <div v-for="(user, index) in latestUsers.slice(0, 5)" :key="user.id" class="data-row">
+                                    <span class="data-row__index">{{ index + 1 }}</span>
+                                    <div class="data-row__content">
+                                        <span class="data-row__primary">{{ user.name }}</span>
+                                        <span class="data-row__secondary">{{ user.email }}</span>
+                                    </div>
+                                    <span class="data-row__meta">{{ formatDate(user.created_at) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Latest Payment Requests -->
+                    <div class="table-card">
+                        <div class="table-card__header">
+                            <span class="table-card__marker">VIII.</span>
+                            <span class="table-card__title">Latest Payment Requests</span>
+                            <Link :href="route('admin.payouts.index')" class="table-card__view-all">View All</Link>
+                        </div>
+                        <div class="table-card__body">
+                            <div v-if="latestPayouts.length === 0" class="table-placeholder">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <line x1="12" y1="1" x2="12" y2="23" />
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                </svg>
+                                <span>No payment requests yet</span>
+                            </div>
+                            <div v-else class="data-table">
+                                <div v-for="(payout, index) in latestPayouts.slice(0, 5)" :key="payout.id"
+                                    class="data-row">
+                                    <span class="data-row__index">{{ index + 1 }}</span>
+                                    <div class="data-row__content">
+                                        <span class="data-row__primary">{{ payout.user?.name || 'Unknown User' }}</span>
+                                        <span class="data-row__secondary">${{ Number(payout.amount)?.toFixed(2) ||
+                                            '0.00'
+                                        }}</span>
+                                    </div>
+                                    <span class="data-row__meta"
+                                        :class="`data-row__meta--${payout.status?.toLowerCase()}`">
+                                        {{ payout.status || 'Pending' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <!-- Platform Stats -->
             <section class="links-section">
@@ -875,10 +951,184 @@ const getCountryBarWidth = (count) => {
     color: var(--muted);
 }
 
+/* ── Tables Section ───────────────────────── */
+.tables-section {
+    margin-bottom: 24px;
+}
+
+.tables-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.table-card {
+    background: var(--surface);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.table-card__marker {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--red);
+}
+
+.table-card__title {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--ink);
+    flex: 1;
+}
+
+.table-card__view-all {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-style: italic;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.table-card__view-all:hover {
+    color: var(--red);
+}
+
+.table-card__body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+}
+
+.table-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+}
+
+.table-placeholder svg {
+    width: 36px;
+    height: 36px;
+    opacity: 0.4;
+}
+
+.table-placeholder span {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-style: italic;
+}
+
+.data-table {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.data-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.data-row:last-child {
+    border-bottom: none;
+}
+
+.data-row__index {
+    width: 20px;
+    height: 20px;
+    background: var(--surface-2);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    flex-shrink: 0;
+}
+
+.data-row__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.data-row__primary {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.data-row__secondary {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.data-row__meta {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.data-row__meta--pending {
+    color: #f59e0b;
+}
+
+.data-row__meta--approved {
+    color: #16a34a;
+}
+
+.data-row__meta--rejected {
+    color: #dc2626;
+}
+
 /* ── Responsive ───────────────────────────── */
 @media (max-width: 1024px) {
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .tables-grid {
+        grid-template-columns: 1fr;
     }
 
     .health-grid {
