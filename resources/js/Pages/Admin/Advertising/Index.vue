@@ -115,18 +115,22 @@ const isAllSelected = () => {
 
 const bulkDeleteAds = () => {
     if (selectedAds.value.length === 0) return;
-
-    if (confirm(`Are you sure you want to delete ${selectedAds.value.length} promotion(s)?`)) {
-        router.delete(route('admin.advertising.bulkDelete'), {
-            data: { ids: selectedAds.value },
-            onSuccess: () => {
-                selectedAds.value = [];
-                showBulkDeleteModal.value = false;
-            }
-        });
-    }
+    showBulkDeleteModal.value = true;
 };
 
+const confirmBulkDelete = () => {
+    router.delete(route('admin.advertising.bulkDelete'), {
+        data: { ids: selectedAds.value },
+        onSuccess: () => {
+            selectedAds.value = [];
+            showBulkDeleteModal.value = false;
+        }
+    });
+};
+
+const cancelBulkDelete = () => {
+    showBulkDeleteModal.value = false;
+};
 
 const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -184,215 +188,258 @@ const getPlacementName = (placement) => {
                     </div>
                 </div>
                 <div class="table-card">
-                    <div v-if="!ads?.length" class="no-data">No promotions created yet</div>
-                    <table v-else class="promotions-table">
-                        <thead>
-                            <tr>
-                                <th class="table-header checkbox-column">
-                                    <input type="checkbox" :checked="isAllSelected()" @change="toggleSelectAll"
-                                        class="select-all-checkbox">
-                                </th>
-                                <th class="table-header">Promotion Name</th>
-                                <th class="table-header">Format</th>
-                                <th class="table-header">Placement</th>
-                                <th class="table-header">Status</th>
-                                <th class="table-header">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="ad in ads" :key="ad.id" class="table-row"
-                                :class="{ 'row-selected': isAdSelected(ad.id) }">
-                                <td class="table-cell checkbox-column">
-                                    <input type="checkbox" :checked="isAdSelected(ad.id)"
-                                        @change="toggleAdSelection(ad.id)" class="ad-checkbox">
-                                </td>
-                                <td class="table-cell">
-                                    <div class="ad-info">
-                                        <div class="ad-name">{{ ad.name }}</div>
-                                        <div class="ad-url" v-if="ad.target_url">{{ ad.target_url }}</div>
-                                    </div>
-                                </td>
-                                <td class="table-cell">
-                                    <div class="format-badge">
-                                        <span class="material-icons format-icon">{{ icons[ad.format] }}</span>
-                                        {{ ad.format }}
-                                    </div>
-                                </td>
-                                <td class="table-cell">
-                                    <div class="placement-info">
-                                        <div class="placement-type">{{ getPlacementName(ad.placement) }}</div>
-                                        <div class="placement-targeting" v-if="ad.target_countries?.length">
-                                            {{ ad.target_countries.length }} countries
+                    <div v-if="!ads?.length" class="empty-state">
+                        <div class="empty-state__icon">
+                            <span class="material-icons">{{ icons.advertising }}</span>
+                        </div>
+                        <p class="empty-state__title">No promotions created yet</p>
+                        <p class="empty-state__text">Start by creating your first advertising promotion.</p>
+                    </div>
+
+                    <div v-else class="table-wrapper">
+                        <table class="promotions-table">
+                            <thead>
+                                <tr>
+                                    <th class="table-header checkbox-column">
+                                        <input type="checkbox" :checked="isAllSelected()" @change="toggleSelectAll"
+                                            class="select-all-checkbox">
+                                    </th>
+                                    <th class="table-header promotion-name-column">Promotion Name</th>
+                                    <th class="table-header">Format</th>
+                                    <th class="table-header">Placement</th>
+                                    <th class="table-header">Status</th>
+                                    <th class="table-header">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="ad in ads" :key="ad.id" class="table-row"
+                                    :class="{ 'row-selected': isAdSelected(ad.id) }">
+                                    <td class="table-cell checkbox-column">
+                                        <input type="checkbox" :checked="isAdSelected(ad.id)"
+                                            @change="toggleAdSelection(ad.id)" class="ad-checkbox">
+                                    </td>
+                                    <td class="table-cell">
+                                        <div class="promotion-cell">
+                                            <div class="promotion-icon"
+                                                :class="ad.is_active ? 'promotion-icon--active' : 'promotion-icon--inactive'">
+                                                <span class="material-icons">{{ icons[ad.format] }}</span>
+                                            </div>
+                                            <div class="promotion-details">
+                                                <div class="promotion-name">{{ ad.name }}</div>
+                                                <div class="promotion-meta" v-if="ad.target_url">{{ ad.target_url }}
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="placement-targeting" v-else>
-                                            Global
+                                    </td>
+                                    <td class="table-cell">
+                                        <div class="format-badge">
+                                            <span class="material-icons format-icon">{{ icons[ad.format] }}</span>
+                                            {{ ad.format }}
                                         </div>
-                                    </div>
-                                </td>
-                                <td class="table-cell">
-                                    <span class="status-badge"
-                                        :class="{ 'status-active': ad.is_active, 'status-inactive': !ad.is_active }">
-                                        {{ ad.is_active ? 'Active' : 'Inactive' }}
-                                    </span>
-                                </td>
-                                <td class="table-cell">
-                                    <div class="actions-cell">
-                                        <button @click="openEditModal(ad)" class="btn-action" title="Edit">
-                                            <span class="material-icons">{{ icons.edit }}</span>
-                                        </button>
-                                        <button @click="deleteAd(ad)" class="btn-action btn-danger" title="Delete">
-                                            <span class="material-icons">{{ icons.delete }}</span>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    </td>
+                                    <td class="table-cell">
+                                        <div class="placement-info">
+                                            <div class="placement-type">{{ getPlacementName(ad.placement) }}</div>
+                                            <div class="placement-targeting" v-if="ad.target_countries?.length">
+                                                {{ ad.target_countries.length }} countries
+                                            </div>
+                                            <div class="placement-targeting" v-else>
+                                                Global
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="table-cell">
+                                        <span class="promotion-status"
+                                            :class="ad.is_active ? 'promotion-status--active' : 'promotion-status--inactive'">
+                                            {{ ad.is_active ? 'Active' : 'Inactive' }}
+                                        </span>
+                                    </td>
+                                    <td class="table-cell">
+                                        <div class="promotion-actions">
+                                            <button @click="openEditModal(ad)" class="btn-icon btn-icon--edit"
+                                                title="Edit Promotion">
+                                                <span class="material-icons">{{ icons.edit }}</span>
+                                            </button>
+                                            <button @click="deleteAd(ad)" class="btn-icon btn-icon--delete"
+                                                title="Delete Promotion">
+                                                <span class="material-icons">{{ icons.delete }}</span>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Create Ad Modal -->
-        <div v-if="showCreateModal" class="modal-backdrop">
-            <div class="modal">
-                <div class="modal__header">
-                    <h3 class="modal__title">Create Promotion</h3>
-                    <button @click="showCreateModal = false" class="modal__close">
-                        <span class="material-icons">close</span>
-                    </button>
-                </div>
-                <form @submit.prevent="createAd">
-                    <div class="modal__body">
-                        <div class="form-grid">
-                            <div class="field">
-                                <label class="field__label">Promotion Name</label>
-                                <input v-model="createForm.name" type="text" class="field__input" required />
-                            </div>
-
-                            <div class="field">
-                                <label class="field__label">Format</label>
-                                <select v-model="createForm.format" class="field__input" required>
-                                    <option value="banner">Banner</option>
-                                    <option value="interstitial">Interstitial</option>
-                                </select>
-                            </div>
-
-                            <div class="field">
-                                <label class="field__label">Placement</label>
-                                <select v-model="createForm.placement" class="field__input" required>
-                                    <option value="redirect">Redirect Page</option>
-                                    <option value="header">Header</option>
-                                    <option value="footer">Footer</option>
-                                    <option value="left_side">Left Side</option>
-                                    <option value="right_side">Right Side</option>
-                                    <option value="before_counter">Before Counter</option>
-                                    <option value="under_counter">Under Counter</option>
-                                    <option value="above_button">Above Button</option>
-                                    <option value="under_button">Under Button</option>
-                                    <option value="popup">Popup</option>
-                                </select>
-                            </div>
-
-                            <div class="field field--full">
-                                <label class="field__label">Content</label>
-                                <textarea v-model="createForm.content" class="field__input" rows="3"
-                                    placeholder="HTML content or image URL"></textarea>
-                            </div>
-
-                            <div class="field field--full">
-                                <label class="field__label">Target URL</label>
-                                <input v-model="createForm.target_url" type="url" class="field__input"
-                                    placeholder="https://example.com" />
-                            </div>
-
-                            <div class="field" v-if="createForm.format === 'interstitial'">
-                                <label class="field__label">Countdown (seconds)</label>
-                                <input v-model.number="createForm.countdown_seconds" type="number" class="field__input"
-                                    min="1" max="60" />
-                            </div>
-
-                            <div class="field field--full">
-                                <label class="field__label">Target Countries (Optional)</label>
-                                <CountrySelector v-model="createForm.target_countries" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal__footer">
-                        <button type="button" @click="showCreateModal = false" class="btn-ghost">Cancel</button>
-                        <button type="submit" class="btn-primary" :disabled="createForm.processing">
-                            Create Promotion
+            <!-- Create Ad Modal -->
+            <div v-if="showCreateModal" class="modal-backdrop">
+                <div class="modal">
+                    <div class="modal__header">
+                        <h3 class="modal__title">Create Promotion</h3>
+                        <button @click="showCreateModal = false" class="modal__close">
+                            <span class="material-icons">close</span>
                         </button>
                     </div>
-                </form>
+                    <form @submit.prevent="createAd">
+                        <div class="modal__body">
+                            <div class="form-grid">
+                                <div class="field">
+                                    <label class="field__label">Promotion Name</label>
+                                    <input v-model="createForm.name" type="text" class="field__input" required />
+                                </div>
+
+                                <div class="field">
+                                    <label class="field__label">Format</label>
+                                    <select v-model="createForm.format" class="field__input" required>
+                                        <option value="banner">Banner</option>
+                                        <option value="interstitial">Interstitial</option>
+                                    </select>
+                                </div>
+
+                                <div class="field">
+                                    <label class="field__label">Placement</label>
+                                    <select v-model="createForm.placement" class="field__input" required>
+                                        <option value="redirect">Redirect Page</option>
+                                        <option value="header">Header</option>
+                                        <option value="footer">Footer</option>
+                                        <option value="left_side">Left Side</option>
+                                        <option value="right_side">Right Side</option>
+                                        <option value="before_counter">Before Counter</option>
+                                        <option value="under_counter">Under Counter</option>
+                                        <option value="above_button">Above Button</option>
+                                        <option value="under_button">Under Button</option>
+                                        <option value="popup">Popup</option>
+                                    </select>
+                                </div>
+
+                                <div class="field field--full">
+                                    <label class="field__label">Content</label>
+                                    <textarea v-model="createForm.content" class="field__input" rows="3"
+                                        placeholder="HTML content or image URL"></textarea>
+                                </div>
+
+                                <div class="field field--full">
+                                    <label class="field__label">Target URL</label>
+                                    <input v-model="createForm.target_url" type="url" class="field__input"
+                                        placeholder="https://example.com" />
+                                </div>
+
+                                <div class="field" v-if="createForm.format === 'interstitial'">
+                                    <label class="field__label">Countdown (seconds)</label>
+                                    <input v-model.number="createForm.countdown_seconds" type="number"
+                                        class="field__input" min="1" max="60" />
+                                </div>
+
+                                <div class="field field--full">
+                                    <label class="field__label">Target Countries (Optional)</label>
+                                    <CountrySelector v-model="createForm.target_countries" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal__footer">
+                            <button type="button" @click="showCreateModal = false" class="btn-ghost">Cancel</button>
+                            <button type="submit" class="btn-primary" :disabled="createForm.processing">
+                                Create Promotion
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
 
-        <!-- Edit Ad Modal -->
-        <div v-if="editingAd" class="modal-backdrop">
-            <div class="modal">
-                <div class="modal__header">
-                    <h3 class="modal__title">Edit Promotion</h3>
-                    <button @click="editingAd = null" class="modal__close">
-                        <span class="material-icons">close</span>
-                    </button>
-                </div>
-                <form @submit.prevent="updateAd">
-                    <div class="modal__body">
-                        <div class="form-grid">
-                            <div class="field">
-                                <label class="field__label">Promotion Name</label>
-                                <input v-model="editForm.name" type="text" class="field__input" required />
-                            </div>
-
-                            <div class="field">
-                                <label class="field__label">Content</label>
-                                <textarea v-model="editForm.content" class="field__input" rows="3"
-                                    placeholder="HTML content or image URL"></textarea>
-                            </div>
-
-                            <div class="field">
-                                <label class="field__label">Placement</label>
-                                <select v-model="editForm.placement" class="field__input" required>
-                                    <option value="redirect">Redirect Page</option>
-                                    <option value="header">Header</option>
-                                    <option value="footer">Footer</option>
-                                    <option value="left_side">Left Side</option>
-                                    <option value="right_side">Right Side</option>
-                                    <option value="before_counter">Before Counter</option>
-                                    <option value="under_counter">Under Counter</option>
-                                    <option value="above_button">Above Button</option>
-                                    <option value="under_button">Under Button</option>
-                                    <option value="popup">Popup</option>
-                                </select>
-                            </div>
-
-                            <div class="field">
-                                <label class="field__label">Target URL</label>
-                                <input v-model="editForm.target_url" type="url" class="field__input"
-                                    placeholder="https://example.com" />
-                            </div>
-
-                            <div class="field">
-                                <label class="field__label">Status</label>
-                                <label class="checkbox-label">
-                                    <input v-model="editForm.is_active" type="checkbox" />
-                                    <span>Active</span>
-                                </label>
-                            </div>
-
-                            <div class="field field--full">
-                                <label class="field__label">Target Countries (Optional)</label>
-                                <CountrySelector v-model="editForm.target_countries" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal__footer">
-                        <button type="button" @click="editingAd = null" class="btn-ghost">Cancel</button>
-                        <button type="submit" class="btn-primary" :disabled="editForm.processing">
-                            Update Promotion
+            <!-- Edit Ad Modal -->
+            <div v-if="editingAd" class="modal-backdrop">
+                <div class="modal">
+                    <div class="modal__header">
+                        <h3 class="modal__title">Edit Promotion</h3>
+                        <button @click="editingAd = null" class="modal__close">
+                            <span class="material-icons">close</span>
                         </button>
                     </div>
-                </form>
+                    <form @submit.prevent="updateAd">
+                        <div class="modal__body">
+                            <div class="form-grid">
+                                <div class="field">
+                                    <label class="field__label">Promotion Name</label>
+                                    <input v-model="editForm.name" type="text" class="field__input" required />
+                                </div>
+
+                                <div class="field">
+                                    <label class="field__label">Content</label>
+                                    <textarea v-model="editForm.content" class="field__input" rows="3"
+                                        placeholder="HTML content or image URL"></textarea>
+                                </div>
+
+                                <div class="field">
+                                    <label class="field__label">Placement</label>
+                                    <select v-model="editForm.placement" class="field__input" required>
+                                        <option value="redirect">Redirect Page</option>
+                                        <option value="header">Header</option>
+                                        <option value="footer">Footer</option>
+                                        <option value="left_side">Left Side</option>
+                                        <option value="right_side">Right Side</option>
+                                        <option value="before_counter">Before Counter</option>
+                                        <option value="under_counter">Under Counter</option>
+                                        <option value="above_button">Above Button</option>
+                                        <option value="under_button">Under Button</option>
+                                        <option value="popup">Popup</option>
+                                    </select>
+                                </div>
+
+                                <div class="field">
+                                    <label class="field__label">Target URL</label>
+                                    <input v-model="editForm.target_url" type="url" class="field__input"
+                                        placeholder="https://example.com" />
+                                </div>
+
+                                <div class="field">
+                                    <label class="field__label">Status</label>
+                                    <label class="checkbox-label">
+                                        <input v-model="editForm.is_active" type="checkbox" />
+                                        <span>Active</span>
+                                    </label>
+                                </div>
+
+                                <div class="field field--full">
+                                    <label class="field__label">Target Countries (Optional)</label>
+                                    <CountrySelector v-model="editForm.target_countries" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal__footer">
+                            <button type="button" @click="editingAd = null" class="btn-ghost">Cancel</button>
+                            <button type="submit" class="btn-primary" :disabled="editForm.processing">
+                                Update Promotion
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Bulk Delete Modal -->
+            <div v-if="showBulkDeleteModal" class="modal-overlay" @click="cancelBulkDelete">
+                <div class="modal-content" @click.stop>
+                    <div class="modal-header">
+                        <h3 class="modal-title">Confirm Bulk Delete</h3>
+                        <button @click="cancelBulkDelete" class="modal-close">
+                            <span class="material-icons">close</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="modal-message">
+                            Are you sure you want to delete <strong>{{ selectedAds.length }}</strong> promotion(s)?
+                        </p>
+                        <p class="modal-warning">This action cannot be undone.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button @click="cancelBulkDelete" class="btn btn-secondary">Cancel</button>
+                        <button @click="confirmBulkDelete" class="btn btn-danger">
+                            <span class="material-icons">{{ icons.delete }}</span>
+                            Delete {{ selectedAds.length }} Promotion(s)
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </AdminLayout>
@@ -506,29 +553,30 @@ const getPlacementName = (placement) => {
 }
 
 .btn-create {
-    background: var(--red);
-    color: white;
-    border: none;
-    padding: 6px 12px;
+    background: var(--primary) !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 16px;
     border-radius: var(--radius);
     font-family: var(--font-display);
-    font-size: 10px;
-    font-weight: 500;
+    font-size: 11px;
+    font-weight: 600;
     text-transform: uppercase;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .btn-create:hover {
-    background: #c0392b;
+    background: var(--primary-dark) !important;
 }
 
 .table-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    overflow: hidden;
-    width: 100%;
 }
 
 .no-data {
@@ -538,7 +586,210 @@ const getPlacementName = (placement) => {
     padding: 40px 0;
 }
 
-/* Table Styles */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.promotions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+}
+
+.promotions-table th {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+    white-space: nowrap;
+}
+
+.promotion-name-column {
+    width: 300px;
+    min-width: 250px;
+}
+
+.promotions-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.promotions-table tr:last-child td {
+    border-bottom: none;
+}
+
+.promotions-table tr:hover td {
+    background: var(--surface-2);
+}
+
+/* Promotion Cell Styles */
+.promotion-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.promotion-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.promotion-icon--active {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.promotion-icon--inactive {
+    background: #f3f4f6;
+    color: var(--muted);
+}
+
+.promotion-icon .material-icons {
+    font-size: 16px;
+}
+
+.promotion-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.promotion-name {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+}
+
+.promotion-meta {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-style: italic;
+    color: var(--muted);
+}
+
+/* Promotion Status */
+.promotion-status {
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: var(--radius);
+    display: inline-block;
+}
+
+.promotion-status--active {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.promotion-status--inactive {
+    background: #f3f4f6;
+    color: var(--muted);
+}
+
+/* Promotion Actions - Using same as tier-actions */
+.promotion-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--muted);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-icon:hover {
+    background: var(--surface-2);
+    color: var(--ink);
+}
+
+.btn-icon .material-icons {
+    font-size: 14px;
+}
+
+.btn-icon--edit {
+    background: #eff6ff;
+    color: #3b82f6;
+    border-color: #bfdbfe;
+}
+
+.btn-icon--edit:hover {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.btn-icon--delete {
+    background: #fef2f2;
+    color: var(--red);
+    border-color: #fecaca;
+}
+
+.btn-icon--delete:hover {
+    background: #fee2e2;
+}
+
+/* Empty State */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.empty-state__icon {
+    width: 48px;
+    height: 48px;
+    background: var(--surface-2);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    color: var(--muted);
+}
+
+.empty-state__title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 8px 0;
+}
+
+.empty-state__text {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--muted);
+    margin: 0;
+}
+
+/* Ads Table */
 .ads-table {
     width: 100%;
     border-collapse: collapse;
@@ -902,16 +1153,37 @@ const getPlacementName = (placement) => {
 }
 
 .checkbox-column {
-    width: 35px;
-    text-align: center;
+    width: 30px !important;
+    text-align: center !important;
+    padding: 8px 4px !important;
+}
+
+.table-header.checkbox-column {
+    width: 30px !important;
+    padding: 8px 4px !important;
+}
+
+.table-cell.checkbox-column {
+    width: 30px !important;
+    padding: 8px 4px !important;
 }
 
 .select-all-checkbox,
 .ad-checkbox {
-    width: 14px;
-    height: 14px;
+    width: 14px !important;
+    height: 14px !important;
     accent-color: var(--primary);
     cursor: pointer;
+}
+
+.checkbox-column input[type="checkbox"] {
+    width: 14px !important;
+    height: 14px !important;
+}
+
+.table-header input[type="checkbox"] {
+    width: 14px !important;
+    height: 14px !important;
 }
 
 .row-selected {
@@ -945,5 +1217,127 @@ const getPlacementName = (placement) => {
     .checkbox-column {
         width: 30px;
     }
+}
+
+/* Bulk Delete Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: var(--radius);
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.modal-title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: var(--muted);
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    background: var(--border);
+    color: var(--ink);
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-message {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    margin: 0 0 12px 0;
+    line-height: 1.5;
+}
+
+.modal-warning {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: #e74c3c;
+    margin: 0;
+    font-weight: 500;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-danger:hover {
+    background: #c82333;
 }
 </style>

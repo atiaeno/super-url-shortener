@@ -1,0 +1,898 @@
+ *,
+ *::before,
+ *::after {
+     box-sizing: border-box;
+     margin: 0;
+     padding: 0
+ }
+
+ :root {
+     --font-display: 'Oswald', sans-serif;
+     --font-body: 'Crimson Pro', serif;
+     --red: #c0392b;
+     --red-dark: #a93226;
+     --red-light: #f9ebea;
+     --ink: #1a1a1a;
+     --muted: #71717a;
+     --surface: #fff;
+     --bg: #fafafa;
+     --border: #e4e4e7;
+     --radius: 6px;
+ }
+
+ body {
+     font-family: var(--font-body);
+     background: var(--bg);
+     color: var(--ink);
+     min-height: 100vh;
+     display: block;
+     align-items: center;
+     justify-content: center;
+     padding: 24px;
+     -webkit-font-smoothing: antialiased
+ }
+
+ .shell {
+     width: 100%;
+     max-width: 520px;
+     text-align: center;
+     margin: auto;
+ }
+
+ .card {
+     background: var(--surface);
+     border: 1px solid var(--border);
+     border-radius: var(--radius);
+     padding: 48px 40px;
+     position: relative;
+     overflow: hidden
+ }
+
+ .card::before {
+     content: '';
+     position: absolute;
+     top: 0;
+     left: 0;
+     right: 0;
+     height: 3px;
+     background: linear-gradient(90deg, var(--red) 40%, var(--border) 40%)
+ }
+
+ .marker {
+     font-family: var(--font-display);
+     font-size: 10px;
+     font-weight: 700;
+     text-transform: uppercase;
+     letter-spacing: .08em;
+     color: var(--red);
+     display: block;
+     margin-bottom: 8px
+ }
+
+ .heading {
+     font-family: var(--font-display);
+     font-size: 22px;
+     font-weight: 600;
+     color: var(--ink);
+     margin: 0 0 8px
+ }
+
+ .sub {
+     font-family: var(--font-body);
+     font-size: 16px;
+     font-style: italic;
+     color: var(--muted);
+     margin: 0 0 28px;
+     line-height: 1.5
+ }
+
+ .icon-wrap {
+     width: 48px;
+     height: 48px;
+     margin: 0 auto 20px;
+     border-radius: 50%;
+     display: flex;
+     align-items: center;
+     justify-content: center
+ }
+
+ .icon-wrap svg {
+     width: 24px;
+     height: 24px;
+     stroke-width: 1.5
+ }
+
+ .icon-red {
+     background: var(--red-light)
+ }
+
+ .icon-red svg {
+     stroke: var(--red)
+ }
+
+ .icon-muted {
+     background: #f4f4f5
+ }
+
+ .icon-muted svg {
+     stroke: var(--muted)
+ }
+
+ .btn {
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+     gap: 8px;
+     padding: 11px 28px;
+     border-radius: var(--radius);
+     font-family: var(--font-display);
+     font-size: 12px;
+     font-weight: 600;
+     text-transform: uppercase;
+     letter-spacing: .04em;
+     cursor: pointer;
+     transition: all .2s;
+     text-decoration: none;
+     border: 1px solid transparent
+ }
+
+ .btn-primary {
+     background: var(--red);
+     border-color: var(--red);
+     color: var(--surface)
+ }
+
+ .btn-primary:hover {
+     background: var(--red-dark);
+     border-color: var(--red-dark)
+ }
+
+ .btn-primary:disabled {
+     opacity: .5;
+     pointer-events: none
+ }
+
+ .btn-ghost {
+     background: transparent;
+     border-color: var(--border);
+     color: var(--ink)
+ }
+
+ .btn-ghost:hover {
+     border-color: var(--ink)
+ }
+
+ .field-input {
+     width: 100%;
+     padding: 10px 14px;
+     border: 1px solid var(--border);
+     border-radius: var(--radius);
+     font-family: var(--font-body);
+     font-size: 16px;
+     color: var(--ink);
+     background: var(--surface);
+     transition: border-color .2s;
+     outline: none
+ }
+
+ .field-input:focus {
+     border-color: var(--red)
+ }
+
+ .field-input::placeholder {
+     color: #a1a1aa;
+     font-style: italic
+ }
+
+ .field-error {
+     font-family: var(--font-body);
+     font-size: 14px;
+     color: var(--red);
+     margin-top: 8px;
+     font-style: italic;
+     display: block;
+     text-align: left
+ }
+
+ .footer {
+     margin-top: 20px;
+     font-family: var(--font-body);
+     font-size: 14px;
+     color: var(--muted);
+     font-style: italic;
+     text-align: center;
+ }
+
+ /* Countdown ring */
+ .ring-wrap {
+     width: 80px;
+     height: 80px;
+     margin: 0 auto 20px;
+     position: relative
+ }
+
+ .ring-wrap svg {
+     width: 80px;
+     height: 80px;
+     transform: rotate(-90deg)
+ }
+
+ .ring-wrap circle {
+     fill: none;
+     stroke-width: 3
+ }
+
+ .ring-bg {
+     stroke: var(--border)
+ }
+
+ .ring-fg {
+     stroke: var(--red);
+     stroke-dasharray: 226;
+     stroke-dashoffset: 0;
+     stroke-linecap: round;
+     transition: stroke-dashoffset 1s linear
+ }
+
+ .ring-num {
+     position: absolute;
+     inset: 0;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-family: var(--font-display);
+     font-size: 28px;
+     font-weight: 700;
+     color: var(--ink)
+ }
+
+ /* Promotion container — raw HTML/JS renders here */
+ .promotion-wrap {
+     margin: 24px 0;
+     padding: 0;
+     background: var(--bg);
+     border: 1px solid var(--border);
+     border-radius: var(--radius);
+     text-align: left;
+     overflow: hidden;
+     word-break: break-word
+ }
+
+ .promotion-info-bar {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     padding: 8px 12px;
+     background: var(--surface);
+     border-bottom: 1px solid var(--border);
+     font-family: var(--font-display);
+     font-size: 9px;
+     text-transform: uppercase;
+     letter-spacing: .04em
+ }
+
+ .promotion-placement {
+     color: var(--red);
+     font-weight: 600
+ }
+
+ .promotion-format {
+     color: var(--muted)
+ }
+
+ .promotion-content {
+     padding: 24px
+ }
+
+ .promotion-content img {
+     width: 100%;
+     height: auto;
+     border-radius: 8px
+ }
+
+ /* Header Promotion */
+ .header-promotion {
+     width: 100%;
+     background: var(--surface);
+     border-bottom: 1px solid var(--border);
+     position: relative;
+     margin-bottom: 16px;
+     text-align: center;
+ }
+
+ .header-promotion .promotion-content {
+     cursor: pointer;
+     transition: opacity 0.2s
+ }
+
+ .header-promotion .promotion-content:hover {
+     opacity: 0.9
+ }
+
+ .header-promotion .promotion-content img {
+     width: 100%;
+     height: auto;
+     display: block
+ }
+
+ .header-promotion .promotion-info {
+     position: absolute;
+     top: 8px;
+     right: 8px;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     background: rgba(0, 0, 0, 0.7);
+     color: #fff;
+     padding: 4px 8px;
+     border-radius: 4px;
+     font-size: 10px;
+     font-family: var(--font-display);
+     text-transform: uppercase;
+     letter-spacing: 0.5px
+ }
+
+ .header-promotion .promotion-type {
+     color: #ff6b6b;
+     font-weight: 600
+ }
+
+ .header-promotion .promotion-close {
+     cursor: pointer;
+     opacity: 0.7;
+     transition: opacity 0.2s
+ }
+
+ .header-promotion .promotion-close:hover {
+     opacity: 1
+ }
+
+ /* Footer Promotion */
+ .footer-promotion {
+     width: 100%;
+     background: var(--surface);
+     border-top: 1px solid var(--border);
+     position: relative;
+     margin-top: 16px
+ }
+
+ .footer-promotion .promotion-content {
+     cursor: pointer;
+     transition: opacity 0.2s
+ }
+
+ .footer-promotion .promotion-content:hover {
+     opacity: 0.9
+ }
+
+ .footer-promotion .promotion-content img {
+     width: 100%;
+     height: auto;
+     display: block
+ }
+
+ .footer-promotion .promotion-info {
+     position: absolute;
+     top: 8px;
+     right: 8px;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     background: rgba(0, 0, 0, 0.7);
+     color: #fff;
+     padding: 4px 8px;
+     border-radius: 4px;
+     font-size: 10px;
+     font-family: var(--font-display);
+     text-transform: uppercase;
+     letter-spacing: 0.5px
+ }
+
+ .footer-promotion .promotion-type {
+     color: #4ecdc4;
+     font-weight: 600
+ }
+
+ .footer-promotion .promotion-close {
+     cursor: pointer;
+     opacity: 0.7;
+     transition: opacity 0.2s
+ }
+
+ .footer-promotion .promotion-close:hover {
+     opacity: 1
+ }
+
+ /* Left Side Promotion */
+ .left-side-promotion {
+     position: fixed;
+     top: 50%;
+     left: 20px;
+     transform: translateY(-50%);
+     width: 300px;
+     background: var(--surface);
+     border: 1px solid var(--border);
+     border-radius: var(--radius);
+     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+     z-index: 10
+ }
+
+ .left-side-promotion .promotion-content {
+     cursor: pointer;
+     transition: opacity 0.2s
+ }
+
+ .left-side-promotion .promotion-content:hover {
+     opacity: 0.9
+ }
+
+ .left-side-promotion .promotion-content img {
+     width: 100%;
+     height: auto;
+     display: block
+ }
+
+ .left-side-promotion .promotion-info {
+     position: absolute;
+     top: 8px;
+     right: 8px;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     background: rgba(0, 0, 0, 0.7);
+     color: #fff;
+     padding: 4px 8px;
+     border-radius: 4px;
+     font-size: 10px;
+     font-family: var(--font-display);
+     text-transform: uppercase;
+     letter-spacing: 0.5px
+ }
+
+ .left-side-promotion .promotion-type {
+     color: #f39c12;
+     font-weight: 600
+ }
+
+ .left-side-promotion .promotion-close {
+     cursor: pointer;
+     opacity: 0.7;
+     transition: opacity 0.2s
+ }
+
+ .left-side-promotion .promotion-close:hover {
+     opacity: 1
+ }
+
+ /* Right Side Promotion */
+ .right-side-promotion {
+     position: fixed;
+     top: 50%;
+     right: 20px;
+     transform: translateY(-50%);
+     width: 300px;
+     background: var(--surface);
+     border: 1px solid var(--border);
+     border-radius: var(--radius);
+     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+     z-index: 10
+ }
+
+ .right-side-promotion .promotion-content {
+     cursor: pointer;
+     transition: opacity 0.2s
+ }
+
+ .right-side-promotion .promotion-content:hover {
+     opacity: 0.9
+ }
+
+ .right-side-promotion .promotion-content img {
+     width: 100%;
+     height: auto;
+     display: block
+ }
+
+ .right-side-promotion .promotion-info {
+     position: absolute;
+     top: 8px;
+     right: 8px;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     background: rgba(0, 0, 0, 0.7);
+     color: #fff;
+     padding: 4px 8px;
+     border-radius: 4px;
+     font-size: 10px;
+     font-family: var(--font-display);
+     text-transform: uppercase;
+     letter-spacing: 0.5px
+ }
+
+ .right-side-promotion .promotion-type {
+     color: #9b59b6;
+     font-weight: 600
+ }
+
+ .right-side-promotion .promotion-close {
+     cursor: pointer;
+     opacity: 0.7;
+     transition: opacity 0.2s
+ }
+
+ .right-side-promotion .promotion-close:hover {
+     opacity: 1
+ }
+
+ /* Before Counter Promotion */
+ .before-counter-promotion {
+     margin: 0 0 24px 0;
+     padding: 16px;
+     background: var(--surface);
+     border: 1px solid var(--border);
+     border-radius: var(--radius);
+     text-align: center
+ }
+
+ .before-counter-promotion .promotion-content {
+     cursor: pointer;
+     transition: opacity 0.2s
+ }
+
+ .before-counter-promotion .promotion-content:hover {
+     opacity: 0.9
+ }
+
+ .before-counter-promotion .promotion-content img {
+     width: 100%;
+     height: auto;
+     max-width: 400px;
+     border-radius: 8px
+ }
+
+ .before-counter-promotion .promotion-info {
+     position: absolute;
+     top: 8px;
+     right: 8px;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     background: rgba(0, 0, 0, 0.7);
+     color: #fff;
+     padding: 4px 8px;
+     border-radius: 4px;
+     font-size: 10px;
+     font-family: var(--font-display);
+     text-transform: uppercase;
+     letter-spacing: 0.5px
+ }
+
+ .before-counter-promotion .promotion-type {
+     color: #e74c3c;
+     font-weight: 600
+ }
+
+ .before-counter-promotion .promotion-close {
+     cursor: pointer;
+     opacity: 0.7;
+     transition: opacity 0.2s
+ }
+
+ .before-counter-promotion .promotion-close:hover {
+     opacity: 1
+ }
+
+ /* Under Counter Promotion */
+ .under-counter-promotion {
+     margin: 24px 0;
+     padding: 16px;
+     background: var(--surface);
+     border: 1px solid var(--border);
+     border-radius: var(--radius);
+     text-align: center
+ }
+
+ .under-counter-promotion .promotion-content {
+     cursor: pointer;
+     transition: opacity 0.2s
+ }
+
+ .under-counter-promotion .promotion-content:hover {
+     opacity: 0.9
+ }
+
+ .under-counter-promotion .promotion-content img {
+     width: 100%;
+     height: auto;
+     max-width: 400px;
+     border-radius: 8px
+ }
+
+ .under-counter-promotion .promotion-info {
+     position: absolute;
+     top: 8px;
+     right: 8px;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     background: rgba(0, 0, 0, 0.7);
+     color: #fff;
+     padding: 4px 8px;
+     border-radius: 4px;
+     font-size: 10px;
+     font-family: var(--font-display);
+     text-transform: uppercase;
+     letter-spacing: 0.5px
+ }
+
+ .under-counter-promotion .promotion-type {
+     color: #3498db;
+     font-weight: 600
+ }
+
+ .under-counter-promotion .promotion-close {
+     cursor: pointer;
+     opacity: 0.7;
+     transition: opacity 0.2s
+ }
+
+ .under-counter-promotion .promotion-close:hover {
+     opacity: 1
+ }
+
+ /* Above Button Promotion */
+ .above-button-promotion {
+     margin: 24px 0 16px 0;
+     padding: 16px;
+     background: var(--surface);
+     border: 1px solid var(--border);
+     border-radius: var(--radius);
+     text-align: center
+ }
+
+ .above-button-promotion .promotion-content {
+     cursor: pointer;
+     transition: opacity 0.2s
+ }
+
+ .above-button-promotion .promotion-content:hover {
+     opacity: 0.9
+ }
+
+ .above-button-promotion .promotion-content img {
+     width: 100%;
+     height: auto;
+     max-width: 300px;
+     border-radius: 8px
+ }
+
+ .above-button-promotion .promotion-info {
+     position: absolute;
+     top: 8px;
+     right: 8px;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     background: rgba(0, 0, 0, 0.7);
+     color: #fff;
+     padding: 4px 8px;
+     border-radius: 4px;
+     font-size: 10px;
+     font-family: var(--font-display);
+     text-transform: uppercase;
+     letter-spacing: 0.5px
+ }
+
+ .above-button-promotion .promotion-type {
+     color: #2ecc71;
+     font-weight: 600
+ }
+
+ .above-button-promotion .promotion-close {
+     cursor: pointer;
+     opacity: 0.7;
+     transition: opacity 0.2s
+ }
+
+ .above-button-promotion .promotion-close:hover {
+     opacity: 1
+ }
+
+ /* Under Button Promotion */
+ .under-button-promotion {
+     margin: 16px 0 24px 0;
+     padding: 16px;
+     background: var(--surface);
+     border: 1px solid var(--border);
+     border-radius: var(--radius);
+     text-align: center
+ }
+
+ .under-button-promotion .promotion-content {
+     cursor: pointer;
+     transition: opacity 0.2s
+ }
+
+ .under-button-promotion .promotion-content:hover {
+     opacity: 0.9
+ }
+
+ .under-button-promotion .promotion-content img {
+     width: 100%;
+     height: auto;
+     max-width: 300px;
+     border-radius: 8px
+ }
+
+ .under-button-promotion .promotion-info {
+     position: absolute;
+     top: 8px;
+     right: 8px;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     background: rgba(0, 0, 0, 0.7);
+     color: #fff;
+     padding: 4px 8px;
+     border-radius: 4px;
+     font-size: 10px;
+     font-family: var(--font-display);
+     text-transform: uppercase;
+     letter-spacing: 0.5px
+ }
+
+ .under-button-promotion .promotion-type {
+     color: #f39c12;
+     font-weight: 600
+ }
+
+ .under-button-promotion .promotion-close {
+     cursor: pointer;
+     opacity: 0.7;
+     transition: opacity 0.2s
+ }
+
+ .under-button-promotion .promotion-close:hover {
+     opacity: 1
+ }
+
+ /* Popup Promotion */
+ .popup-overlay {
+     position: fixed;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background: rgba(0, 0, 0, 0.7);
+     z-index: 9999;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     opacity: 0;
+     visibility: hidden;
+     transition: opacity 0.3s, visibility 0.3s
+ }
+
+ .popup-overlay.active {
+     opacity: 1;
+     visibility: visible
+ }
+
+ .popup-promotion {
+     background: var(--surface);
+     border-radius: var(--radius);
+     max-width: 500px;
+     width: 90%;
+     max-height: 90vh;
+     overflow-y: auto;
+     position: relative
+ }
+
+ .popup-promotion .promotion-content {
+     cursor: pointer;
+     transition: opacity 0.2s
+ }
+
+ .popup-promotion .promotion-content:hover {
+     opacity: 0.9
+ }
+
+ .popup-promotion .promotion-content img {
+     width: 100%;
+     height: auto;
+     border-radius: 8px
+ }
+
+ .popup-promotion .promotion-info {
+     position: absolute;
+     top: 8px;
+     right: 8px;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     background: rgba(0, 0, 0, 0.7);
+     color: #fff;
+     padding: 4px 8px;
+     border-radius: 4px;
+     font-size: 10px;
+     font-family: var(--font-display);
+     text-transform: uppercase;
+     letter-spacing: 0.5px
+ }
+
+ .popup-promotion .promotion-type {
+     color: #e74c3c;
+     font-weight: 600
+ }
+
+ .popup-promotion .promotion-close {
+     cursor: pointer;
+     opacity: 0.7;
+     transition: opacity 0.2s
+ }
+
+ .popup-promotion .promotion-close:hover {
+     opacity: 1
+ }
+
+ /* Hide all close buttons - users cannot close ads */
+ .promotion-close {
+     display: none !important
+ }
+
+ .btn-skip {
+     opacity: .4;
+     pointer-events: none;
+     transition: opacity .3s
+ }
+
+ .btn-skip.active {
+     opacity: 1;
+     pointer-events: auto
+ }
+
+ .dest-link {
+     font-family: var(--font-body);
+     font-size: 14px;
+     color: var(--muted);
+     font-style: italic;
+     margin-top: 16px;
+     word-break: break-all
+ }
+
+ .dest-link a {
+     color: var(--muted);
+     text-decoration: underline
+ }
+
+ @media(max-width:560px) {
+     .card {
+         padding: 36px 24px
+     }
+
+     .heading {
+         font-size: 19px
+     }
+
+     .left-side-promotion,
+     .right-side-promotion {
+         position: static;
+         transform: none;
+         width: 100%;
+         max-width: 300px;
+         margin: 10px auto
+     }
+
+     .before-counter-promotion,
+     .under-counter-promotion,
+     .above-button-promotion,
+     .under-button-promotion {
+         margin: 16px 0
+     }
+
+     .popup-promotion {
+         width: 95%;
+         max-width: 400px
+     }
+ }

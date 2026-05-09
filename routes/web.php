@@ -171,9 +171,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::prefix('advertising')->name('advertising.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\AdController::class, 'index'])->name('index');
         Route::post('/', [\App\Http\Controllers\Admin\AdController::class, 'store'])->name('store');
-        Route::patch('{ad}', [\App\Http\Controllers\Admin\AdController::class, 'update'])->name('update');
-        Route::delete('{ad}', [\App\Http\Controllers\Admin\AdController::class, 'destroy'])->name('destroy');
         Route::delete('bulk-delete', [\App\Http\Controllers\Admin\AdController::class, 'bulkDelete'])->name('bulkDelete');
+        Route::patch('{ad}', [\App\Http\Controllers\Admin\AdController::class, 'update'])
+            ->name('update')
+            ->where('ad', '[0-9]+');
+        Route::delete('{ad}', [\App\Http\Controllers\Admin\AdController::class, 'destroy'])
+            ->name('destroy')
+            ->where('ad', '[0-9]+');
     });
 
     // Content Moderation (Stories 6.1 - 6.4)

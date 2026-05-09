@@ -194,10 +194,10 @@ const icons = {
 }
 
 .sidebar__logo-text {
-    font-family: var(--font-sidebar);
-    font-weight: 600;
-    font-size: 15px;
-    letter-spacing: 1.5px;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    
     text-transform: uppercase;
     color: var(--ink);
     white-space: nowrap;
@@ -407,10 +407,9 @@ const icons = {
 }
 
 .user-card__name {
-    font-family: var(--font-sidebar);
-    font-size: 13px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
     font-weight: 600;
-    letter-spacing: 0.3px;
     color: var(--ink);
     white-space: nowrap;
     overflow: hidden;
@@ -418,6 +417,7 @@ const icons = {
 }
 
 .user-card__email {
+    font-family: 'DM Sans', sans-serif;
     font-size: 11px;
     color: var(--muted);
     white-space: nowrap;
@@ -435,10 +435,11 @@ const icons = {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     color: var(--muted);
-    font-family: var(--font-sidebar);
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.3px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
     cursor: pointer;
     transition: var(--transition);
     width: 100%;
