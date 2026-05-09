@@ -11,6 +11,8 @@ const props = defineProps({
 
 const showCreateModal = ref(false);
 const editingAd = ref(null);
+const selectedAds = ref([]);
+const showBulkDeleteModal = ref(false);
 
 const icons = {
     advertising: 'campaign',

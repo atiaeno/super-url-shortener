@@ -175,6 +175,9 @@
         .popup-promotion .promotion-close{cursor:pointer;opacity:0.7;transition:opacity 0.2s}
         .popup-promotion .promotion-close:hover{opacity:1}
 
+        /* Hide all close buttons - users cannot close ads */
+        .promotion-close{display:none !important}
+
         .btn-skip{opacity:.4;pointer-events:none;transition:opacity .3s}
         .btn-skip.active{opacity:1;pointer-events:auto}
 
@@ -196,10 +199,6 @@
             <div class="promotion-content" onclick="window.open('{{ $headerPromotion->target_url }}', '_blank')">
                 {!! $headerPromotion->content !!}
             </div>
-            <div class="promotion-info">
-                <span class="promotion-type">Header Promotion</span>
-                <span class="promotion-close" onclick="this.closest('.header-promotion').style.display='none'">×</span>
-            </div>
         </div>
     @endif
     
@@ -209,10 +208,6 @@
             <div class="promotion-content" onclick="window.open('{{ $leftSidePromotion->target_url }}', '_blank')">
                 {!! $leftSidePromotion->content !!}
             </div>
-            <div class="promotion-info">
-                <span class="promotion-type">Left Promotion</span>
-                <span class="promotion-close" onclick="this.closest('.left-side-promotion').style.display='none'">×</span>
-            </div>
         </div>
     @endif
     
@@ -221,10 +216,6 @@
         <div class="right-side-promotion">
             <div class="promotion-content" onclick="window.open('{{ $rightSidePromotion->target_url }}', '_blank')">
                 {!! $rightSidePromotion->content !!}
-            </div>
-            <div class="promotion-info">
-                <span class="promotion-type">Right Promotion</span>
-                <span class="promotion-close" onclick="this.closest('.right-side-promotion').style.display='none'">×</span>
             </div>
         </div>
     @endif
@@ -257,13 +248,9 @@
             
             <!-- Before Counter Promotion -->
             @if($beforeCounterPromotion)
-                <div class="before-counter-promotion" style="position:relative;">
+                <div class="before-counter-promotion">
                     <div class="promotion-content" onclick="window.open('{{ $beforeCounterPromotion->target_url }}', '_blank')">
                         {!! $beforeCounterPromotion->content !!}
-                    </div>
-                    <div class="promotion-info">
-                        <span class="promotion-type">Before Counter</span>
-                        <span class="promotion-close" onclick="this.closest('.before-counter-promotion').style.display='none'">×</span>
                     </div>
                 </div>
             @endif
@@ -283,23 +270,15 @@
             @endif
             <!-- Under Counter Promotion -->
             @if($underCounterPromotion)
-                <div class="under-counter-promotion" style="position:relative;">
+                <div class="under-counter-promotion">
                     <div class="promotion-content" onclick="window.open('{{ $underCounterPromotion->target_url }}', '_blank')">
                         {!! $underCounterPromotion->content !!}
-                    </div>
-                    <div class="promotion-info">
-                        <span class="promotion-type">Under Counter</span>
-                        <span class="promotion-close" onclick="this.closest('.under-counter-promotion').style.display='none'">×</span>
                     </div>
                 </div>
             @endif
             
             @if(!empty($adContent))
                 <div class="promotion-wrap">
-                    <div class="promotion-info-bar">
-                        <span class="promotion-placement">{{ ucfirst($adPlacement ?? 'redirect') }} Promotion</span>
-                        <span class="promotion-format">{{ ucfirst($adFormat ?? 'unknown') }}</span>
-                    </div>
                     <div class="promotion-content">{!! $adContent !!}</div>
                 </div>
             @endif
@@ -311,13 +290,9 @@
             
             <!-- Above Button Promotion -->
             @if($aboveButtonPromotion)
-                <div class="above-button-promotion" style="position:relative;">
+                <div class="above-button-promotion">
                     <div class="promotion-content" onclick="window.open('{{ $aboveButtonPromotion->target_url }}', '_blank')">
                         {!! $aboveButtonPromotion->content !!}
-                    </div>
-                    <div class="promotion-info">
-                        <span class="promotion-type">Above Button</span>
-                        <span class="promotion-close" onclick="this.closest('.above-button-promotion').style.display='none'">×</span>
                     </div>
                 </div>
             @endif
@@ -326,13 +301,9 @@
             
             <!-- Under Button Promotion -->
             @if($underButtonPromotion)
-                <div class="under-button-promotion" style="position:relative;">
+                <div class="under-button-promotion">
                     <div class="promotion-content" onclick="window.open('{{ $underButtonPromotion->target_url }}', '_blank')">
                         {!! $underButtonPromotion->content !!}
-                    </div>
-                    <div class="promotion-info">
-                        <span class="promotion-type">Under Button</span>
-                        <span class="promotion-close" onclick="this.closest('.under-button-promotion').style.display='none'">×</span>
                     </div>
                 </div>
             @endif
@@ -366,10 +337,6 @@
         <div class="footer-promotion">
             <div class="promotion-content" onclick="window.open('{{ $footerPromotion->target_url }}', '_blank')">
                 {!! $footerPromotion->content !!}
-            </div>
-            <div class="promotion-info">
-                <span class="promotion-type">Footer Promotion</span>
-                <span class="promotion-close" onclick="this.closest('.footer-promotion').style.display='none'">×</span>
             </div>
         </div>
     @endif
@@ -452,12 +419,7 @@
                 
                 var infoDiv = document.createElement('div');
                 infoDiv.className = 'promotion-info';
-                infoDiv.innerHTML = '<span class="promotion-type">Popup</span><span class="promotion-close">×</span>';
-                
-                var closeButton = infoDiv.querySelector('.promotion-close');
-                closeButton.onclick = function() {
-                    overlay.classList.remove('active');
-                };
+                infoDiv.innerHTML = '<span class="promotion-type">Popup</span>';
                 
                 promotionContent.appendChild(contentDiv);
                 promotionContent.appendChild(infoDiv);
