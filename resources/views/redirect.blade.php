@@ -289,12 +289,12 @@
                                 window.open(popupData.target_url, '_blank');
                             };
 
-                            var infoDiv = document.createElement('div');
-                            infoDiv.className = 'promotion-info';
-                            infoDiv.innerHTML = '<span class="promotion-type">Popup</span>';
+                          //  var infoDiv = document.createElement('div');
+                          //  infoDiv.className = 'promotion-info';
+                         //   infoDiv.innerHTML = '<span class="promotion-type">Popup</span>';
 
                             promotionContent.appendChild(contentDiv);
-                            promotionContent.appendChild(infoDiv);
+                            //promotionContent.appendChild(infoDiv);
                             overlay.appendChild(promotionContent);
                             document.body.appendChild(overlay);
 
