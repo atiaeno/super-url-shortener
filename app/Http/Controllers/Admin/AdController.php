@@ -69,4 +69,16 @@ class AdController extends Controller
 
         return redirect()->back()->with('success', 'Ad deleted successfully.');
     }
+
+    public function bulkDelete(Request $request)
+    {
+        $validated = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:ads,id',
+        ]);
+
+        $deletedCount = Ad::whereIn('id', $validated['ids'])->delete();
+
+        return redirect()->back()->with('success', "{$deletedCount} ad(s) deleted successfully.");
+    }
 }

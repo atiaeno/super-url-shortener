@@ -87,6 +87,46 @@ const openEditModal = (ad) => {
     editForm.placement = ad.placement || 'redirect';
 };
 
+// Bulk selection functions
+const toggleAdSelection = (adId) => {
+    const index = selectedAds.value.indexOf(adId);
+    if (index > -1) {
+        selectedAds.value.splice(index, 1);
+    } else {
+        selectedAds.value.push(adId);
+    }
+};
+
+const toggleSelectAll = () => {
+    if (selectedAds.value.length === props.ads.length) {
+        selectedAds.value = [];
+    } else {
+        selectedAds.value = props.ads.map(ad => ad.id);
+    }
+};
+
+const isAdSelected = (adId) => {
+    return selectedAds.value.includes(adId);
+};
+
+const isAllSelected = () => {
+    return props.ads.length > 0 && selectedAds.value.length === props.ads.length;
+};
+
+const bulkDeleteAds = () => {
+    if (selectedAds.value.length === 0) return;
+
+    if (confirm(`Are you sure you want to delete ${selectedAds.value.length} promotion(s)?`)) {
+        router.delete(route('admin.advertising.bulkDelete'), {
+            data: { ids: selectedAds.value },
+            onSuccess: () => {
+                selectedAds.value = [];
+                showBulkDeleteModal.value = false;
+            }
+        });
+    }
+};
+
 
 const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -133,15 +173,25 @@ const getPlacementName = (placement) => {
                 <div class="section-header">
                     <span class="header-icon"><span class="material-icons">{{ icons.advertising }}</span></span>
                     <h3 class="section-title">All Promotions</h3>
-                    <button @click="showCreateModal = true" class="btn-create">
-                        <span class="material-icons btn-icon">{{ icons.plus }}</span>Create Promotion
-                    </button>
+                    <div class="header-actions">
+                        <button v-if="selectedAds.length > 0" @click="bulkDeleteAds" class="btn-bulk-delete">
+                            <span class="material-icons btn-icon">{{ icons.delete }}</span>Delete Selected ({{
+                                selectedAds.length }})
+                        </button>
+                        <button @click="showCreateModal = true" class="btn-create">
+                            <span class="material-icons btn-icon">{{ icons.plus }}</span>Create Promotion
+                        </button>
+                    </div>
                 </div>
                 <div class="table-card">
                     <div v-if="!ads?.length" class="no-data">No promotions created yet</div>
                     <table v-else class="promotions-table">
                         <thead>
                             <tr>
+                                <th class="table-header checkbox-column">
+                                    <input type="checkbox" :checked="isAllSelected()" @change="toggleSelectAll"
+                                        class="select-all-checkbox">
+                                </th>
                                 <th class="table-header">Promotion Name</th>
                                 <th class="table-header">Format</th>
                                 <th class="table-header">Placement</th>
@@ -150,7 +200,12 @@ const getPlacementName = (placement) => {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="ad in ads" :key="ad.id" class="table-row">
+                            <tr v-for="ad in ads" :key="ad.id" class="table-row"
+                                :class="{ 'row-selected': isAdSelected(ad.id) }">
+                                <td class="table-cell checkbox-column">
+                                    <input type="checkbox" :checked="isAdSelected(ad.id)"
+                                        @change="toggleAdSelection(ad.id)" class="ad-checkbox">
+                                </td>
                                 <td class="table-cell">
                                     <div class="ad-info">
                                         <div class="ad-name">{{ ad.name }}</div>
@@ -817,6 +872,56 @@ const getPlacementName = (placement) => {
     cursor: not-allowed;
 }
 
+/* Bulk Selection Styles */
+.header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btn-bulk-delete {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-bulk-delete:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+.checkbox-column {
+    width: 35px;
+    text-align: center;
+}
+
+.select-all-checkbox,
+.ad-checkbox {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+.row-selected {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+.row-selected:hover {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .stats-row {
@@ -829,6 +934,16 @@ const getPlacementName = (placement) => {
 
     .page-content {
         padding: 16px;
+    }
+
+    .header-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .checkbox-column {
+        width: 30px;
     }
 }
 </style>
