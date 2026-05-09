@@ -115,45 +115,78 @@ class PromotionSeeder extends Seeder
             ],
         ];
 
-        // Additional promotions for localhost testing
+        // Additional promotions for various placements
         $additionalPromotions = [
             [
-                'name' => 'Tech Conference 2024',
-                'format' => 'banner',
+                'name' => 'Tech Summit Banner',
+                'content' => '<img src="https://picsum.photos/seed/techsummit/728/90.jpg" alt="Tech Summit 2024">',
+                'target_url' => 'https://techsummit.example.com',
                 'placement' => 'header',
-                'content' => '<img src="https://images.unsplash.com/photo-1540575137025-b6d2ad8f2c14?w=728&h=90&fit=crop" alt="Tech Conference" style="width:100%;height:auto;border-radius:4px;">',
-                'target_url' => 'https://techconf.example',
-                'target_countries' => [],
-                'countdown_seconds' => 5,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Summer Sale',
-                'format' => 'interstitial',
-                'placement' => 'redirect',
-                'content' => '
-                    <div style="text-align:center;padding:20px;background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);color:white;border-radius:8px;">
-                        <h2 style="margin:0 0 15px 0;font-size:24px;">🛍️ Summer Sale!</h2>
-                        <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=200&fit=crop" alt="Shopping" style="width:100%;max-width:400px;height:auto;border-radius:8px;margin:15px 0;">
-                        <p style="margin:15px 0;font-size:18px;">Up to 60% Off Everything</p>
-                        <p style="margin:10px 0;font-size:14px;opacity:0.9;">Limited time offer!</p>
-                        <div style="margin:20px 0;">
-                            <a href="https://summersale.example" style="background:white;color:#4facfe;padding:12px 30px;text-decoration:none;border-radius:25px;font-weight:bold;display:inline-block;">Shop Now</a>
-                        </div>
-                    </div>',
-                'target_url' => 'https://summersale.example',
-                'target_countries' => [],
-                'countdown_seconds' => 7,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Cloud Services',
                 'format' => 'banner',
-                'placement' => 'sidebar',
-                'content' => '<img src="https://images.unsplash.com/photo-1518684079-3c81559ce8fe?w=300&h=250&fit=crop" alt="Cloud Services" style="width:100%;height:auto;border-radius:4px;">',
-                'target_url' => 'https://cloud.example',
-                'target_countries' => [],
-                'countdown_seconds' => 5,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Cloud Hosting Footer',
+                'content' => '<img src="https://picsum.photos/seed/cloudhost/728/90.jpg" alt="Cloud Hosting Services">',
+                'target_url' => 'https://cloudhost.example.com',
+                'placement' => 'footer',
+                'format' => 'banner',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Left Side Promotion',
+                'content' => '<img src="https://picsum.photos/seed/leftside/300/250.jpg" alt="Left Side Offer">',
+                'target_url' => 'https://leftside.example.com',
+                'placement' => 'left_side',
+                'format' => 'banner',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Right Side Promotion',
+                'content' => '<img src="https://picsum.photos/seed/rightside/300/250.jpg" alt="Right Side Offer">',
+                'target_url' => 'https://rightside.example.com',
+                'placement' => 'right_side',
+                'format' => 'banner',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Before Counter Ad',
+                'content' => '<img src="https://picsum.photos/seed/beforecounter/400/200.jpg" alt="Before Counter Promotion">',
+                'target_url' => 'https://beforecounter.example.com',
+                'placement' => 'before_counter',
+                'format' => 'banner',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Under Counter Ad',
+                'content' => '<img src="https://picsum.photos/seed/undercounter/400/200.jpg" alt="Under Counter Promotion">',
+                'target_url' => 'https://undercounter.example.com',
+                'placement' => 'under_counter',
+                'format' => 'banner',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Above Button Ad',
+                'content' => '<img src="https://picsum.photos/seed/abovebutton/300/150.jpg" alt="Above Button Promotion">',
+                'target_url' => 'https://abovebutton.example.com',
+                'placement' => 'above_button',
+                'format' => 'banner',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Under Button Ad',
+                'content' => '<img src="https://picsum.photos/seed/underbutton/300/150.jpg" alt="Under Button Promotion">',
+                'target_url' => 'https://underbutton.example.com',
+                'placement' => 'under_button',
+                'format' => 'banner',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Popup Promotion',
+                'content' => '<img src="https://picsum.photos/seed/popup/500/300.jpg" alt="Special Popup Offer">',
+                'target_url' => 'https://popup.example.com',
+                'placement' => 'popup',
+                'format' => 'banner',
                 'is_active' => true,
             ],
         ];

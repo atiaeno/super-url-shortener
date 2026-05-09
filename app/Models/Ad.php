@@ -76,4 +76,39 @@ class Ad extends Model
     {
         return $query->where('placement', 'sidebar');
     }
+
+    public function scopeLeftSide($query)
+    {
+        return $query->where('placement', 'left_side');
+    }
+
+    public function scopeRightSide($query)
+    {
+        return $query->where('placement', 'right_side');
+    }
+
+    public function scopeBeforeCounter($query)
+    {
+        return $query->where('placement', 'before_counter');
+    }
+
+    public function scopeUnderCounter($query)
+    {
+        return $query->where('placement', 'under_counter');
+    }
+
+    public function scopeAboveButton($query)
+    {
+        return $query->where('placement', 'above_button');
+    }
+
+    public function scopeUnderButton($query)
+    {
+        return $query->where('placement', 'under_button');
+    }
+
+    public function scopePopup($query)
+    {
+        return $query->where('placement', 'popup');
+    }
 }

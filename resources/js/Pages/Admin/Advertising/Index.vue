@@ -98,7 +98,13 @@ const getPlacementName = (placement) => {
         redirect: 'Redirect Page',
         header: 'Header',
         footer: 'Footer',
-        sidebar: 'Sidebar'
+        left_side: 'Left Side',
+        right_side: 'Right Side',
+        before_counter: 'Before Counter',
+        under_counter: 'Under Counter',
+        above_button: 'Above Button',
+        under_button: 'Under Button',
+        popup: 'Popup'
     };
     return placements[placement] || placement;
 };
@@ -220,7 +226,13 @@ const getPlacementName = (placement) => {
                                     <option value="redirect">Redirect Page</option>
                                     <option value="header">Header</option>
                                     <option value="footer">Footer</option>
-                                    <option value="sidebar">Sidebar</option>
+                                    <option value="left_side">Left Side</option>
+                                    <option value="right_side">Right Side</option>
+                                    <option value="before_counter">Before Counter</option>
+                                    <option value="under_counter">Under Counter</option>
+                                    <option value="above_button">Above Button</option>
+                                    <option value="under_button">Under Button</option>
+                                    <option value="popup">Popup</option>
                                 </select>
                             </div>
 
@@ -287,7 +299,13 @@ const getPlacementName = (placement) => {
                                     <option value="redirect">Redirect Page</option>
                                     <option value="header">Header</option>
                                     <option value="footer">Footer</option>
-                                    <option value="sidebar">Sidebar</option>
+                                    <option value="left_side">Left Side</option>
+                                    <option value="right_side">Right Side</option>
+                                    <option value="before_counter">Before Counter</option>
+                                    <option value="under_counter">Under Counter</option>
+                                    <option value="above_button">Above Button</option>
+                                    <option value="under_button">Under Button</option>
+                                    <option value="popup">Popup</option>
                                 </select>
                             </div>
 

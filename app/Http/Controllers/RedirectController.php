@@ -105,7 +105,13 @@ class RedirectController extends Controller
         // Get promotions for all placements
         $headerPromotion = Ad::active()->forPlacement('header')->inRandomOrder()->first();
         $footerPromotion = Ad::active()->forPlacement('footer')->inRandomOrder()->first();
-        $sidebarPromotion = Ad::active()->forPlacement('sidebar')->inRandomOrder()->first();
+        $leftSidePromotion = Ad::active()->forPlacement('left_side')->inRandomOrder()->first();
+        $rightSidePromotion = Ad::active()->forPlacement('right_side')->inRandomOrder()->first();
+        $beforeCounterPromotion = Ad::active()->forPlacement('before_counter')->inRandomOrder()->first();
+        $underCounterPromotion = Ad::active()->forPlacement('under_counter')->inRandomOrder()->first();
+        $aboveButtonPromotion = Ad::active()->forPlacement('above_button')->inRandomOrder()->first();
+        $underButtonPromotion = Ad::active()->forPlacement('under_button')->inRandomOrder()->first();
+        $popupPromotion = Ad::active()->forPlacement('popup')->inRandomOrder()->first();
 
         // Always show the redirect page — user sees destination, timer, and optional ad
         return response()->view('redirect', [
@@ -120,7 +126,13 @@ class RedirectController extends Controller
             'adFormat' => $ad ? $ad->format : null,
             'headerPromotion' => $headerPromotion,
             'footerPromotion' => $footerPromotion,
-            'sidebarPromotion' => $sidebarPromotion,
+            'leftSidePromotion' => $leftSidePromotion,
+            'rightSidePromotion' => $rightSidePromotion,
+            'beforeCounterPromotion' => $beforeCounterPromotion,
+            'underCounterPromotion' => $underCounterPromotion,
+            'aboveButtonPromotion' => $aboveButtonPromotion,
+            'underButtonPromotion' => $underButtonPromotion,
+            'popupPromotion' => $popupPromotion,
             'title' => $link->og_title ?? 'Redirecting…',
             'ogTitle' => $link->og_title,
             'ogDescription' => $link->og_description,
