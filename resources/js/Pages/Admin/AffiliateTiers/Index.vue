@@ -129,7 +129,7 @@ const submitRates = () => { ratesForm.post(route('admin.affiliate-tiers.country-
                 </div>
             </section>
 
-            <!-- Tiers List -->
+            <!-- Tiers Table -->
             <section class="table-section">
                 <div class="section-header">
                     <h2 class="section-header__title">All Tiers</h2>
@@ -144,46 +144,63 @@ const submitRates = () => { ratesForm.post(route('admin.affiliate-tiers.country-
                         <p class="empty-state__text">Create your first affiliate tier to get started.</p>
                     </div>
 
-                    <div v-else class="tiers-list">
-                        <div v-for="tier in tiers" :key="tier.id" class="tier-item">
-                            <div class="tier-row">
-                                <div class="tier-main">
-                                    <div class="tier-info">
+                    <table v-else class="tiers-table">
+                        <thead>
+                            <tr>
+                                <th class="table-header">Tier</th>
+                                <th class="table-header">Rate</th>
+                                <th class="table-header">Countries</th>
+                                <th class="table-header">Affiliates</th>
+                                <th class="table-header">Status</th>
+                                <th class="table-header">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="tier in tiers" :key="tier.id" class="table-row">
+                                <td class="table-cell">
+                                    <div class="tier-cell">
                                         <div class="tier-icon"
                                             :class="tier.is_active ? 'tier-icon--active' : 'tier-icon--inactive'">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                 v-html="icons.tiers" />
                                         </div>
                                         <div class="tier-details">
-                                            <span class="tier-name">{{ tier.name }}</span>
-                                            <span class="tier-meta">{{ tier.visit_threshold.toLocaleString() }}+ visits
-                                                required</span>
+                                            <div class="tier-name">{{ tier.name }}</div>
+                                            <div class="tier-meta">{{ tier.visit_threshold.toLocaleString() }}+ visits
+                                                required</div>
                                         </div>
                                     </div>
-                                    <div class="tier-rate">
-                                        <div class="rate-display">
-                                            <span class="rate-amount">${{ fRate(tier.view_rate).toFixed(2) }}</span>
-                                            <span class="rate-slash">/</span>
-                                            <span class="rate-views">{{ fmtMult(tier.view_multiplier) }} unique
-                                                views</span>
-                                        </div>
+                                </td>
+                                <td class="table-cell">
+                                    <div class="rate-display">
+                                        <span class="rate-amount">${{ fRate(tier.view_rate).toFixed(2) }}</span>
+                                        <span class="rate-slash">/</span>
+                                        <span class="rate-views">{{ fmtMult(tier.view_multiplier) }} unique
+                                            views</span>
                                     </div>
-                                </div>
-                                <div class="tier-side">
+                                </td>
+                                <td class="table-cell">
                                     <div class="tier-countries" v-if="tier.country_rates?.length">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                                             v-html="icons.globe" />
-                                        {{ tier.country_rates.length }} countries
+                                        {{ tier.country_rates.length }}
                                     </div>
+                                    <span v-else class="text-muted">Global</span>
+                                </td>
+                                <td class="table-cell">
                                     <div class="tier-affiliates">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                                             v-html="icons.users" />
                                         {{ tier.affiliates_count ?? 0 }}
                                     </div>
+                                </td>
+                                <td class="table-cell">
                                     <span class="tier-status"
                                         :class="tier.is_active ? 'tier-status--active' : 'tier-status--inactive'">
                                         {{ tier.is_active ? 'Active' : 'Inactive' }}
                                     </span>
+                                </td>
+                                <td class="table-cell">
                                     <div class="tier-actions">
                                         <button @click="openEditModal(tier)" class="btn-icon btn-icon--edit"
                                             title="Edit Tier">
@@ -196,10 +213,10 @@ const submitRates = () => { ratesForm.post(route('admin.affiliate-tiers.country-
                                                 v-html="icons.globe" />
                                         </button>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </section>
         </div>
@@ -628,48 +645,48 @@ const submitRates = () => { ratesForm.post(route('admin.affiliate-tiers.country-
     margin: 0;
 }
 
-.tiers-list {
-    display: flex;
-    flex-direction: column;
+/* ── Table Styles ─────────────────────────── */
+.tiers-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
 }
 
-.tier-item {
+.table-header {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border);
-}
-
-.tier-item:last-child {
-    border-bottom: none;
-}
-
-.tier-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    transition: background 200ms;
-}
-
-.tier-row:hover {
     background: var(--surface-2);
 }
 
-.tier-main {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    flex: 1;
+.table-row {
+    border-bottom: 1px solid var(--border);
+    transition: background 200ms;
 }
 
-.tier-info {
+.table-row:hover {
+    background: var(--surface-2);
+}
+
+.table-cell {
+    padding: 12px 16px;
+    vertical-align: middle;
+}
+
+.tier-cell {
     display: flex;
     align-items: center;
     gap: 12px;
-    min-width: 200px;
 }
 
 .tier-icon {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: var(--radius);
     display: flex;
     align-items: center;
@@ -688,8 +705,8 @@ const submitRates = () => { ratesForm.post(route('admin.affiliate-tiers.country-
 }
 
 .tier-icon svg {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
 }
 
 .tier-details {
@@ -699,7 +716,7 @@ const submitRates = () => { ratesForm.post(route('admin.affiliate-tiers.country-
 
 .tier-name {
     font-family: var(--font-display);
-    font-size: 15px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--ink);
     margin-bottom: 2px;
@@ -707,13 +724,9 @@ const submitRates = () => { ratesForm.post(route('admin.affiliate-tiers.country-
 
 .tier-meta {
     font-family: var(--font-body);
-    font-size: 12px;
+    font-size: 10px;
     font-style: italic;
     color: var(--muted);
-}
-
-.tier-rate {
-    flex: 1;
 }
 
 .rate-display {
@@ -724,27 +737,21 @@ const submitRates = () => { ratesForm.post(route('admin.affiliate-tiers.country-
 }
 
 .rate-amount {
-    font-size: 20px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--red);
 }
 
 .rate-slash {
-    font-size: 14px;
+    font-size: 11px;
     color: var(--muted);
     margin: 0 2px;
 }
 
 .rate-views {
-    font-size: 13px;
+    font-size: 10px;
     color: var(--ink-soft);
     font-weight: 500;
-}
-
-.tier-side {
-    display: flex;
-    align-items: center;
-    gap: 12px;
 }
 
 .tier-countries,
@@ -753,24 +760,32 @@ const submitRates = () => { ratesForm.post(route('admin.affiliate-tiers.country-
     align-items: center;
     gap: 4px;
     font-family: var(--font-display);
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 500;
     color: var(--ink-soft);
 }
 
 .tier-countries svg,
 .tier-affiliates svg {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
+}
+
+.text-muted {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-style: italic;
+    color: var(--muted);
 }
 
 .tier-status {
     font-family: var(--font-display);
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
     text-transform: uppercase;
-    padding: 4px 10px;
+    padding: 3px 8px;
     border-radius: var(--radius);
+    display: inline-block;
 }
 
 .tier-status--active {

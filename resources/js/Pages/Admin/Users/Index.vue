@@ -88,49 +88,25 @@ const deleteUser = () => {
     });
 };
 
-const statItems = computed(() => [
-    {
-        id: 'total',
-        label: 'Total Users',
-        value: props.stats?.total ?? 0,
-        roman: 'I.',
-        icon: `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
-    },
-    {
-        id: 'admins',
-        label: 'Admins',
-        value: props.stats?.admins ?? 0,
-        roman: 'II.',
-        icon: `<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>`,
-    },
-    {
-        id: 'banned',
-        label: 'Banned',
-        value: props.stats?.banned ?? 0,
-        roman: 'III.',
-        icon: `<circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>`,
-    },
-]);
-
 const icons = {
-    users: 'people',
-    search: 'search',
-    eye: 'visibility',
-    ban: 'block',
-    unban: 'check_circle',
-    trash: 'delete',
-    edit: 'edit',
-    plus: 'add',
-    admin: 'admin_panel_settings',
-    user: 'person',
-    affiliate: 'handshake',
+    users: `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
+    search: `<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>`,
+    eye: `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`,
+    ban: `<circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>`,
+    unban: `<polyline points="20 6 9 17 4 12"/>`,
+    trash: `<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>`,
+    edit: `<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>`,
+    plus: `<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>`,
+    admin: `<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>`,
+    user: `<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`,
+    affiliate: `<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>`,
 };
 
-const statCards = computed(() => [
-    { label: 'Total Users', value: props.stats?.total ?? 0 },
-    { label: 'Admins', value: props.stats?.admins ?? 0 },
-    { label: 'Banned', value: props.stats?.banned ?? 0 },
-    { label: 'Affiliates', value: props.stats?.affiliates ?? 0 },
+const statItems = computed(() => [
+    { id: 'total', label: 'Total Users', value: props.stats?.total ?? 0, roman: 'I.', icon: icons.users, color: 'blue' },
+    { id: 'admins', label: 'Admins', value: props.stats?.admins ?? 0, roman: 'II.', icon: icons.admin, color: 'red' },
+    { id: 'banned', label: 'Banned', value: props.stats?.banned ?? 0, roman: 'III.', icon: icons.ban, color: 'yellow' },
+    { id: 'affiliates', label: 'Affiliates', value: props.stats?.affiliates ?? 0, roman: 'IV.', icon: icons.affiliate, color: 'green' },
 ]);
 
 const roleColors = {
@@ -140,9 +116,9 @@ const roleColors = {
 };
 
 const banTypeColors = {
-    none: 'status--active',
-    soft: 'status--soft',
-    hard: 'status--hard',
+    none: 'status-badge--active',
+    soft: 'status-badge--soft',
+    hard: 'status-badge--hard',
 };
 
 const formatDate = (dateStr) => {
@@ -154,24 +130,54 @@ const formatDate = (dateStr) => {
 
     <Head title="User Management" />
     <AdminLayout>
-        <template #header><span class="material-icons">{{ icons.users }}</span> User Management</template>
+        <template #header-icon>
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </template>
+        <template #header>User Management</template>
 
-        <div class="page-content">
+        <div class="users-page">
 
-            <!-- Stats Row -->
-            <div class="stats-row">
-                <div v-for="stat in statCards" :key="stat.label" class="stat-box">
-                    <span class="stat-value">{{ stat.value.toLocaleString() }}</span>
-                    <span class="stat-label">{{ stat.label }}</span>
+            <!-- Page Header -->
+            <header class="page-header">
+                <div class="page-header__left">
+                    <span class="page-header__marker">User Administration</span>
+                    <h1 class="page-header__title">All Users</h1>
+                    <p class="page-header__sub">Manage user accounts, roles, and permissions.</p>
                 </div>
-            </div>
+            </header>
 
-            <!-- Filters -->
-            <div class="filters-section">
+            <!-- Divider -->
+            <div class="section-rule"></div>
+
+            <!-- Stats Grid -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div v-for="item in statItems" :key="item.id" class="stat-card" :class="`stat-card--${item.color}`">
+                        <div class="stat-card__top">
+                            <span class="stat-card__roman">{{ item.roman }}</span>
+                            <div class="stat-card__icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    v-html="item.icon" />
+                            </div>
+                        </div>
+                        <div class="stat-card__value">{{ item.value }}</div>
+                        <div class="stat-card__label">{{ item.label }}</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filters Section -->
+            <section class="filters-section">
                 <div class="filters-grid">
                     <div class="filter-field">
                         <span class="filter-field__icon">
-                            <span class="material-icons">{{ icons.search }}</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="11" cy="11" r="8" />
+                                <path d="m21 21-4.35-4.35" />
+                            </svg>
                         </span>
                         <input v-model="search" type="text" class="filter-field__input" placeholder="Search users..." />
                     </div>
@@ -188,79 +194,130 @@ const formatDate = (dateStr) => {
                         <option value="hard">Hard Banned</option>
                     </select>
                     <Link :href="route('admin.users.create')" class="btn-create">
-                        <span class="material-icons btn-icon">{{ icons.plus }}</span>Create User
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        Create User
                     </Link>
                 </div>
-            </div>
+            </section>
 
-            <!-- Charts Grid -->
-            <div class="charts-grid">
-
-                <!-- Users List -->
-                <div class="chart-card chart-card--full">
-                    <div class="chart-header">
-                        <span class="header-icon"><span class="material-icons">{{ icons.users }}</span></span>
-                        <h3>User Directory</h3>
-                        <div class="section-info">{{ users.total }} total users</div>
+            <!-- Users Table -->
+            <section class="table-section">
+                <div class="table-card">
+                    <div v-if="!users.data?.length" class="empty-state">
+                        <div class="empty-state__icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                v-html="icons.users" />
+                        </div>
+                        <p class="empty-state__title">No users found</p>
+                        <p class="empty-state__text">There are no users matching the current filters.</p>
                     </div>
-                    <div class="chart-body">
-                        <div v-if="!users.data?.length" class="no-data">No users found</div>
-                        <div v-else class="data-list">
-                            <div v-for="user in users.data" :key="user.id" class="data-row">
-                                <div class="data-label">
-                                    <div class="user-info">
-                                        <span class="user-name">{{ user.name }}</span>
-                                        <span class="user-email">{{ user.email }}</span>
-                                    </div>
-                                    <span class="data-format">{{ formatDate(user.created_at) }}</span>
-                                </div>
-                                <div class="data-value">
-                                    <select v-model="user.role" @change="updateRole(user, $event.target.value)"
-                                        :disabled="user.id === $page.props.auth.user.id" class="role-select"
-                                        :class="roleColors[user.role]">
-                                        <option value="admin">Admin</option>
-                                        <option value="user">User</option>
-                                        <option value="affiliate">Affiliate</option>
-                                    </select>
-                                    <span class="status-badge" :class="banTypeColors[user.ban_type || 'none']">
-                                        {{ getBanStatusText(user.ban_type) }}
-                                    </span>
-                                    <div class="actions-cell">
-                                        <Link :href="route('admin.users.show', user.id)" class="btn-action">
-                                            <span class="material-icons">{{ icons.eye }}</span>
-                                        </Link>
-                                        <Link :href="route('admin.users.edit', user.id)" class="btn-action">
-                                            <span class="material-icons">{{ icons.edit }}</span>
-                                        </Link>
-                                        <button v-if="user.ban_type !== 'none'" @click="unbanUser(user)"
-                                            class="btn-action">
-                                            <span class="material-icons">{{ icons.unban }}</span>
-                                        </button>
-                                        <button v-else @click="showBanModal = true; banningUser = user"
-                                            class="btn-action btn-danger">
-                                            <span class="material-icons">{{ icons.ban }}</span>
-                                        </button>
-                                        <button @click="showDeleteModal = true; deletingUser = user"
-                                            class="btn-action btn-danger">
-                                            <span class="material-icons">{{ icons.trash }}</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+
+                    <div v-else class="table-wrapper">
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th class="col-center">Status</th>
+                                    <th class="col-center">Created</th>
+                                    <th class="col-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="user in users.data" :key="user.id">
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-avatar">
+                                                {{ user.name?.charAt(0)?.toUpperCase() || '?' }}
+                                            </div>
+                                            <div class="user-info">
+                                                <div class="user-name">{{ user.name }}</div>
+                                                <div class="user-email">{{ user.email }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <select v-model="user.role" @change="updateRole(user, $event.target.value)"
+                                            :disabled="user.id === $page.props.auth.user.id" class="role-select"
+                                            :class="roleColors[user.role]">
+                                            <option value="admin">Admin</option>
+                                            <option value="user">User</option>
+                                            <option value="affiliate">Affiliate</option>
+                                        </select>
+                                    </td>
+                                    <td class="col-center">
+                                        <span class="status-badge" :class="banTypeColors[user.ban_type || 'none']">
+                                            {{ getBanStatusText(user.ban_type) }}
+                                        </span>
+                                    </td>
+                                    <td class="col-center">
+                                        <span class="date-cell">{{ formatDate(user.created_at) }}</span>
+                                    </td>
+                                    <td class="col-center">
+                                        <div class="actions-cell">
+                                            <Link :href="route('admin.users.show', user.id)"
+                                                class="btn-icon btn-icon--view" title="View User">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                                    <circle cx="12" cy="12" r="3" />
+                                                </svg>
+                                            </Link>
+                                            <Link :href="route('admin.users.edit', user.id)"
+                                                class="btn-icon btn-icon--edit" title="Edit User">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2">
+                                                    <path
+                                                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                                </svg>
+                                            </Link>
+                                            <button v-if="user.ban_type !== 'none'" @click="unbanUser(user)"
+                                                class="btn-icon btn-icon--unban" title="Unban User">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2">
+                                                    <polyline points="20 6 9 17 4 12" />
+                                                </svg>
+                                            </button>
+                                            <button v-else @click="showBanModal = true; banningUser = user"
+                                                class="btn-icon btn-icon--ban" title="Ban User">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10" />
+                                                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                                                </svg>
+                                            </button>
+                                            <button @click="showDeleteModal = true; deletingUser = user"
+                                                class="btn-icon btn-icon--delete" title="Delete User">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2">
+                                                    <polyline points="3 6 5 6 21 6" />
+                                                    <path
+                                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Pagination -->
+                        <div v-if="users.last_page > 1" class="pagination">
+                            <template v-for="(link, i) in users.links" :key="i">
+                                <span v-if="!link.url" class="pagination__link pagination__link--disabled"
+                                    v-html="link.label" />
+                                <Link v-else :href="link.url" v-html="link.label" class="pagination__link"
+                                    :class="{ 'pagination__link--active': link.active }" />
+                            </template>
                         </div>
                     </div>
                 </div>
+            </section>
 
-            </div>
-
-            <!-- Pagination -->
-            <div v-if="users.last_page > 1" class="pagination">
-                <template v-for="(link, i) in users.links" :key="i">
-                    <span v-if="!link.url" class="pagination__link pagination__link--disabled" v-html="link.label" />
-                    <Link v-else :href="link.url" v-html="link.label" class="pagination__link"
-                        :class="{ 'pagination__link--active': link.active }" />
-                </template>
-            </div>
         </div>
 
         <!-- Ban Modal -->
@@ -333,62 +390,172 @@ const formatDate = (dateStr) => {
     </AdminLayout>
 </template>
 
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
 
+/* Global CSS Variables */
 :root {
     --font-display: 'Oswald', sans-serif;
-    --red: #e74c3c;
-    --ink: #000000;
-    --muted: #333333;
-    --border: #e5e5e5;
+    --font-body: 'Crimson Pro', serif;
+    --primary: #e74c3c;
+    --primary-dark: #c0392b;
+    --ink: #1a1a1a;
+    --ink-soft: #444;
+    --muted: #888;
+    --border: #e8e5e0;
     --surface: #fff;
+    --surface-2: #f5f3ef;
     --radius: 4px;
+    --transition: all 0.2s ease;
+}
+</style>
+
+<style scoped>
+/* ── Page Header ──────────────────────────── */
+.page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 20px;
 }
 
-.page-content {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 24px;
+.page-header__marker {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--primary);
+    display: block;
+    margin-bottom: 8px;
 }
 
-/* Stats Row */
-.stats-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
+.page-header__title {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 4px;
+}
+
+.page-header__sub {
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-style: italic;
+    color: var(--muted);
+    margin: 0;
+}
+
+/* ── Section Rule ─────────────────────────── */
+.section-rule {
+    height: 1px;
+    background: linear-gradient(90deg, var(--primary) 60px, var(--border) 60px);
+    margin-bottom: 28px;
+}
+
+/* ── Stats Grid ───────────────────────────── */
+.stats-section {
     margin-bottom: 24px;
 }
 
-.stat-box {
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stat-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 20px;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.2s ease;
 }
 
-.stat-value {
-    font-family: var(--font-display);
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--ink);
-    display: block;
-    margin-bottom: 4px;
+.stat-card--blue {
+    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
 }
 
-.stat-label {
+.stat-card--red {
+    background: linear-gradient(135deg, #fef2f2 0%, #fff 100%);
+}
+
+.stat-card--yellow {
+    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+}
+
+.stat-card--green {
+    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+}
+
+.stat-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.stat-card__roman {
     font-family: var(--font-display);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.stat-card__icon {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-card--blue .stat-card__icon {
+    background: var(--surface-2);
     color: var(--muted);
 }
 
-/* Filters Section */
+.stat-card--red .stat-card__icon {
+    background: #fee2e2;
+    color: var(--primary);
+}
+
+.stat-card--yellow .stat-card__icon {
+    background: var(--surface-2);
+    color: var(--muted);
+}
+
+.stat-card--green .stat-card__icon {
+    background: var(--surface-2);
+    color: var(--muted);
+}
+
+.stat-card__icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+.stat-card__value {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+}
+
+.stat-card__label {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-style: italic;
+    color: var(--muted);
+}
+
+/* ── Filters Section ─────────────────────── */
 .filters-section {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .filters-grid {
@@ -416,6 +583,11 @@ const formatDate = (dateStr) => {
     justify-content: center;
 }
 
+.filter-field__icon svg {
+    width: 100%;
+    height: 100%;
+}
+
 .filter-field__input {
     width: 100%;
     padding: 8px 12px 8px 40px;
@@ -423,14 +595,14 @@ const formatDate = (dateStr) => {
     border-radius: var(--radius);
     background: var(--surface);
     color: var(--ink);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
+    font-family: var(--font-body);
+    font-size: 14px;
     transition: all 0.2s;
 }
 
 .filter-field__input:focus {
     outline: none;
-    border-color: var(--red);
+    border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
 }
 
@@ -450,13 +622,13 @@ const formatDate = (dateStr) => {
 
 .filter-select:focus {
     outline: none;
-    border-color: var(--red);
+    border-color: var(--primary);
 }
 
 .btn-create {
-    background: var(--red);
-    color: white;
-    border: none;
+    background: var(--primary) !important;
+    color: white !important;
+    border: none !important;
     padding: 8px 16px;
     border-radius: var(--radius);
     font-family: var(--font-display);
@@ -465,110 +637,133 @@ const formatDate = (dateStr) => {
     text-transform: uppercase;
     cursor: pointer;
     transition: background 0.2s;
-    text-decoration: none;
+    text-decoration: none !important;
     display: inline-flex;
     align-items: center;
+    gap: 6px;
 }
 
 .btn-create:hover {
-    background: #c0392b;
+    background: var(--primary-dark) !important;
 }
 
-/* Charts Grid */
-.charts-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+.btn-icon {
+    width: 16px;
+    height: 16px;
 }
 
-.chart-card--full {
-    grid-column: 1 / -1;
+/* ── Table Section ───────────────────────── */
+.table-section {
+    margin-bottom: 32px;
 }
 
-.chart-card {
+.table-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
 }
 
-.chart-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
 }
 
-.header-icon {
-    display: flex;
-    align-items: center;
-    color: var(--red);
+.empty-state__icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    color: var(--muted);
+    opacity: 0.5;
 }
 
-.chart-header h3 {
+.empty-state__icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.empty-state__title {
     font-family: var(--font-display);
-    font-size: 12px;
+    font-size: 15px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
     color: var(--ink);
-    margin: 0;
-    flex: 1;
+    margin: 0 0 8px;
 }
 
-.section-info {
+.empty-state__text {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-style: italic;
+    color: var(--muted);
+    margin: 0;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-body);
+    font-size: 14px;
+}
+
+.users-table th {
     font-family: var(--font-display);
     font-size: 10px;
-    color: var(--muted);
+    font-weight: 600;
     text-transform: uppercase;
-}
-
-.chart-body {
-    padding: 20px;
-    min-height: 180px;
-}
-
-.no-data {
-    text-align: center;
+    letter-spacing: 0.5px;
     color: var(--muted);
-    font-size: 14px;
-    padding: 40px 0;
+    padding: 14px 16px;
+    text-align: left;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
 }
 
-/* Data List */
-.data-list {
+.users-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.users-table tr:last-child td {
+    border-bottom: none;
+}
+
+.users-table tr:hover td {
+    background: var(--surface-2);
+}
+
+.col-center {
+    text-align: center;
+}
+
+.user-cell {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 12px;
 }
 
-.data-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-}
-
-.data-row:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-}
-
-.data-label {
-    font-size: 12px;
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--surface-2);
     color: var(--ink);
-    font-family: 'DM Sans', sans-serif;
+    border-radius: var(--radius);
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
 }
 
 .user-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    flex: 1;
 }
 
 .user-name {
@@ -576,24 +771,12 @@ const formatDate = (dateStr) => {
     font-weight: 600;
     font-size: 13px;
     color: var(--ink);
+    margin-bottom: 2px;
 }
 
 .user-email {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--muted);
-}
-
-.data-format {
-    font-size: 10px;
-    color: var(--muted);
-    font-family: var(--font-display);
-    text-transform: uppercase;
-}
-
-.data-value {
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 
 /* Role Select */
@@ -615,7 +798,7 @@ const formatDate = (dateStr) => {
 
 .role-select:focus {
     outline: none;
-    border-color: var(--red);
+    border-color: var(--primary);
 }
 
 .role-select:disabled {
@@ -625,110 +808,187 @@ const formatDate = (dateStr) => {
 
 .role--admin {
     background-color: #fef2f2;
-    color: var(--red);
+    color: var(--primary);
     border-color: #fecaca;
 }
 
 .role--user {
-    background-color: #eff6ff;
-    color: #3b82f6;
-    border-color: #bfdbfe;
+    background-color: var(--surface-2);
+    color: var(--ink);
+    border-color: var(--border);
 }
 
 .role--affiliate {
-    background-color: #f0fdf4;
-    color: #16a34a;
-    border-color: #bbf7d0;
+    background-color: var(--surface-2);
+    color: var(--ink);
+    border-color: var(--border);
 }
 
 /* Status Badge */
 .status-badge {
     font-family: var(--font-display);
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
-    padding: 2px 6px;
-    border-radius: 2px;
-    letter-spacing: 0.5px;
+    padding: 5px 10px;
+    border-radius: var(--radius);
+    white-space: nowrap;
 }
 
-.status--active {
-    background: #d4edda;
-    color: #155724;
+.status-badge--active {
+    background: var(--surface-2);
+    color: var(--ink);
 }
 
-.status--soft {
-    background: #fff3cd;
-    color: #856404;
+.status-badge--soft {
+    background: #fef3c7;
+    color: #92400e;
 }
 
-.status--hard {
-    background: #f8d7da;
-    color: #721c24;
+.status-badge--hard {
+    background: #fee2e2;
+    color: var(--primary);
 }
 
-/* Actions */
+.date-cell {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-style: italic;
+    color: var(--muted);
+}
+
 .actions-cell {
     display: flex;
-    gap: 4px;
-}
-
-.btn-action {
-    background: transparent;
-    border: none;
-    padding: 4px;
-    border-radius: var(--radius);
-    font-size: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
+    gap: 6px;
     justify-content: center;
-    width: 24px;
-    height: 24px;
-}
-
-.btn-action:hover {
-    background: transparent;
-    opacity: 0.7;
-}
-
-.btn-danger {
-    color: var(--red);
-}
-
-.btn-danger:hover {
-    color: #c0392b;
-}
-
-/* Material Icons */
-.material-icons {
-    font-family: 'Material Icons';
-    font-weight: normal;
-    font-style: normal;
-    font-size: 18px;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    display: inline-block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -webkit-font-feature-settings: 'liga';
-    -webkit-font-smoothing: antialiased;
-}
-
-.btn-action .material-icons {
-    font-size: 16px;
 }
 
 .btn-icon {
-    font-size: 16px;
-    margin-right: 6px;
-    vertical-align: middle;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
 }
 
-/* Modal Styles */
+.btn-icon:hover {
+    background: var(--surface-2);
+    color: var(--ink);
+}
+
+.btn-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+.btn-icon--view {
+    background: var(--surface-2);
+    color: var(--ink-soft);
+    border-color: var(--border);
+}
+
+.btn-icon--view:hover {
+    background: var(--border);
+    color: var(--ink);
+}
+
+.btn-icon--edit {
+    background: var(--surface-2);
+    color: var(--ink-soft);
+    border-color: var(--border);
+}
+
+.btn-icon--edit:hover {
+    background: var(--border);
+    color: var(--ink);
+}
+
+.btn-icon--unban {
+    background: var(--surface-2);
+    color: var(--ink-soft);
+    border-color: var(--border);
+}
+
+.btn-icon--unban:hover {
+    background: var(--border);
+    color: var(--ink);
+}
+
+.btn-icon--ban {
+    background: #fef2f2;
+    color: var(--primary);
+    border-color: #fecaca;
+}
+
+.btn-icon--ban:hover {
+    background: #fee2e2;
+    color: var(--primary-dark);
+}
+
+.btn-icon--delete {
+    background: #fef2f2;
+    color: var(--primary);
+    border-color: #fecaca;
+}
+
+.btn-icon--delete:hover {
+    background: #fee2e2;
+    color: var(--primary-dark);
+}
+
+/* ── Pagination ────────────────────────── */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    background: var(--surface-2);
+}
+
+.pagination__link {
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.pagination__link:hover {
+    background: var(--surface-2);
+    color: var(--ink);
+}
+
+.pagination__link--active {
+    background: var(--primary);
+    color: var(--surface);
+    border-color: var(--primary);
+}
+
+.pagination__link--disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--surface-2);
+}
+
+/* ── Modal Styles ──────────────────────── */
 .modal-backdrop {
     position: fixed;
     top: 0;
@@ -798,10 +1058,11 @@ const formatDate = (dateStr) => {
 .modal__text {
     margin-bottom: 20px;
     font-size: 14px;
+    font-family: var(--font-body);
 }
 
 .modal__warning {
-    color: var(--red);
+    color: var(--primary);
     font-size: 13px;
     margin-top: 10px;
 }
@@ -828,14 +1089,14 @@ const formatDate = (dateStr) => {
     border-radius: var(--radius);
     background: var(--surface);
     color: var(--ink);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
+    font-family: var(--font-body);
+    font-size: 14px;
     transition: all 0.2s;
 }
 
 .field__input:focus {
     outline: none;
-    border-color: var(--red);
+    border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
 }
 
@@ -862,7 +1123,7 @@ const formatDate = (dateStr) => {
 }
 
 .btn-danger {
-    background: var(--red);
+    background: var(--primary);
     color: white;
     border: none;
     padding: 6px 12px;
@@ -875,7 +1136,7 @@ const formatDate = (dateStr) => {
 }
 
 .btn-danger:hover {
-    background: #c0392b;
+    background: var(--primary-dark);
 }
 
 .btn-danger:disabled {
@@ -883,49 +1144,20 @@ const formatDate = (dateStr) => {
     cursor: not-allowed;
 }
 
-/* Pagination */
-.pagination {
-    display: flex;
-    justify-content: center;
-    gap: 4px;
-    margin-top: 24px;
-}
-
-.pagination__link {
-    padding: 6px 10px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--ink);
-    font-family: var(--font-display);
-    font-size: 10px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s;
-}
-
-.pagination__link:hover {
-    background: var(--surface-2);
-}
-
-.pagination__link--active {
-    background: var(--red);
-    color: white;
-    border-color: var(--red);
-}
-
-.pagination__link--disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    background: var(--surface-2);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .stats-row {
+/* ── Responsive ────────────────────────── */
+@media (max-width: 1024px) {
+    .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+}
 
-    .charts-grid {
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .stats-grid {
         grid-template-columns: 1fr;
     }
 
@@ -933,8 +1165,8 @@ const formatDate = (dateStr) => {
         grid-template-columns: 1fr;
     }
 
-    .page-content {
-        padding: 16px;
+    .actions-cell {
+        flex-wrap: wrap;
     }
 }
 </style>

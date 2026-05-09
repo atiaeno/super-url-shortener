@@ -102,6 +102,11 @@ class RedirectController extends Controller
             $this->markAdSeen($request, $link->id);
         }
 
+        // Get promotions for all placements
+        $headerPromotion = Ad::active()->forPlacement('header')->inRandomOrder()->first();
+        $footerPromotion = Ad::active()->forPlacement('footer')->inRandomOrder()->first();
+        $sidebarPromotion = Ad::active()->forPlacement('sidebar')->inRandomOrder()->first();
+
         // Always show the redirect page — user sees destination, timer, and optional ad
         return response()->view('redirect', [
             'state' => 'redirect',
@@ -111,6 +116,11 @@ class RedirectController extends Controller
             'redirectCaptcha' => filter_var($redirectCaptcha, FILTER_VALIDATE_BOOLEAN),
             'captchaSiteKey' => Setting::get('captcha_site_key', ''),
             'adContent' => $adContent,
+            'adPlacement' => $ad ? $ad->placement : null,
+            'adFormat' => $ad ? $ad->format : null,
+            'headerPromotion' => $headerPromotion,
+            'footerPromotion' => $footerPromotion,
+            'sidebarPromotion' => $sidebarPromotion,
             'title' => $link->og_title ?? 'Redirecting…',
             'ogTitle' => $link->og_title,
             'ogDescription' => $link->og_description,
@@ -240,6 +250,7 @@ class RedirectController extends Controller
         $countryCode = $this->getCountryCode($request->ip());
 
         return Ad::active()
+            ->redirect()  // Only get ads for redirect placement
             ->when($countryCode, fn($q) => $q->forCountry($countryCode))
             ->inRandomOrder()
             ->first();
@@ -262,5 +273,19 @@ class RedirectController extends Controller
         $seen = session('seen_ads', []);
         $seen[] = $linkId;
         session(['seen_ads' => array_unique($seen)]);
+    }
+
+    /**
+     * Get ads for specific placement with country targeting.
+     */
+    private function getAdsForPlacement(string $placement, Request $request): ?Ad
+    {
+        $countryCode = $this->getCountryCode($request->ip());
+
+        return Ad::active()
+            ->forPlacement($placement)
+            ->when($countryCode, fn($q) => $q->forCountry($countryCode))
+            ->inRandomOrder()
+            ->first();
     }
 }

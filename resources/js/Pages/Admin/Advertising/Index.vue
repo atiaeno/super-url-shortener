@@ -3,6 +3,7 @@
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import CountrySelector from '@/Components/CountrySelector.vue';
 
 const props = defineProps({
     ads: Array,
@@ -10,7 +11,6 @@ const props = defineProps({
 
 const showCreateModal = ref(false);
 const editingAd = ref(null);
-const countrySearch = ref('');
 
 const icons = {
     advertising: 'campaign',
@@ -22,15 +22,16 @@ const icons = {
 };
 
 const statCards = computed(() => [
-    { label: 'Total Ads', value: props.ads?.length || 0 },
+    { label: 'Total Promotions', value: props.ads?.length || 0 },
     { label: 'Active', value: props.ads?.filter(ad => ad.is_active).length || 0 },
     { label: 'Inactive', value: props.ads?.filter(ad => !ad.is_active).length || 0 },
-    { label: 'Banner Ads', value: props.ads?.filter(ad => ad.format === 'banner').length || 0 },
+    { label: 'Banner Promotions', value: props.ads?.filter(ad => ad.format === 'banner').length || 0 },
 ]);
 
 const createForm = useForm({
     name: '',
     format: 'banner',
+    placement: 'redirect',
     content: '',
     target_url: '',
     target_countries: [],
@@ -45,33 +46,9 @@ const editForm = useForm({
     target_countries: [],
     countdown_seconds: 5,
     is_active: true,
+    placement: 'redirect',
 });
 
-const countries = [
-    { code: 'US', name: 'United States' },
-    { code: 'GB', name: 'United Kingdom' },
-    { code: 'CA', name: 'Canada' },
-    { code: 'AU', name: 'Australia' },
-    { code: 'DE', name: 'Germany' },
-    { code: 'FR', name: 'France' },
-    { code: 'IT', name: 'Italy' },
-    { code: 'ES', name: 'Spain' },
-    { code: 'BR', name: 'Brazil' },
-    { code: 'MX', name: 'Mexico' },
-    { code: 'IN', name: 'India' },
-    { code: 'JP', name: 'Japan' },
-    { code: 'KR', name: 'South Korea' },
-    { code: 'CN', name: 'China' },
-    { code: 'RU', name: 'Russia' },
-    { code: 'ZA', name: 'South Africa' },
-];
-
-const filteredCountries = computed(() => {
-    return countries.filter(country =>
-        country.name.toLowerCase().includes(countrySearch.value.toLowerCase()) ||
-        country.code.toLowerCase().includes(countrySearch.value.toLowerCase())
-    );
-});
 
 const createAd = () => {
     createForm.post(route('admin.advertising.store'), {
@@ -105,29 +82,25 @@ const openEditModal = (ad) => {
     editForm.target_countries = ad.target_countries || [];
     editForm.countdown_seconds = ad.countdown_seconds || 5;
     editForm.is_active = ad.is_active;
+    editForm.placement = ad.placement || 'redirect';
 };
 
-const toggleCountry = (country) => {
-    const form = editingAd.value ? editForm : createForm;
-    const index = form.target_countries.indexOf(country.code);
-
-    if (index > -1) {
-        form.target_countries.splice(index, 1);
-    } else {
-        form.target_countries.push(country.code);
-    }
-};
-
-const isCountrySelected = (country) => {
-    const form = editingAd.value ? editForm : createForm;
-    return form.target_countries.includes(country.code);
-};
 
 const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
         createForm.image = file;
     }
+};
+
+const getPlacementName = (placement) => {
+    const placements = {
+        redirect: 'Redirect Page',
+        header: 'Header',
+        footer: 'Footer',
+        sidebar: 'Sidebar'
+    };
+    return placements[placement] || placement;
 };
 </script>
 
@@ -147,43 +120,71 @@ const handleImageUpload = (event) => {
                 </div>
             </div>
 
-            <!-- Ads Grid -->
-            <div class="charts-grid">
-
-                <!-- All Ads -->
-                <div class="chart-card chart-card--full">
-                    <div class="chart-header">
-                        <span class="header-icon"><span class="material-icons">{{ icons.advertising }}</span></span>
-                        <h3>All Advertisements</h3>
-                        <button @click="showCreateModal = true" class="btn-create">
-                            <span class="material-icons btn-icon">{{ icons.plus }}</span>Create Ad
-                        </button>
-                    </div>
-                    <div class="chart-body">
-                        <div v-if="!ads?.length" class="no-data">No ads created yet</div>
-                        <div v-else class="data-list">
-                            <div v-for="ad in ads" :key="ad.id" class="data-row">
-                                <div class="data-label">
-                                    <span>{{ ad.name }}</span>
-                                    <span class="data-format"><span class="material-icons format-icon">{{
-                                        icons[ad.format]
-                                            }}</span> {{ ad.format }}</span>
-                                </div>
-                                <div class="data-value">
+            <!-- Ads Table -->
+            <div class="table-section">
+                <div class="section-header">
+                    <span class="header-icon"><span class="material-icons">{{ icons.advertising }}</span></span>
+                    <h3 class="section-title">All Promotions</h3>
+                    <button @click="showCreateModal = true" class="btn-create">
+                        <span class="material-icons btn-icon">{{ icons.plus }}</span>Create Promotion
+                    </button>
+                </div>
+                <div class="table-card">
+                    <div v-if="!ads?.length" class="no-data">No promotions created yet</div>
+                    <table v-else class="promotions-table">
+                        <thead>
+                            <tr>
+                                <th class="table-header">Promotion Name</th>
+                                <th class="table-header">Format</th>
+                                <th class="table-header">Placement</th>
+                                <th class="table-header">Status</th>
+                                <th class="table-header">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="ad in ads" :key="ad.id" class="table-row">
+                                <td class="table-cell">
+                                    <div class="ad-info">
+                                        <div class="ad-name">{{ ad.name }}</div>
+                                        <div class="ad-url" v-if="ad.target_url">{{ ad.target_url }}</div>
+                                    </div>
+                                </td>
+                                <td class="table-cell">
+                                    <div class="format-badge">
+                                        <span class="material-icons format-icon">{{ icons[ad.format] }}</span>
+                                        {{ ad.format }}
+                                    </div>
+                                </td>
+                                <td class="table-cell">
+                                    <div class="placement-info">
+                                        <div class="placement-type">{{ getPlacementName(ad.placement) }}</div>
+                                        <div class="placement-targeting" v-if="ad.target_countries?.length">
+                                            {{ ad.target_countries.length }} countries
+                                        </div>
+                                        <div class="placement-targeting" v-else>
+                                            Global
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="table-cell">
                                     <span class="status-badge"
                                         :class="{ 'status-active': ad.is_active, 'status-inactive': !ad.is_active }">
                                         {{ ad.is_active ? 'Active' : 'Inactive' }}
                                     </span>
-                                    <button @click="openEditModal(ad)" class="btn-action"><span
-                                            class="material-icons">{{
-                                                icons.edit }}</span></button>
-                                    <button @click="deleteAd(ad)" class="btn-action btn-danger"><span
-                                            class="material-icons">{{
-                                                icons.delete }}</span></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                </td>
+                                <td class="table-cell">
+                                    <div class="actions-cell">
+                                        <button @click="openEditModal(ad)" class="btn-action" title="Edit">
+                                            <span class="material-icons">{{ icons.edit }}</span>
+                                        </button>
+                                        <button @click="deleteAd(ad)" class="btn-action btn-danger" title="Delete">
+                                            <span class="material-icons">{{ icons.delete }}</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -192,7 +193,7 @@ const handleImageUpload = (event) => {
         <div v-if="showCreateModal" class="modal-backdrop">
             <div class="modal">
                 <div class="modal__header">
-                    <h3 class="modal__title">Create Advertisement</h3>
+                    <h3 class="modal__title">Create Promotion</h3>
                     <button @click="showCreateModal = false" class="modal__close">
                         <span class="material-icons">close</span>
                     </button>
@@ -201,7 +202,7 @@ const handleImageUpload = (event) => {
                     <div class="modal__body">
                         <div class="form-grid">
                             <div class="field">
-                                <label class="field__label">Ad Name</label>
+                                <label class="field__label">Promotion Name</label>
                                 <input v-model="createForm.name" type="text" class="field__input" required />
                             </div>
 
@@ -210,6 +211,16 @@ const handleImageUpload = (event) => {
                                 <select v-model="createForm.format" class="field__input" required>
                                     <option value="banner">Banner</option>
                                     <option value="interstitial">Interstitial</option>
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label">Placement</label>
+                                <select v-model="createForm.placement" class="field__input" required>
+                                    <option value="redirect">Redirect Page</option>
+                                    <option value="header">Header</option>
+                                    <option value="footer">Footer</option>
+                                    <option value="sidebar">Sidebar</option>
                                 </select>
                             </div>
 
@@ -230,12 +241,17 @@ const handleImageUpload = (event) => {
                                 <input v-model.number="createForm.countdown_seconds" type="number" class="field__input"
                                     min="1" max="60" />
                             </div>
+
+                            <div class="field field--full">
+                                <label class="field__label">Target Countries (Optional)</label>
+                                <CountrySelector v-model="createForm.target_countries" />
+                            </div>
                         </div>
                     </div>
                     <div class="modal__footer">
                         <button type="button" @click="showCreateModal = false" class="btn-ghost">Cancel</button>
                         <button type="submit" class="btn-primary" :disabled="createForm.processing">
-                            Create Ad
+                            Create Promotion
                         </button>
                     </div>
                 </form>
@@ -246,7 +262,7 @@ const handleImageUpload = (event) => {
         <div v-if="editingAd" class="modal-backdrop">
             <div class="modal">
                 <div class="modal__header">
-                    <h3 class="modal__title">Edit Advertisement</h3>
+                    <h3 class="modal__title">Edit Promotion</h3>
                     <button @click="editingAd = null" class="modal__close">
                         <span class="material-icons">close</span>
                     </button>
@@ -255,7 +271,7 @@ const handleImageUpload = (event) => {
                     <div class="modal__body">
                         <div class="form-grid">
                             <div class="field">
-                                <label class="field__label">Ad Name</label>
+                                <label class="field__label">Promotion Name</label>
                                 <input v-model="editForm.name" type="text" class="field__input" required />
                             </div>
 
@@ -263,6 +279,16 @@ const handleImageUpload = (event) => {
                                 <label class="field__label">Content</label>
                                 <textarea v-model="editForm.content" class="field__input" rows="3"
                                     placeholder="HTML content or image URL"></textarea>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label">Placement</label>
+                                <select v-model="editForm.placement" class="field__input" required>
+                                    <option value="redirect">Redirect Page</option>
+                                    <option value="header">Header</option>
+                                    <option value="footer">Footer</option>
+                                    <option value="sidebar">Sidebar</option>
+                                </select>
                             </div>
 
                             <div class="field">
@@ -278,12 +304,17 @@ const handleImageUpload = (event) => {
                                     <span>Active</span>
                                 </label>
                             </div>
+
+                            <div class="field field--full">
+                                <label class="field__label">Target Countries (Optional)</label>
+                                <CountrySelector v-model="editForm.target_countries" />
+                            </div>
                         </div>
                     </div>
                     <div class="modal__footer">
                         <button type="button" @click="editingAd = null" class="btn-ghost">Cancel</button>
                         <button type="submit" class="btn-primary" :disabled="editForm.processing">
-                            Update Ad
+                            Update Promotion
                         </button>
                     </div>
                 </form>
@@ -345,36 +376,35 @@ const handleImageUpload = (event) => {
     color: var(--muted);
 }
 
-/* Charts Grid */
-.charts-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+/* Table Section */
+.table-section {
+    margin-bottom: 32px;
 }
 
-.chart-card--full {
-    grid-column: 1 / -1;
-}
-
-.chart-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-}
-
-.chart-header {
+.section-header {
     padding: 16px 20px;
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     gap: 10px;
+    background: var(--surface);
 }
 
 .header-icon {
     display: flex;
     align-items: center;
     color: var(--red);
+}
+
+.section-title {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ink);
+    margin: 0;
+    flex: 1;
 }
 
 .material-icons {
@@ -390,30 +420,14 @@ const handleImageUpload = (event) => {
     word-wrap: normal;
     direction: ltr;
     -webkit-font-feature-settings: 'liga';
+    font-feature-settings: 'liga';
     -webkit-font-smoothing: antialiased;
-}
-
-.format-icon {
-    font-size: 14px;
-    margin-right: 4px;
-    vertical-align: middle;
 }
 
 .btn-icon {
     font-size: 16px;
     margin-right: 6px;
     vertical-align: middle;
-}
-
-.chart-header h3 {
-    font-family: var(--font-display);
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--ink);
-    margin: 0;
-    flex: 1;
 }
 
 .btn-create {
@@ -434,9 +448,12 @@ const handleImageUpload = (event) => {
     background: #c0392b;
 }
 
-.chart-body {
-    padding: 20px;
-    min-height: 180px;
+.table-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    width: 100%;
 }
 
 .no-data {
@@ -446,46 +463,113 @@ const handleImageUpload = (event) => {
     padding: 40px 0;
 }
 
-/* Data List */
-.data-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+/* Table Styles */
+.ads-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
 }
 
-.data-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 12px;
+.table-header {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border);
+    background: #f8f9fa;
 }
 
-.data-row:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
+.table-header:nth-child(1) {
+    width: 30%;
 }
 
-.data-label {
-    font-size: 12px;
-    color: var(--ink);
-    font-family: 'DM Sans', sans-serif;
+.table-header:nth-child(2) {
+    width: 15%;
+}
+
+.table-header:nth-child(3) {
+    width: 25%;
+}
+
+.table-header:nth-child(4) {
+    width: 15%;
+}
+
+.table-header:nth-child(5) {
+    width: 15%;
+}
+
+.table-row {
+    border-bottom: 1px solid var(--border);
+    transition: background 200ms;
+}
+
+.table-row:hover {
+    background: #f8f9fa;
+}
+
+.table-cell {
+    padding: 12px 16px;
+    vertical-align: middle;
+}
+
+.ad-info {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
 
-.data-format {
+.ad-name {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.ad-url {
+    font-family: 'DM Sans', sans-serif;
     font-size: 10px;
     color: var(--muted);
+    word-break: break-all;
+}
+
+.format-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     font-family: var(--font-display);
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+}
+
+.format-icon {
+    font-size: 14px;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+.placement-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.placement-type {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink);
     text-transform: uppercase;
 }
 
-.data-value {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.placement-targeting {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px;
+    color: var(--muted);
 }
 
 .status-badge {
@@ -493,9 +577,10 @@ const handleImageUpload = (event) => {
     font-size: 9px;
     font-weight: 600;
     text-transform: uppercase;
-    padding: 2px 6px;
-    border-radius: 2px;
+    padding: 3px 8px;
+    border-radius: var(--radius);
     letter-spacing: 0.5px;
+    display: inline-block;
 }
 
 .status-active {
@@ -508,6 +593,11 @@ const handleImageUpload = (event) => {
     color: #721c24;
 }
 
+.actions-cell {
+    display: flex;
+    gap: 6px;
+}
+
 .btn-action {
     background: transparent;
     border: 1px solid var(--border);
@@ -516,10 +606,13 @@ const handleImageUpload = (event) => {
     font-size: 12px;
     cursor: pointer;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-action:hover {
-    background: var(--surface-2);
+    background: #f8f9fa;
 }
 
 .btn-danger {
@@ -531,6 +624,7 @@ const handleImageUpload = (event) => {
     background: var(--red);
     color: white;
 }
+
 
 /* Modal Styles */
 .modal-backdrop {
@@ -639,6 +733,15 @@ const handleImageUpload = (event) => {
     outline: none;
     border-color: var(--red);
     box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.promotions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    background: var(--surface);
+    table-layout: fixed;
 }
 
 .checkbox-label {

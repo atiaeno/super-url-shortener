@@ -75,8 +75,12 @@
         .ring-fg{stroke:var(--red);stroke-dasharray:226;stroke-dashoffset:0;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
         .ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--ink)}
 
-        /* Ad container — raw HTML/JS renders here */
-        .ad-wrap{margin:24px 0;padding:24px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);text-align:left;overflow:hidden;word-break:break-word}
+        /* Promotion container — raw HTML/JS renders here */
+        .promotion-wrap{margin:24px 0;padding:0;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);text-align:left;overflow:hidden;word-break:break-word}
+        .promotion-info-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--border);font-family:var(--font-display);font-size:9px;text-transform:uppercase;letter-spacing:.04em}
+        .promotion-placement{color:var(--red);font-weight:600}
+        .promotion-format{color:var(--muted)}
+        .promotion-content{padding:24px}
 
         .btn-skip{opacity:.4;pointer-events:none;transition:opacity .3s}
         .btn-skip.active{opacity:1;pointer-events:auto}
@@ -128,7 +132,13 @@
                 <p class="sub">Click the button below to continue.</p>
             @endif
             @if(!empty($adContent))
-                <div class="ad-wrap">{!! $adContent !!}</div>
+                <div class="promotion-wrap">
+                    <div class="promotion-info-bar">
+                        <span class="promotion-placement">{{ ucfirst($adPlacement ?? 'redirect') }} Promotion</span>
+                        <span class="promotion-format">{{ ucfirst($adFormat ?? 'unknown') }}</span>
+                    </div>
+                    <div class="promotion-content">{!! $adContent !!}</div>
+                </div>
             @endif
             @if(!empty($redirectCaptcha) && !empty($captchaSiteKey))
                 <div id="captchaWrap" style="display:flex;justify-content:center;margin-bottom:20px">

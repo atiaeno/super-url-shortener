@@ -376,19 +376,19 @@ const formatCurrency = (amount) => `$${Number(amount)?.toFixed(2) || '0.00'}`;
 }
 
 .stat-card--yellow {
-    background: linear-gradient(135deg, #fef9c3 0%, #fff 100%);
+    background: var(--surface);
 }
 
 .stat-card--blue {
-    background: linear-gradient(135deg, #eff6ff 0%, #fff 100%);
+    background: var(--surface);
 }
 
 .stat-card--green {
-    background: linear-gradient(135deg, #f0fdf4 0%, #fff 100%);
+    background: var(--surface);
 }
 
 .stat-card--red {
-    background: linear-gradient(135deg, #fef2f2 0%, #fff 100%);
+    background: var(--surface);
 }
 
 .stat-card__top {
@@ -609,7 +609,7 @@ const formatCurrency = (amount) => `$${Number(amount)?.toFixed(2) || '0.00'}`;
 .affiliate-avatar {
     width: 36px;
     height: 36px;
-    background: var(--gold);
+    background: var(--surface-2);
     color: var(--ink);
     border-radius: var(--radius);
     display: flex;

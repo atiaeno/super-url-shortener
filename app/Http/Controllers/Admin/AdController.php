@@ -24,6 +24,7 @@ class AdController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'format' => 'required|in:banner,interstitial',
+            'placement' => 'required|in:redirect,header,footer,sidebar',
             'content' => 'nullable|string',
             'target_url' => 'nullable|url',
             'target_countries' => 'nullable|array',
@@ -50,6 +51,7 @@ class AdController extends Controller
             'target_countries.*' => 'string|size:2',
             'countdown_seconds' => 'integer|min:1|max:60',
             'is_active' => 'boolean',
+            'placement' => 'required|in:redirect,header,footer,sidebar',
         ]);
 
         if ($request->hasFile('image')) {

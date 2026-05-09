@@ -13,6 +13,7 @@ class Ad extends Model
     protected $fillable = [
         'name',
         'format',
+        'placement',
         'content',
         'image_path',
         'target_url',
@@ -45,8 +46,34 @@ class Ad extends Model
     public function scopeForCountry($query, string $countryCode)
     {
         return $query->where(function ($q) use ($countryCode) {
-            $q->whereNull('target_countries')
-              ->orWhereJsonContains('target_countries', $countryCode);
+            $q
+                ->whereNull('target_countries')
+                ->orWhereJsonContains('target_countries', $countryCode);
         });
+    }
+
+    public function scopeForPlacement($query, string $placement)
+    {
+        return $query->where('placement', $placement);
+    }
+
+    public function scopeRedirect($query)
+    {
+        return $query->where('placement', 'redirect');
+    }
+
+    public function scopeHeader($query)
+    {
+        return $query->where('placement', 'header');
+    }
+
+    public function scopeFooter($query)
+    {
+        return $query->where('placement', 'footer');
+    }
+
+    public function scopeSidebar($query)
+    {
+        return $query->where('placement', 'sidebar');
     }
 }
