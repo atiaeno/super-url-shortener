@@ -17,6 +17,8 @@ const icons = {
     trash: `<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>`,
     external: `<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>`,
     user: `<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`,
+    indexNow: `<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>`,
+    indexer: `<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>`,
 };
 
 const statItems = [
@@ -47,6 +49,43 @@ const closeDeleteModal = () => {
     linkToDelete.value = null;
 };
 
+const indexNow = (link) => {
+    router.post(route('admin.settings.indexer.index-now'), { link_id: link.id }, {
+        preserveScroll: true,
+        onSuccess: () => {
+            showToast('success', `Link "${link.short_code}" submitted to IndexNow successfully`);
+        },
+        onError: (errors) => {
+            showToast('error', errors.message || 'Failed to submit to IndexNow');
+        },
+    });
+};
+
+const submitToIndexer = (link) => {
+    router.post(route('admin.settings.indexer.index-now'), { link_id: link.id }, {
+        preserveScroll: true,
+        onSuccess: () => {
+            showToast('success', `Link "${link.short_code}" added to indexer queue`);
+        },
+        onError: (errors) => {
+            showToast('error', errors.message || 'Failed to add to indexer queue');
+        },
+    });
+};
+
+const showToast = (type, message) => {
+    toast.value = { type, message, show: true };
+    setTimeout(() => {
+        toast.value.show = false;
+    }, 4000);
+};
+
+const toast = ref({
+    show: false,
+    type: 'success',
+    message: ''
+});
+
 const confirmDelete = () => {
     if (linkToDelete.value) {
         router.delete(route('links.destroy', linkToDelete.value.id), {
@@ -66,6 +105,16 @@ const formatDate = (dateStr) => {
 <template>
 
     <Head title="All Links" />
+
+    <!-- Toast Notification -->
+    <Teleport to="body">
+        <div v-if="toast.show" class="toast" :class="`toast--${toast.type}`">
+            <span v-if="toast.type === 'success'" class="toast__icon">✓</span>
+            <span v-else class="toast__icon">✕</span>
+            <span class="toast__message">{{ toast.message }}</span>
+            <button @click="toast.show = false" class="toast__close">×</button>
+        </div>
+    </Teleport>
 
     <AdminLayout>
         <template #header-icon>
@@ -190,6 +239,16 @@ const formatDate = (dateStr) => {
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2" v-html="icons.edit" />
                                             </Link>
+                                            <button @click="indexNow(link)" class="btn-icon btn-icon--index"
+                                                title="Index Now">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" v-html="icons.indexNow" />
+                                            </button>
+                                            <button @click="submitToIndexer(link)" class="btn-icon btn-icon--indexer"
+                                                title="Submit to Indexer">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" v-html="icons.indexer" />
+                                            </button>
                                             <button @click="openDeleteModal(link)" class="btn-icon btn-icon--delete"
                                                 title="Delete Link">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -683,6 +742,28 @@ const formatDate = (dateStr) => {
     color: #d97706;
 }
 
+.btn-icon--index {
+    background: #eff6ff;
+    color: #3b82f6;
+    border-color: #bfdbfe;
+}
+
+.btn-icon--index:hover {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.btn-icon--indexer {
+    background: #f0fdf4;
+    color: #22c55e;
+    border-color: #bbf7d0;
+}
+
+.btn-icon--indexer:hover {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
 .btn-icon--delete {
     background: #fef2f2;
     color: var(--red);
@@ -899,5 +980,68 @@ const formatDate = (dateStr) => {
     .link-actions {
         flex-wrap: wrap;
     }
+}
+
+/* Toast Notifications */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toast--success {
+    background: #10b981;
+    color: white;
+}
+
+.toast--error {
+    background: #ef4444;
+    color: white;
+}
+
+.toast__icon {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.toast__message {
+    flex: 1;
+}
+
+.toast__close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0.8;
+    padding: 0;
+    line-height: 1;
+}
+
+.toast__close:hover {
+    opacity: 1;
 }
 </style>

@@ -199,6 +199,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         Route::post('import', [SettingsController::class, 'import'])->name('import');
         Route::get('backup', [SettingsController::class, 'backup'])->name('backup');
     });
+
+    // SEO Indexer Settings
+    Route::prefix('settings/indexer')->name('settings.indexer.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\IndexerController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Admin\IndexerController::class, 'update'])->name('update');
+        Route::post('index-now', [\App\Http\Controllers\Admin\IndexerController::class, 'indexNow'])->name('index-now');
+        Route::get('run', [\App\Http\Controllers\Admin\IndexerController::class, 'runNow'])->name('run');
+        Route::get('clear', [\App\Http\Controllers\Admin\IndexerController::class, 'clearQueue'])->name('clear');
+    });
 });
 
 // Public redirect endpoint (short URLs) — MUST BE LAST

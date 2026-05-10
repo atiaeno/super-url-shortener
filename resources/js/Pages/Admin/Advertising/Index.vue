@@ -23,6 +23,20 @@ const icons = {
     plus: 'add',
 };
 
+// Toast state
+const toast = ref({
+    show: false,
+    type: 'success',
+    message: ''
+});
+
+const showToast = (type, message) => {
+    toast.value = { type, message, show: true };
+    setTimeout(() => {
+        toast.value.show = false;
+    }, 4000);
+};
+
 const statCards = computed(() => [
     { label: 'Total Promotions', value: props.ads?.length || 0 },
     { label: 'Active', value: props.ads?.filter(ad => ad.is_active).length || 0 },
@@ -159,6 +173,17 @@ const getPlacementName = (placement) => {
 <template>
 
     <Head title="Advertising Management" />
+
+    <!-- Toast Notification -->
+    <Teleport to="body">
+        <div v-if="toast.show" class="toast" :class="`toast--${toast.type}`">
+            <span v-if="toast.type === 'success'" class="toast__icon">✓</span>
+            <span v-else class="toast__icon">✕</span>
+            <span class="toast__message">{{ toast.message }}</span>
+            <button @click="toast.show = false" class="toast__close">×</button>
+        </div>
+    </Teleport>
+
     <AdminLayout>
         <template #header><span class="material-icons">{{ icons.advertising }}</span> Advertising Management</template>
 
@@ -553,24 +578,25 @@ const getPlacementName = (placement) => {
 }
 
 .btn-create {
-    background: var(--primary) !important;
-    color: white !important;
-    border: none !important;
-    padding: 8px 16px;
-    border-radius: var(--radius);
-    font-family: var(--font-display);
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
+    background: var(--red);
+    color: white;
+    border: none;
+    padding: 2px 13px;
+    border-radius: 4px;
+    font-family: 'Oswald';
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
-    transition: var(--transition);
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
 .btn-create:hover {
-    background: var(--primary-dark) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 .table-card {
@@ -588,6 +614,34 @@ const getPlacementName = (placement) => {
 
 .table-wrapper {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-wrapper table {
+    min-width: 800px;
+}
+
+@media (max-width: 768px) {
+    .table-wrapper {
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+    }
+
+    .table-wrapper table {
+        min-width: 100%;
+    }
+
+    .promotions-table th,
+    .promotions-table td {
+        padding: 12px 10px;
+        font-size: 13px;
+    }
+
+    .promotion-name-column {
+        width: 200px;
+        min-width: 200px;
+    }
 }
 
 .promotions-table {
@@ -612,7 +666,7 @@ const getPlacementName = (placement) => {
 }
 
 .promotion-name-column {
-    width: 300px;
+    width: 35%;
     min-width: 250px;
 }
 
@@ -709,15 +763,14 @@ const getPlacementName = (placement) => {
 }
 
 .btn-icon {
-    width: 32px;
+     
     height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: transparent;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--muted);
+   
+    color: #fff;
     cursor: pointer;
     transition: var(--transition);
 }
@@ -732,14 +785,14 @@ const getPlacementName = (placement) => {
 }
 
 .btn-icon--edit {
-    background: #eff6ff;
-    color: #3b82f6;
-    border-color: #bfdbfe;
+    background: #fef9f0;
+    color: var(--gold);
+    border-color: #fde68a;
 }
 
 .btn-icon--edit:hover {
-    background: #dbeafe;
-    color: #2563eb;
+    background: #fef3c7;
+    color: #d97706;
 }
 
 .btn-icon--delete {
@@ -750,6 +803,7 @@ const getPlacementName = (placement) => {
 
 .btn-icon--delete:hover {
     background: #fee2e2;
+    color: var(--red-dark);
 }
 
 /* Empty State */
@@ -808,24 +862,29 @@ const getPlacementName = (placement) => {
     background: #f8f9fa;
 }
 
-.table-header:nth-child(1) {
-    width: 30%;
-}
-
 .table-header:nth-child(2) {
-    width: 15%;
+    width: 35%;
 }
 
 .table-header:nth-child(3) {
-    width: 25%;
+    width: 15%;
+    min-width: 100px;
 }
 
 .table-header:nth-child(4) {
-    width: 15%;
+    width: 20%;
+    min-width: 120px;
 }
 
 .table-header:nth-child(5) {
-    width: 15%;
+    width: 10%;
+    min-width: 80px;
+}
+
+.table-header:nth-child(6) {
+    width: 10%;
+    min-width: 80px;
+    text-align: center;
 }
 
 .table-row {
@@ -1130,26 +1189,26 @@ const getPlacementName = (placement) => {
     align-items: center;
 }
 
-.btn-bulk-delete {
+.btn-bulk-delete[data-v-ca81ac89] {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    background: #dc3545;
+    gap: 8px;
+    padding: 2px 13px;
+    background: var(--red);
     color: white;
     border: none;
-    border-radius: var(--radius);
-    font-family: var(--font-display);
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
+    border-radius: 4px;
+    font-family: 'Oswald';
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }
 
 .btn-bulk-delete:hover {
-    background: #c82333;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
 }
 
 .checkbox-column {
@@ -1339,5 +1398,68 @@ const getPlacementName = (placement) => {
 
 .btn-danger:hover {
     background: #c82333;
+}
+
+/* Toast Notifications */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toast--success {
+    background: #10b981;
+    color: white;
+}
+
+.toast--error {
+    background: #ef4444;
+    color: white;
+}
+
+.toast__icon {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.toast__message {
+    flex: 1;
+}
+
+.toast__close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0.8;
+    padding: 0;
+    line-height: 1;
+}
+
+.toast__close:hover {
+    opacity: 1;
 }
 </style>
