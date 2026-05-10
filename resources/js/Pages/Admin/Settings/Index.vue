@@ -268,108 +268,107 @@ const icons = {
                         </div>
 
                         <!-- ═══ SEO ═══ -->
-                        <div v-if="activeTab === 'seo'" class="panel" style="padding:0;background:transparent">
-                            <div class="panel__header" style="padding:0 0 16px;border:none">
+                        <div v-if="activeTab === 'seo'" class="panel">
+                            <div class="panel__header">
                                 <span class="panel__marker">II.</span>
                                 <h3 class="panel__title">Page SEO Settings</h3>
                             </div>
-
-                            <div class="seo-grid">
-                                <div class="seo-section">
-                                    <div class="seo-section__title">Home</div>
-                                    <div class="field-grid">
-                                        <div class="field"><label class="field__label">Title</label><input
-                                                v-model="form.seo_home_title" type="text" class="field__input" /></div>
-                                        <div class="field"><label class="field__label">Description</label><input
-                                                v-model="form.seo_home_description" type="text" class="field__input" />
-                                        </div>
+                            <div class="panel__body">
+                                <div class="field-grid">
+                                    <div class="field">
+                                        <label class="field__label">Home — Title</label>
+                                        <input v-model="form.seo_home_title" type="text" class="field__input" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field__label">Home — Description</label>
+                                        <input v-model="form.seo_home_description" type="text" class="field__input" />
                                     </div>
                                 </div>
-                                <div class="seo-section">
-                                    <div class="seo-section__title">Privacy</div>
-                                    <div class="field-grid">
-                                        <div class="field"><label class="field__label">Title</label><input
-                                                v-model="form.seo_privacy_title" type="text" class="field__input" />
-                                        </div>
-                                        <div class="field"><label class="field__label">Description</label><input
-                                                v-model="form.seo_privacy_description" type="text"
-                                                class="field__input" /></div>
+                                <div class="divider"></div>
+                                <div class="field-grid">
+                                    <div class="field">
+                                        <label class="field__label">Privacy — Title</label>
+                                        <input v-model="form.seo_privacy_title" type="text" class="field__input" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field__label">Privacy — Description</label>
+                                        <input v-model="form.seo_privacy_description" type="text"
+                                            class="field__input" />
                                     </div>
                                 </div>
-                                <div class="seo-section">
-                                    <div class="seo-section__title">Terms</div>
-                                    <div class="field-grid">
-                                        <div class="field"><label class="field__label">Title</label><input
-                                                v-model="form.seo_terms_title" type="text" class="field__input" /></div>
-                                        <div class="field"><label class="field__label">Description</label><input
-                                                v-model="form.seo_terms_description" type="text" class="field__input" />
-                                        </div>
+                                <div class="field-grid">
+                                    <div class="field">
+                                        <label class="field__label">Terms — Title</label>
+                                        <input v-model="form.seo_terms_title" type="text" class="field__input" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field__label">Terms — Description</label>
+                                        <input v-model="form.seo_terms_description" type="text" class="field__input" />
                                     </div>
                                 </div>
-                                <div class="seo-section">
-                                    <div class="seo-section__title">Cookies</div>
-                                    <div class="field-grid">
-                                        <div class="field"><label class="field__label">Title</label><input
-                                                v-model="form.seo_cookies_title" type="text" class="field__input" />
-                                        </div>
-                                        <div class="field"><label class="field__label">Description</label><input
-                                                v-model="form.seo_cookies_description" type="text"
-                                                class="field__input" /></div>
+                                <div class="field-grid">
+                                    <div class="field">
+                                        <label class="field__label">Cookies — Title</label>
+                                        <input v-model="form.seo_cookies_title" type="text" class="field__input" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field__label">Cookies — Description</label>
+                                        <input v-model="form.seo_cookies_description" type="text"
+                                            class="field__input" />
                                     </div>
                                 </div>
-                                <div class="seo-section">
-                                    <div class="seo-section__title">GDPR</div>
-                                    <div class="field-grid">
-                                        <div class="field"><label class="field__label">Title</label><input
-                                                v-model="form.seo_gdpr_title" type="text" class="field__input" /></div>
-                                        <div class="field"><label class="field__label">Description</label><input
-                                                v-model="form.seo_gdpr_description" type="text" class="field__input" />
-                                        </div>
+                                <div class="field-grid">
+                                    <div class="field">
+                                        <label class="field__label">GDPR — Title</label>
+                                        <input v-model="form.seo_gdpr_title" type="text" class="field__input" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field__label">GDPR — Description</label>
+                                        <input v-model="form.seo_gdpr_description" type="text" class="field__input" />
                                     </div>
                                 </div>
-                                <div class="seo-section">
-                                    <div class="seo-section__title">Help</div>
-                                    <div class="field-grid">
-                                        <div class="field"><label class="field__label">Title</label><input
-                                                v-model="form.seo_help_title" type="text" class="field__input" /></div>
-                                        <div class="field"><label class="field__label">Description</label><input
-                                                v-model="form.seo_help_description" type="text" class="field__input" />
-                                        </div>
+                                <div class="divider"></div>
+                                <div class="field-grid">
+                                    <div class="field">
+                                        <label class="field__label">Help — Title</label>
+                                        <input v-model="form.seo_help_title" type="text" class="field__input" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field__label">Help — Description</label>
+                                        <input v-model="form.seo_help_description" type="text" class="field__input" />
                                     </div>
                                 </div>
-                                <div class="seo-section">
-                                    <div class="seo-section__title">Affiliate</div>
-                                    <div class="field-grid">
-                                        <div class="field"><label class="field__label">Title</label><input
-                                                v-model="form.seo_affiliate_title" type="text" class="field__input" />
-                                        </div>
-                                        <div class="field"><label class="field__label">Description</label><input
-                                                v-model="form.seo_affiliate_description" type="text"
-                                                class="field__input" />
-                                        </div>
+                                <div class="field-grid">
+                                    <div class="field">
+                                        <label class="field__label">Affiliate — Title</label>
+                                        <input v-model="form.seo_affiliate_title" type="text" class="field__input" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field__label">Affiliate — Description</label>
+                                        <input v-model="form.seo_affiliate_description" type="text"
+                                            class="field__input" />
                                     </div>
                                 </div>
-                                <div class="seo-section">
-                                    <div class="seo-section__title">Contact</div>
-                                    <div class="field-grid">
-                                        <div class="field"><label class="field__label">Title</label><input
-                                                v-model="form.seo_contact_title" type="text" class="field__input" />
-                                        </div>
-                                        <div class="field"><label class="field__label">Description</label><input
-                                                v-model="form.seo_contact_description" type="text"
-                                                class="field__input" /></div>
+                                <div class="field-grid">
+                                    <div class="field">
+                                        <label class="field__label">Contact — Title</label>
+                                        <input v-model="form.seo_contact_title" type="text" class="field__input" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field__label">Contact — Description</label>
+                                        <input v-model="form.seo_contact_description" type="text"
+                                            class="field__input" />
                                     </div>
                                 </div>
-                                <div class="seo-section">
-                                    <div class="seo-section__title">API Docs</div>
-                                    <div class="field-grid">
-                                        <div class="field"><label class="field__label">Title</label><input
-                                                v-model="form.seo_api_docs_title" type="text" class="field__input" />
-                                        </div>
-                                        <div class="field"><label class="field__label">Description</label><input
-                                                v-model="form.seo_api_docs_description" type="text"
-                                                class="field__input" />
-                                        </div>
+                                <div class="field-grid">
+                                    <div class="field">
+                                        <label class="field__label">API Docs — Title</label>
+                                        <input v-model="form.seo_api_docs_title" type="text" class="field__input" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field__label">API Docs — Description</label>
+                                        <input v-model="form.seo_api_docs_description" type="text"
+                                            class="field__input" />
                                     </div>
                                 </div>
                             </div>
