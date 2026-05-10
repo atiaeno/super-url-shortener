@@ -8,6 +8,7 @@ const props = defineProps({
     settings: Object,
     stats: Object,
     recentLogs: Array,
+    pagination: Object,
 });
 
 const activeTab = ref('settings');
@@ -59,6 +60,10 @@ const activeMessage = ref(null);
 
 const showMessage = (msg) => {
     activeMessage.value = msg;
+};
+
+const goToPage = (page) => {
+    router.get('/admin/settings/indexer', { page }, { preserveScroll: true });
 };
 
 const resubmitLink = (linkId) => {
@@ -276,7 +281,6 @@ const getStatusColor = (status) => {
                     <button @click="clearQueue" class="btn-clear">Clear All Logs</button>
                 </div>
                 <div class="logs-card">
-                    <h3 class="logs-title">Recent Activity</h3>
                     <div class="table-wrapper">
                         <table class="logs-table">
                             <thead>
@@ -308,12 +312,28 @@ const getStatusColor = (status) => {
                                     <td>
                                         <button @click="resubmitLink(log.link_id)" class="btn-icon-small"
                                             title="Resubmit">
-                                            ↻
+                                            <span style="font-size: 12px; font-weight: bold;">↻</span>
                                         </button>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div v-if="pagination && pagination.last_page > 1" class="pagination">
+                        <button @click="goToPage(pagination.current_page - 1)"
+                            :disabled="pagination.current_page === 1">
+                            ← Prev
+                        </button>
+                        <button v-for="p in pagination.last_page" :key="p" @click="goToPage(p)"
+                            :class="{ active: p === pagination.current_page }">
+                            {{ p }}
+                        </button>
+                        <button @click="goToPage(pagination.current_page + 1)"
+                            :disabled="pagination.current_page === pagination.last_page">
+                            Next →
+                        </button>
                     </div>
                 </div>
             </div>
@@ -694,6 +714,55 @@ const getStatusColor = (status) => {
 
 .queue-actions {
     margin-bottom: 24px;
+}
+
+.logs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.btn-clear {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.btn-clear:hover {
+    background: #b91c1c;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 16px 0;
+}
+
+.pagination button {
+    padding: 6px 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination button.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
 }
 
 .logs-card {

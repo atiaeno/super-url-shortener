@@ -15,19 +15,27 @@ use Inertia\Inertia;
 
 class IndexerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $settings = IndexerSetting::getSettings();
         $stats = (new IndexerService())->getQueueStats();
-        $recentLogs = IndexerLog::with('link')
+
+        $page = $request->input('page', 1);
+        $perPage = 20;
+
+        $logs = IndexerLog::with('link')
             ->orderBy('created_at', 'desc')
-            ->limit(50)
-            ->get();
+            ->paginate($perPage, ['*'], 'page', $page);
 
         return Inertia::render('Admin/Settings/Indexer', [
             'settings' => $settings,
             'stats' => $stats,
-            'recentLogs' => $recentLogs,
+            'recentLogs' => $logs->items(),
+            'pagination' => [
+                'current_page' => $logs->currentPage(),
+                'last_page' => $logs->lastPage(),
+                'total' => $logs->total(),
+            ],
         ]);
     }
 
