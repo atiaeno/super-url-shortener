@@ -131,6 +131,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // Dashboard
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
+    // Analytics
+    Route::get('analytics', [App\Http\Controllers\Admin\AnalyticsController::class, 'overview'])->name('analytics');
+    Route::get('links/{id}/analytics', [App\Http\Controllers\Admin\AnalyticsController::class, 'linkAnalytics'])->name('links.analytics');
+    Route::get('users/{id}/analytics', [App\Http\Controllers\Admin\AnalyticsController::class, 'userAnalytics'])->name('users.analytics');
+
     // Link Management (admin)
     Route::get('links', [AdminLinkController::class, 'index'])->name('links.index');
     Route::get('links/{link}/edit', [AdminLinkController::class, 'edit'])->name('links.edit');

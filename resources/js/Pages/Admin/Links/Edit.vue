@@ -52,11 +52,17 @@ const icons = {
                     <h1 class="page-header__title">Edit Short Link</h1>
                     <p class="page-header__sub">Modify link details for user <strong>{{ user.name }}</strong></p>
                 </div>
-                <Link :href="user.id ? route('admin.users.show', user.id) : route('admin.links.index')"
-                    class="back-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.arrow" />
-                    {{ user.id ? 'Back to User' : 'Back to Links' }}
-                </Link>
+                <div class="header-actions">
+                    <Link :href="route('admin.links.analytics', link.id)" class="btn-secondary">
+                        View Analytics
+                    </Link>
+                    <Link :href="user.id ? route('admin.users.show', user.id) : route('admin.links.index')"
+                        class="back-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            v-html="icons.arrow" />
+                        {{ user.id ? 'Back to User' : 'Back to Links' }}
+                    </Link>
+                </div>
             </header>
 
             <!-- Divider -->
@@ -718,5 +724,29 @@ const icons = {
     .other-link__url {
         max-width: 100%;
     }
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #fff;
+    border: 1px solid #e8e5e0;
+    border-radius: 4px;
+    color: #333;
+    text-decoration: none;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: #f5f3ef;
 }
 </style>

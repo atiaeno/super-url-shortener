@@ -91,6 +91,9 @@ const confirmDelete = () => {
                     <p class="page-header__sub">View user profile and link activity.</p>
                 </div>
                 <div class="page-header__actions">
+                    <Link :href="route('admin.users.analytics', user.id)" class="btn-secondary">
+                        View Analytics
+                    </Link>
                     <Link :href="route('admin.users.index')" class="back-btn">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                             v-html="icons.arrow" />
@@ -412,6 +415,24 @@ const confirmDelete = () => {
 .edit-btn svg {
     width: 14px;
     height: 14px;
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 13px;
+    transition: var(--transition);
+}
+
+.btn-secondary:hover {
+    background: var(--surface-2);
 }
 
 /* ── Section Rule ─────────────────────────── */

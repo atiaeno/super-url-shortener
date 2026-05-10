@@ -457,7 +457,7 @@ const getCountryBarWidth = (count) => {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 1px;
-    background: var(--border);
+ 
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
