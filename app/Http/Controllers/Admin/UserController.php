@@ -258,7 +258,7 @@ class UserController extends Controller
                 'target_id' => $user->id,
             ]);
 
-            // Story 8.3: Notify user their ban has been lifted
+            // Notify user their ban has been lifted
             $user->notify(new UserUnbannedNotification());
         }
 

@@ -12,8 +12,7 @@ const page = usePage();
 const user = computed(() => page.props.auth?.user);
 const canLogin = computed(() => page.props.canLogin ?? true);
 const canRegister = computed(() => page.props.canRegister ?? true);
-const features = computed(() => page.props.features ?? { affiliate: true, ads: true, gdpr: true });
-const affiliateEnabled = computed(() => features.value.affiliate !== false);
+const affiliateEnabled = computed(() => page.props.featuresAffiliate ?? true);
 
 const scrolled = ref(false);
 const handleScroll = () => { scrolled.value = window.scrollY > 60; };

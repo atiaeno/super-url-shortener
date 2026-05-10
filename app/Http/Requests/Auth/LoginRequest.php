@@ -45,7 +45,7 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        // Story 2.4 / NFR-S: Verify CAPTCHA token if enabled
+        // Verify CAPTCHA token if enabled
         $captcha = app(CaptchaService::class);
         if (!$captcha->verify($this->input('recaptcha_token'), $this->ip())) {
             throw ValidationException::withMessages([

@@ -36,7 +36,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Story 2.6: Upload and resize avatar to 64/128/256px.
+     * Upload and resize avatar to 64/128/256px.
      */
     public function uploadAvatar(Request $request): RedirectResponse
     {

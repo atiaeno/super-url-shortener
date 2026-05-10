@@ -44,7 +44,7 @@ class RegisteredUserController extends Controller
             'recaptcha_token' => ['nullable', 'string'],
         ]);
 
-        // Story 2.1: Verify CAPTCHA token server-side if enabled
+        // Verify CAPTCHA token server-side if enabled
         $captcha = app(CaptchaService::class);
         if (!$captcha->verify($request->input('recaptcha_token'), $request->ip())) {
             throw ValidationException::withMessages([

@@ -18,12 +18,12 @@ class AnonymizeIpJob implements ShouldQueue
     }
 
     /**
-     * Story 3.12: Anonymize IP hashes for clicks older than the retention period.
+     * Anonymize IP hashes for clicks older than the retention period.
      */
     public function handle(): void
     {
         $retentionDays = (int) config('app.ip_retention_days', 30);
-        $cutoff        = now()->subDays($retentionDays);
+        $cutoff = now()->subDays($retentionDays);
 
         \App\Models\Click::where('created_at', '<', $cutoff)
             ->whereNotNull('ip_hash')

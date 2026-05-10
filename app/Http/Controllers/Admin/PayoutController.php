@@ -17,7 +17,7 @@ use Inertia\Response;
 class PayoutController extends Controller
 {
     /**
-     * Story 4.7: Pending payout queue.
+     * Pending payout queue.
      */
     public function index(Request $request): Response
     {
@@ -48,7 +48,7 @@ class PayoutController extends Controller
     }
 
     /**
-     * Story 4.7: Approve a payout.
+     * Approve a payout.
      */
     public function approve(Request $request, Payout $payout): RedirectResponse
     {
@@ -63,14 +63,14 @@ class PayoutController extends Controller
 
         $this->logAudit($payout, $oldStatus, Payout::STATUS_APPROVED, $request->note);
 
-        // Story 4.7: Notify affiliate of approval
+        // Notify affiliate of approval
         $payout->affiliate->user->notify(new PayoutStatusNotification($payout));
 
         return back()->with('success', 'Payout approved.');
     }
 
     /**
-     * Story 4.7: Reject a payout.
+     * Reject a payout.
      */
     public function reject(Request $request, Payout $payout): RedirectResponse
     {
@@ -90,14 +90,14 @@ class PayoutController extends Controller
 
         $this->logAudit($payout, $oldStatus, Payout::STATUS_REJECTED, $validated['note']);
 
-        // Story 4.7: Notify affiliate of rejection with reason
+        // Notify affiliate of rejection with reason
         $payout->affiliate->user->notify(new PayoutStatusNotification($payout, $validated['note']));
 
         return back()->with('success', 'Payout rejected.');
     }
 
     /**
-     * Story 4.7: Mark a payout as paid.
+     * Mark a payout as paid.
      */
     public function markPaid(Request $request, Payout $payout): RedirectResponse
     {
@@ -116,14 +116,14 @@ class PayoutController extends Controller
 
         $this->logAudit($payout, $oldStatus, Payout::STATUS_PAID, $request->note);
 
-        // Story 4.7: Notify affiliate that payment has been sent
+        // Notify affiliate that payment has been sent
         $payout->affiliate->user->notify(new PayoutStatusNotification($payout));
 
         return back()->with('success', 'Payout marked as paid.');
     }
 
     /**
-     * Story 4.8: View audit log for a payout.
+     * View audit log for a payout.
      */
     public function auditLog(Payout $payout): Response
     {
@@ -140,7 +140,7 @@ class PayoutController extends Controller
     }
 
     /**
-     * Story 4.8: Append-only audit log entry.
+     * Append-only audit log entry.
      */
     private function logAudit(Payout $payout, string $oldStatus, string $newStatus, ?string $note): void
     {

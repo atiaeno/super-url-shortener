@@ -48,20 +48,20 @@ onUnmounted(() => {
 });
 
 const props = defineProps({
-    canLogin:         { type: Boolean, default: true },
-    canRegister:      { type: Boolean, default: true },
-    donationEnabled:  { type: Boolean, default: false },
-    donationButtonId: { type: String,  default: '' },
+    canLogin: { type: Boolean, default: true },
+    canRegister: { type: Boolean, default: true },
+    donationEnabled: { type: Boolean, default: false },
+    donationButtonId: { type: String, default: '' },
 });
 
-const url     = ref('');
-const result  = ref(null);
-const error   = ref(null);
+const url = ref('');
+const result = ref(null);
+const error = ref(null);
 const loading = ref(false);
-const copied  = ref(false);
+const copied = ref(false);
 
 const shorten = async () => {
-    error.value  = null;
+    error.value = null;
     result.value = null;
     loading.value = true;
     try {
@@ -86,7 +86,8 @@ const scrollToSection = (id) => {
 </script>
 
 <template>
-    <Head title="ShortLink — Editorial" />
+
+    <Head :title="`${appName} — Editorial`" />
 
     <div class="editorial">
         <Masthead variant="blend" :show-nav="true" />
@@ -95,23 +96,23 @@ const scrollToSection = (id) => {
         <section class="hero-theater">
             <div class="hero-backdrop"></div>
             <div class="hero-grid"></div>
-            
+
             <div class="hero-content">
                 <div class="hero-meta">
                     <span class="hero-issue">Vol. XLVII</span>
                     <span class="hero-divider"></span>
                     <span class="hero-season">Spring MMXXV</span>
                 </div>
-                
+
                 <div class="hero-typography">
                     <h1 class="hero-headline">
                         <span class="line-1">Compress</span>
                         <span class="line-2">the <em>World</em></span>
                         <span class="line-3">into <span class="highlight">/</span></span>
                     </h1>
-                    
+
                     <p class="hero-subdeck">
-                        The definitive URL shortening platform. Where every link becomes a precision instrument 
+                        The definitive URL shortening platform. Where every link becomes a precision instrument
                         for tracking, sharing, and understanding digital presence.
                     </p>
                 </div>
@@ -120,27 +121,23 @@ const scrollToSection = (id) => {
                 <div class="hero-action">
                     <form class="theater-form" @submit.prevent="shorten">
                         <div class="form-stage">
-                            <input 
-                                v-model="url" 
-                                type="url" 
-                                placeholder="Paste your long URL here..."
-                                required
-                                class="theater-input"
-                            />
+                            <input v-model="url" type="url" placeholder="Paste your long URL here..." required
+                                class="theater-input" />
                             <button type="submit" class="theater-btn" :disabled="loading">
                                 <span v-if="loading">Processing</span>
                                 <span v-else>Shorten</span>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                    <path d="M5 12h14M12 5l7 7-7 7" />
                                 </svg>
                             </button>
                         </div>
-                        
+
                         <div v-if="error" class="form-message form-message--error">{{ error }}</div>
-                        
+
                         <div v-if="result" class="form-message form-message--success">
                             <div class="result-main">
-                                <a :href="result.short_url" target="_blank" class="result-link">{{ result.short_url }}</a>
+                                <a :href="result.short_url" target="_blank" class="result-link">{{ result.short_url
+                                }}</a>
                                 <button type="button" @click="copy" class="copy-mini">
                                     {{ copied ? 'Copied!' : 'Copy' }}
                                 </button>
@@ -151,7 +148,7 @@ const scrollToSection = (id) => {
                             </div>
                         </div>
                     </form>
-                    
+
                     <p v-if="!$page.props.auth?.user" class="hero-footnote">
                         <Link :href="route('register')" class="accent-link">Create an account</Link>
                         for saved links & advanced analytics
@@ -188,7 +185,9 @@ const scrollToSection = (id) => {
         <section class="bridge-section">
             <div class="bridge-inner">
                 <div class="bridge-item">
-                    <svg class="bridge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    <svg class="bridge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                    </svg>
                     <div>
                         <strong>Sub-50ms Redirects</strong>
                         <span>Global edge network</span>
@@ -196,7 +195,10 @@ const scrollToSection = (id) => {
                 </div>
                 <div class="bridge-divider"></div>
                 <div class="bridge-item">
-                    <svg class="bridge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                    <svg class="bridge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+                        <path d="M22 12A10 10 0 0 0 12 2v10z" />
+                    </svg>
                     <div>
                         <strong>Real-time Analytics</strong>
                         <span>Every click tracked</span>
@@ -204,7 +206,10 @@ const scrollToSection = (id) => {
                 </div>
                 <div class="bridge-divider"></div>
                 <div class="bridge-item">
-                    <svg class="bridge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <svg class="bridge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="11" width="18" height="11" rx="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
                     <div>
                         <strong>Enterprise Security</strong>
                         <span>HTTPS by default</span>
@@ -212,7 +217,11 @@ const scrollToSection = (id) => {
                 </div>
                 <div class="bridge-divider"></div>
                 <div class="bridge-item">
-                    <svg class="bridge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                    <svg class="bridge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                            d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
+                    </svg>
                     <div>
                         <strong>Custom Aliases</strong>
                         <span>Your brand, your links</span>
@@ -226,22 +235,22 @@ const scrollToSection = (id) => {
             <div class="manifesto-backdrop">
                 <div class="noise-overlay"></div>
             </div>
-            
+
             <div class="manifesto-content">
                 <span class="section-marker">I.</span>
                 <h2 class="manifesto-headline">The Art of Digital Brevity</h2>
                 <div class="manifesto-columns">
                     <p class="manifesto-text">
-                        In an age of information overload, the ability to condense matters. 
-                        We believe that every URL should be memorable, trackable, and beautiful. 
+                        In an age of information overload, the ability to condense matters.
+                        We believe that every URL should be memorable, trackable, and beautiful.
                         Not merely a redirect, but a statement of intent.
                     </p>
                     <p class="manifesto-text">
-                        Since MMXXV, we've been building the infrastructure for a more elegant web. 
+                        Since MMXXV, we've been building the infrastructure for a more elegant web.
                         Edge-cached globally. Analytics that matter. Privacy by design.
                     </p>
                 </div>
-                
+
                 <blockquote class="manifesto-quote">
                     <span class="quote-mark">"</span>
                     The shortest distance between two points is now a single character.
@@ -261,8 +270,8 @@ const scrollToSection = (id) => {
                 <div class="cap-card">
                     <div class="cap-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
                         </svg>
                     </div>
                     <div class="cap-meta">&lt; 50ms</div>
@@ -273,8 +282,8 @@ const scrollToSection = (id) => {
                 <div class="cap-card">
                     <div class="cap-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
-                            <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+                            <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+                            <path d="M22 12A10 10 0 0 0 12 2v10z" />
                         </svg>
                     </div>
                     <div class="cap-meta">Live Data</div>
@@ -285,8 +294,8 @@ const scrollToSection = (id) => {
                 <div class="cap-card">
                     <div class="cap-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                         </svg>
                     </div>
                     <div class="cap-meta">Always On</div>
@@ -297,8 +306,8 @@ const scrollToSection = (id) => {
                 <div class="cap-card">
                     <div class="cap-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                         </svg>
                     </div>
                     <div class="cap-meta">Your Brand</div>
@@ -309,7 +318,7 @@ const scrollToSection = (id) => {
                 <div class="cap-card">
                     <div class="cap-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                         </svg>
                     </div>
                     <div class="cap-meta">No Lock-in</div>
@@ -320,7 +329,7 @@ const scrollToSection = (id) => {
                 <div class="cap-card cap-card--accent">
                     <div class="cap-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                         </svg>
                     </div>
                     <div class="cap-meta">Free Forever</div>
@@ -336,7 +345,7 @@ const scrollToSection = (id) => {
             <div class="stats-backdrop">
                 <div class="stats-grid"></div>
             </div>
-            
+
             <div class="stats-content">
                 <div class="stat-item">
                     <span class="stat-number">{{ count1.toLocaleString() }}+</span>
@@ -354,7 +363,7 @@ const scrollToSection = (id) => {
                     <span class="stat-roman">III.</span>
                 </div>
             </div>
-            
+
             <div class="stats-footnote">
                 <p>Trusted by independent creators and enterprise teams alike</p>
             </div>
@@ -366,11 +375,12 @@ const scrollToSection = (id) => {
                 <span class="section-marker">III.</span>
                 <h2>Endorsements</h2>
             </div>
-            
+
             <div class="testimonials-grid">
                 <div class="testimonial-card">
                     <div class="testimonial-quote">
-                        "The analytics alone are worth it. Finally, a URL shortener that treats data visualization as art."
+                        "The analytics alone are worth it. Finally, a URL shortener that treats data visualization as
+                        art."
                     </div>
                     <div class="testimonial-author">
                         <div class="author-avatar">MK</div>
@@ -383,7 +393,8 @@ const scrollToSection = (id) => {
 
                 <div class="testimonial-card testimonial-card--featured">
                     <div class="testimonial-quote">
-                        "We migrated 50,000+ links from Bitly. The API is elegant, the dashboard is beautiful, and the team actually responds to feedback."
+                        "We migrated 50,000+ links from Bitly. The API is elegant, the dashboard is beautiful, and the
+                        team actually responds to feedback."
                     </div>
                     <div class="testimonial-author">
                         <div class="author-avatar">JL</div>
@@ -396,7 +407,8 @@ const scrollToSection = (id) => {
 
                 <div class="testimonial-card">
                     <div class="testimonial-quote">
-                        "Free for personal use but built like an enterprise tool. The custom aliases feature is perfect for our brand campaigns."
+                        "Free for personal use but built like an enterprise tool. The custom aliases feature is perfect
+                        for our brand campaigns."
                     </div>
                     <div class="testimonial-author">
                         <div class="author-avatar">SP</div>
@@ -414,17 +426,17 @@ const scrollToSection = (id) => {
             <div class="cta-backdrop">
                 <div class="cta-noise"></div>
             </div>
-            
+
             <div class="cta-content">
                 <h2 class="cta-headline">Ready to shorten?</h2>
                 <p class="cta-sub">Join thousands who've already compressed their digital footprint.</p>
-                
+
                 <div class="cta-actions">
                     <template v-if="!$page.props.auth?.user">
                         <Link :href="route('register')" class="cta-btn cta-btn--primary">
                             Create Free Account
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                                <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>
                         </Link>
                         <Link :href="route('login')" class="cta-btn cta-btn--ghost">Sign In</Link>
@@ -433,21 +445,18 @@ const scrollToSection = (id) => {
                         <Link :href="route('links.create')" class="cta-btn cta-btn--primary">
                             Create Your First Link
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                                <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>
                         </Link>
                         <Link :href="route('dashboard')" class="cta-btn cta-btn--ghost">Go to Dashboard</Link>
                     </template>
                 </div>
-                
+
                 <p class="cta-footnote">No credit card required. Free plan includes unlimited links.</p>
             </div>
         </section>
 
-        <EditorialFooter 
-            :donation-enabled="donationEnabled" 
-            :donation-button-id="donationButtonId" 
-        />
+        <EditorialFooter :donation-enabled="donationEnabled" :donation-button-id="donationButtonId" />
     </div>
 </template>
 
@@ -455,7 +464,9 @@ const scrollToSection = (id) => {
 /* ── EDITORIAL MAGAZINE ─ THEATER EDITION ───────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Oswald:wght@400;500;600;700&display=swap');
 
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+}
 
 .editorial {
     font-family: 'Crimson Pro', serif;
@@ -489,7 +500,7 @@ const scrollToSection = (id) => {
 .hero-backdrop {
     position: absolute;
     inset: 0;
-    background: 
+    background:
         radial-gradient(ellipse 80% 50% at 20% 50%, rgba(231, 76, 60, 0.15) 0%, transparent 50%),
         radial-gradient(ellipse 60% 40% at 80% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
         linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
@@ -498,9 +509,9 @@ const scrollToSection = (id) => {
 .hero-grid {
     position: absolute;
     inset: 0;
-    background-image: 
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     background-size: 100px 100px;
     mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 70%);
 }
@@ -515,12 +526,24 @@ const scrollToSection = (id) => {
 }
 
 @keyframes heroFadeIn {
-    from { opacity: 0; transform: translateY(40px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.hero-typography { animation: heroFadeIn 1.2s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.hero-action     { animation: heroFadeIn 1.2s 0.3s  cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-typography {
+    animation: heroFadeIn 1.2s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero-action {
+    animation: heroFadeIn 1.2s 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 
 .hero-meta {
     display: flex;
@@ -530,7 +553,8 @@ const scrollToSection = (id) => {
     margin-bottom: 40px;
 }
 
-.hero-issue, .hero-season {
+.hero-issue,
+.hero-season {
     font-family: 'Oswald', sans-serif;
     font-size: 12px;
     letter-spacing: 4px;
@@ -610,8 +634,8 @@ const scrollToSection = (id) => {
 
 .form-stage {
     display: flex;
-    border: 1px solid rgba(255,255,255,0.2);
-    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     padding: 4px;
     border-radius: 4px;
@@ -678,7 +702,7 @@ const scrollToSection = (id) => {
     gap: 12px;
     background: transparent;
     color: #fff;
-    border: 1px solid rgba(255,255,255,0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     padding: 16px 32px;
     font-family: 'Oswald', sans-serif;
     font-size: 13px;
@@ -691,8 +715,8 @@ const scrollToSection = (id) => {
 }
 
 .editorial-btn:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.5);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
     transform: translateY(-2px);
 }
 
@@ -824,8 +848,8 @@ const scrollToSection = (id) => {
 }
 
 .stat-float-card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 16px 24px;
     backdrop-filter: blur(10px);
 }
@@ -882,8 +906,17 @@ const scrollToSection = (id) => {
 }
 
 @keyframes linePulse {
-    0%, 100% { opacity: 1; transform: scaleY(1); }
-    50% { opacity: 0.5; transform: scaleY(0.7); }
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scaleY(0.7);
+    }
 }
 
 /* ── BRIDGE SECTION ─────────────────────────────────────────── */
@@ -954,7 +987,7 @@ const scrollToSection = (id) => {
 .manifesto-backdrop {
     position: absolute;
     inset: 0;
-    background: 
+    background:
         radial-gradient(ellipse 50% 30% at 70% 70%, rgba(231, 76, 60, 0.1) 0%, transparent 60%);
 }
 
@@ -1066,7 +1099,7 @@ const scrollToSection = (id) => {
 .cap-card:hover {
     background: #fafafa;
     z-index: 2;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
 }
 
 .cap-card--accent {
@@ -1076,7 +1109,7 @@ const scrollToSection = (id) => {
 
 .cap-card--accent:hover {
     background: #111;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .cap-card--accent .cap-icon {
@@ -1169,9 +1202,9 @@ const scrollToSection = (id) => {
 .stats-grid {
     position: absolute;
     inset: 0;
-    background-image: 
-        linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+    background-image:
+        linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
     background-size: 60px 60px;
     opacity: 0.5;
 }
@@ -1333,7 +1366,7 @@ const scrollToSection = (id) => {
 .cta-backdrop {
     position: absolute;
     inset: 0;
-    background: 
+    background:
         radial-gradient(ellipse 60% 40% at 50% 100%, rgba(231, 76, 60, 0.15) 0%, transparent 60%);
 }
 
@@ -1426,20 +1459,20 @@ const scrollToSection = (id) => {
     .capabilities-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .bridge-inner {
         padding: 0 24px;
     }
-    
+
     .manifesto-columns {
         grid-template-columns: 1fr;
         gap: 24px;
     }
-    
+
     .testimonials-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .testimonial-card--featured {
         transform: none;
     }
@@ -1449,20 +1482,20 @@ const scrollToSection = (id) => {
     .hero-stats-float {
         display: none;
     }
-    
+
     .hero-content {
         padding: 120px 24px 60px;
     }
-    
+
     .form-stage {
         flex-direction: column;
     }
-    
+
     .theater-btn {
         width: 100%;
         justify-content: center;
     }
-    
+
     .manifesto-section,
     .capabilities-section,
     .stats-section,
@@ -1470,7 +1503,7 @@ const scrollToSection = (id) => {
     .cta-section {
         padding: 100px 24px;
     }
-    
+
     .capabilities-grid {
         grid-template-columns: 1fr;
     }
@@ -1479,18 +1512,18 @@ const scrollToSection = (id) => {
         flex-direction: column;
         padding: 0;
     }
-    
+
     .bridge-divider {
         width: 100%;
         height: 1px;
         margin: 0;
         align-self: auto;
     }
-    
+
     .stats-content {
         gap: 40px;
     }
-    
+
     .testimonial-card {
         padding: 32px;
     }
@@ -1501,15 +1534,15 @@ const scrollToSection = (id) => {
         flex-direction: column;
         gap: 8px;
     }
-    
+
     .hero-divider {
         width: 40px;
     }
-    
+
     .cta-actions {
         flex-direction: column;
     }
-    
+
     .cta-btn {
         width: 100%;
         justify-content: center;

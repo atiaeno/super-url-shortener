@@ -15,7 +15,7 @@ class SocialAuthController extends Controller
     private const ALLOWED_PROVIDERS = ['google', 'github', 'facebook'];
 
     /**
-     * Story 2.3: Redirect to OAuth provider.
+     * Redirect to OAuth provider.
      */
     public function redirect(string $provider): RedirectResponse
     {
@@ -25,7 +25,7 @@ class SocialAuthController extends Controller
     }
 
     /**
-     * Story 2.3: Handle OAuth callback — create or login user.
+     * Handle OAuth callback — create or login user.
      */
     public function callback(string $provider): RedirectResponse
     {
@@ -45,7 +45,7 @@ class SocialAuthController extends Controller
         if ($social) {
             // Update tokens
             $social->update([
-                'access_token'  => encrypt($socialUser->token),
+                'access_token' => encrypt($socialUser->token),
                 'refresh_token' => $socialUser->refreshToken ? encrypt($socialUser->refreshToken) : null,
             ]);
 
@@ -57,17 +57,17 @@ class SocialAuthController extends Controller
         $user = User::firstOrCreate(
             ['email' => $socialUser->getEmail()],
             [
-                'name'              => $socialUser->getName() ?? $socialUser->getNickname() ?? 'User',
-                'password'          => bcrypt(Str::random(32)),
-                'email_verified_at' => now(), // OAuth email is auto-verified
+                'name' => $socialUser->getName() ?? $socialUser->getNickname() ?? 'User',
+                'password' => bcrypt(Str::random(32)),
+                'email_verified_at' => now(),  // OAuth email is auto-verified
             ]
         );
 
         // Create social account link
         $user->socialAccounts()->create([
-            'provider'      => $provider,
-            'provider_id'   => $socialUser->getId(),
-            'access_token'  => encrypt($socialUser->token),
+            'provider' => $provider,
+            'provider_id' => $socialUser->getId(),
+            'access_token' => encrypt($socialUser->token),
             'refresh_token' => $socialUser->refreshToken ? encrypt($socialUser->refreshToken) : null,
         ]);
 
@@ -76,7 +76,7 @@ class SocialAuthController extends Controller
     }
 
     /**
-     * Story 2.8: Disconnect an OAuth provider from the authenticated user.
+     * Disconnect an OAuth provider from the authenticated user.
      */
     public function disconnect(string $provider): RedirectResponse
     {
@@ -86,17 +86,17 @@ class SocialAuthController extends Controller
 
         // Prevent disconnecting last auth method if no password
         $socialCount = $user->socialAccounts()->count();
-        $hasPassword = ! empty($user->password);
+        $hasPassword = !empty($user->password);
 
-        if ($socialCount <= 1 && ! $hasPassword) {
+        if ($socialCount <= 1 && !$hasPassword) {
             return back()->withErrors(['social' => 'You must have at least one login method. Set a password before disconnecting.']);
         }
 
-        $user->socialAccounts()
+        $user
+            ->socialAccounts()
             ->where('provider', $provider)
             ->delete();
 
         return back()->with('status', "{$provider} account disconnected.");
     }
 }
-

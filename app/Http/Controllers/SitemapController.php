@@ -11,7 +11,7 @@ use Spatie\Sitemap\Sitemap;
 class SitemapController extends Controller
 {
     /**
-     * Story 1.8: Generate and return the XML sitemap.
+     * Generate and return the XML sitemap.
      */
     public function index(): Response
     {
@@ -44,7 +44,7 @@ class SitemapController extends Controller
     }
 
     /**
-     * Story 1.8: Return robots.txt.
+     * Return robots.txt.
      */
     public function robots(): Response
     {

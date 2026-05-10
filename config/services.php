@@ -30,7 +30,7 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-    // Story 2.3: OAuth providers
+    // OAuth providers
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
@@ -46,7 +46,7 @@ return [
         'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
         'redirect' => env('FACEBOOK_REDIRECT_URI', '/auth/facebook/callback'),
     ],
-    // Story 1.6: Google Safe Browsing API
+    // Google Safe Browsing API
     'google_safe_browsing' => [
         'key' => env('GOOGLE_SAFE_BROWSING_KEY'),
     ],

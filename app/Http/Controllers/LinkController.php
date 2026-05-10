@@ -87,7 +87,7 @@ class LinkController extends Controller
         // Cache the redirect
         Cache::put("redirect:{$link->short_code}", $link->destination_url, now()->addHours(24));
 
-        // Story 1.7: Fetch OG tags asynchronously
+        // Fetch OG tags asynchronously
         FetchOgTagsJob::dispatch($link->id)->onQueue('default');
 
         return redirect()
@@ -97,7 +97,6 @@ class LinkController extends Controller
 
     /**
      * Display the specified resource with time-period filtered analytics.
-     * Stories 3.9b (time filter), 3.10 (country flags), 3.11 (device/referrer)
      */
     public function show(Link $link, Request $request): Response
     {

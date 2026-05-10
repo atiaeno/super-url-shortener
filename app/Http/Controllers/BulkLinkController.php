@@ -15,7 +15,7 @@ class BulkLinkController extends Controller
     private const MAX_URLS = 500;
 
     /**
-     * Story 3.7: Show bulk shortening page.
+     * Show bulk shortening page.
      */
     public function index(): Response
     {
@@ -23,7 +23,7 @@ class BulkLinkController extends Controller
     }
 
     /**
-     * Story 3.7: Process up to 500 URLs and return results.
+     * Process up to 500 URLs and return results.
      */
     public function store(Request $request): JsonResponse
     {
@@ -111,7 +111,7 @@ class BulkLinkController extends Controller
     }
 
     /**
-     * Story 3.8: Export bulk results as CSV download.
+     * Export bulk results as CSV download.
      */
     public function export(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
     {

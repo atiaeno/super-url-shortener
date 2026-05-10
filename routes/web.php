@@ -34,10 +34,12 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
         'donationEnabled' => (bool) config('app.donation_enabled', false),
         'donationButtonId' => config('app.donation_button_id', ''),
+        'featuresAffiliate' => (bool) config('app.features_affiliate', true),
+        'appName' => config('app.name', 'ShortLink'),
     ]);
 })->name('welcome');
 
-// ── Story 1.4: Guest link shortening ─────────────────────────────────────────
+// ── Guest link shortening ───────────────────────────────────────────────────
 Route::post('/guest/shorten', [GuestLinkController::class, 'store'])
     ->middleware('throttle:30,1')
     ->name('guest.shorten');
@@ -64,11 +66,11 @@ Route::get('/partners', [AffiliatePublicController::class, 'index'])->name('affi
 Route::get('/help', fn() => Inertia::render('HelpCenter'))->name('help.center');
 Route::get('/api-docs', fn() => Inertia::render('ApiDocs'))->name('api-docs');
 
-// ── Story 1.8: Sitemap & robots ───────────────────────────────────────────────
+// ── Sitemap & robots ──────────────────────────────────────────────────────────
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
-// ── Story 2.3: OAuth ──────────────────────────────────────────────────────────
+// ── OAuth ───────────────────────────────────────────────────────────────────
 Route::get('/auth/{provider}', [SocialAuthController::class, 'redirect'])->name('social.redirect');
 Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
 
@@ -96,10 +98,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/api-tokens', [ApiTokenController::class, 'store'])->name('profile.api-tokens.store');
     Route::delete('/profile/api-tokens/{id}', [ApiTokenController::class, 'destroy'])->name('profile.api-tokens.destroy');
 
-    // Story 2.8: OAuth disconnect
+    // OAuth disconnect
     Route::delete('/auth/{provider}/disconnect', [SocialAuthController::class, 'disconnect'])->name('social.disconnect');
 
-    // Stories 3.7 & 3.8: Bulk shortening — MUST be before resource route
+    // Bulk shortening — MUST be before resource route
     Route::get('/links/bulk', [BulkLinkController::class, 'index'])->name('links.bulk');
     Route::post('/links/bulk', [BulkLinkController::class, 'store'])->name('links.bulk.store');
     Route::post('/links/bulk/export', [BulkLinkController::class, 'export'])->name('links.bulk.export');
@@ -108,7 +110,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('links', LinkController::class);
     Route::patch('links/{link}/toggle', [LinkController::class, 'toggle'])->name('links.toggle');
 
-    // Story 3.4: QR code download
+    // QR code download
     Route::get('/links/{link}/qr/{format}', [QrCodeController::class, 'generate'])
         ->where('format', 'svg|png')
         ->name('links.qr');
@@ -122,7 +124,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/payouts', [AffiliateController::class, 'payouts'])->name('payouts');
     });
 
-    // Link reporting (Story 6.1 - public endpoint)
+    // Link reporting (public endpoint)
     Route::post('links/{link}/report', [ReportController::class, 'store'])->name('links.report');
 });
 
@@ -141,7 +143,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('links/{link}/edit', [AdminLinkController::class, 'edit'])->name('links.edit');
     Route::put('links/{link}', [AdminLinkController::class, 'update'])->name('links.update');
 
-    // User Management (Stories 8.1 - 8.3)
+    // User Management
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('index');
         Route::get('create', [UserController::class, 'create'])->name('create');
@@ -155,7 +157,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         Route::delete('{user}', [UserController::class, 'destroy'])->name('destroy');
     });
 
-    // Affiliate Tiers Management (Stories 4.1 & 4.2)
+    // Affiliate Tiers Management
     Route::prefix('affiliate-tiers')->name('affiliate-tiers.')->group(function () {
         Route::get('/', [AffiliateTierController::class, 'index'])->name('index');
         Route::post('/', [AffiliateTierController::class, 'store'])->name('store');
@@ -163,7 +165,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         Route::post('{affiliateTier}/country-rates', [AffiliateTierController::class, 'syncCountryRates'])->name('country-rates');
     });
 
-    // Payouts Management (Stories 4.7 & 4.8)
+    // Payouts Management
     Route::prefix('payouts')->name('payouts.')->group(function () {
         Route::get('/', [PayoutController::class, 'index'])->name('index');
         Route::post('{payout}/approve', [PayoutController::class, 'approve'])->name('approve');
@@ -172,7 +174,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         Route::get('{payout}/audit-log', [PayoutController::class, 'auditLog'])->name('audit-log');
     });
 
-    // Advertising Management (Stories 5.1 - 5.4)
+    // Advertising Management
     Route::prefix('advertising')->name('advertising.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\AdController::class, 'index'])->name('index');
         Route::post('/', [\App\Http\Controllers\Admin\AdController::class, 'store'])->name('store');
@@ -185,7 +187,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
             ->where('ad', '[0-9]+');
     });
 
-    // Content Moderation (Stories 6.1 - 6.4)
+    // Content Moderation
     Route::prefix('moderation')->name('moderation.')->group(function () {
         Route::get('/', [ModerationController::class, 'index'])->name('index');
         Route::get('reports', [ModerationController::class, 'reports'])->name('reports');
@@ -195,7 +197,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         Route::get('activity-log', [ModerationController::class, 'activityLog'])->name('activity-log');
     });
 
-    // System Settings (Stories 7.1 - 7.10)
+    // System Settings
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [SettingsController::class, 'index'])->name('index');
         Route::post('/', [SettingsController::class, 'update'])->name('update');

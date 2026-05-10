@@ -14,7 +14,7 @@ use Inertia\Response;
 class AffiliateTierController extends Controller
 {
     /**
-     * Story 4.1: List all tiers.
+     * List all tiers.
      */
     public function index(): Response
     {
@@ -29,7 +29,7 @@ class AffiliateTierController extends Controller
     }
 
     /**
-     * Story 4.1: Create tier.
+     * Create tier.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -49,7 +49,7 @@ class AffiliateTierController extends Controller
     }
 
     /**
-     * Story 4.1: Update tier.
+     * Update tier.
      */
     public function update(Request $request, AffiliateTier $affiliateTier): RedirectResponse
     {
@@ -68,7 +68,7 @@ class AffiliateTierController extends Controller
     }
 
     /**
-     * Story 4.2: Sync country rate overrides for a tier.
+     * Sync country rate overrides for a tier.
      */
     public function syncCountryRates(Request $request, AffiliateTier $affiliateTier): RedirectResponse
     {

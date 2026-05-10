@@ -19,7 +19,7 @@ class GuestLinkController extends Controller
     private const BLOCKED_DOMAINS_TTL = 3600;
 
     /**
-     * Story 1.4: Shorten a URL as a guest (no auth required).
+     * Shorten a URL as a guest (no auth required).
      */
     public function store(Request $request): \Illuminate\Http\JsonResponse
     {
@@ -29,7 +29,7 @@ class GuestLinkController extends Controller
 
         $url = $validated['url'];
 
-        // Story 1.6: Malicious URL check
+        // Malicious URL check
         if ($this->isMalicious($url)) {
             return response()->json([
                 'error' => 'This URL has been flagged as potentially harmful and cannot be shortened.',
@@ -57,7 +57,7 @@ class GuestLinkController extends Controller
             'is_active' => true,
         ]);
 
-        // Story 1.7: Fetch OG tags asynchronously
+        // Fetch OG tags asynchronously
         FetchOgTagsJob::dispatch($link->id)->onQueue('default');
 
         return response()->json([
@@ -68,7 +68,7 @@ class GuestLinkController extends Controller
     }
 
     /**
-     * Story 1.6: Check URL against domain blocklist and Google Safe Browsing.
+     * Check URL against domain blocklist and Google Safe Browsing.
      */
     private function isMalicious(string $url): bool
     {

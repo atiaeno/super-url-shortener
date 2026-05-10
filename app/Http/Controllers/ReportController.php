@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Cache;
 class ReportController extends Controller
 {
     /**
-     * Story 6.1: Report a link as spam/malicious.
+     * Report a link as spam/malicious.
      */
     public function store(Request $request, Link $link)
     {
@@ -41,11 +41,12 @@ class ReportController extends Controller
         // Increment report count
         $link->increment('report_count');
 
-        // Story 6.2: Auto-suspend if threshold reached
+        // Auto-suspend if threshold reached
         $threshold = config('app.auto_suspend_threshold', 3);
-        
+
         // Count unique IPs in last 24 hours
-        $recentReports = $link->reports()
+        $recentReports = $link
+            ->reports()
             ->where('created_at', '>=', now()->subDay())
             ->distinct('reporter_ip_hash')
             ->count('reporter_ip_hash');

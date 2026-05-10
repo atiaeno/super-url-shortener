@@ -9,6 +9,7 @@ use App\Models\Link;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Jenssegers\Agent\Agent;
 
 class RedirectController extends Controller
@@ -83,7 +84,7 @@ class RedirectController extends Controller
         // Cache destination for next time (24h TTL)
         Cache::put("redirect:{$shortCode}", $destinationUrl, now()->addHours(24));
 
-        // Story 1.7: Serve OG meta page for social crawlers (instant redirect via meta refresh)
+        // Serve OG meta page for social crawlers (instant redirect via meta refresh)
         if ($this->isSocialCrawler($request->userAgent() ?? '')) {
             return response($this->buildOgPage($link, $destinationUrl), 200)
                 ->header('Content-Type', 'text/html; charset=utf-8');
@@ -98,7 +99,7 @@ class RedirectController extends Controller
         $redirectMode = Setting::get('redirect_mode', 'auto');
         $redirectCaptcha = Setting::get('redirect_captcha', false);
 
-        // Story 5.4: Check for ad to display on the redirect page
+        // Check for ad to display on the redirect page
         $ad = $this->getAdForLink($link, $request);
         $adContent = '';
         $countdown = $redirectCountdown;
@@ -131,7 +132,7 @@ class RedirectController extends Controller
     }
 
     /**
-     * Story 1.7: Detect social media crawlers by user-agent.
+     * Detect social media crawlers by user-agent.
      */
     private function isSocialCrawler(string $ua): bool
     {
@@ -159,7 +160,7 @@ class RedirectController extends Controller
     }
 
     /**
-     * Story 1.7: Build a minimal HTML page with OG/Schema meta tags for social crawlers.
+     * Build a minimal HTML page with OG/Schema meta tags for social crawlers.
      * Kept as inline HTML — crawlers don't render CSS/JS, just need meta tags.
      */
     private function buildOgPage(Link $link, string $destinationUrl): string
@@ -222,6 +223,7 @@ class RedirectController extends Controller
 
     /**
      * Get country code from IP (using cache).
+     * Priority: CloudFlare header -> Free API fallback
      */
     private function getCountryCode(?string $ip): ?string
     {
@@ -230,13 +232,28 @@ class RedirectController extends Controller
         }
 
         return Cache::remember("geo:{$ip}", now()->addHours(24), function () use ($ip) {
-            // TODO: Integrate with geolocation service (MaxMind, IP-API, etc.)
+            // 1. Try CloudFlare header first
+            $cfCountry = request()->header('CF-IPCountry');
+            if ($cfCountry && $cfCountry !== 'XX' && $cfCountry !== 'T1') {
+                return $cfCountry;
+            }
+
+            // 2. Fallback to free ip-api.com (45 requests/min)
+            try {
+                $response = Http::timeout(2)->get("http://ip-api.com/json/{$ip}?fields=countryCode");
+                if ($response->successful()) {
+                    return $response->json('countryCode');
+                }
+            } catch (\Throwable) {
+                // Fail silently - return null
+            }
+
             return null;
         });
     }
 
     /**
-     * Story 5.4: Get appropriate ad for link based on override settings.
+     * Get appropriate ad for link based on override settings.
      */
     private function getAdForLink(Link $link, Request $request): ?Ad
     {

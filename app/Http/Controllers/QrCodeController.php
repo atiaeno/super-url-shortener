@@ -10,7 +10,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class QrCodeController extends Controller
 {
     /**
-     * Story 3.4: Generate a QR code for a link in SVG or PNG format.
+     * Generate a QR code for a link in SVG or PNG format.
      */
     public function generate(string $shortCode, string $format = 'svg'): Response
     {

@@ -20,10 +20,19 @@ const ranges = [
 ];
 
 const changeRange = (value) => router.get('/admin/analytics', { range: value }, { preserveScroll: true });
+
+const tooltip = ref({ visible: false, text: '', x: 0, y: 0 });
+const showTip = (e, text) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    tooltip.value = { visible: true, text, x: r.left + r.width / 2, y: r.top };
+};
+const hideTip = () => { tooltip.value.visible = false; };
 const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 const getMax = (arr, key) => Math.max(...(arr || []).map(d => d[key] || d.count || d.clicks || 0), 1);
 const getBarWidth = (count, data) => Math.max((count / getMax(data, 'count')) * 100, 2);
 const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5);
+const getBarPx = (count, data, maxPx = 106) => Math.max((count / getMax(data, 'count')) * maxPx, 4) + 'px';
+const getMiniBarPx = (count, data) => getBarPx(count, data, 76);
 </script>
 
 <template>
@@ -129,18 +138,22 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
                     <span class="chart-card__marker">Trend</span>
                     <h3 class="chart-card__title">Clicks Over Time</h3>
                 </div>
-                <div class="bar-chart">
-                    <div v-for="item in charts?.clicks_over_time" :key="item.date" class="bar-chart__bar"
-                        :style="{ height: getHeight(item.clicks, charts?.clicks_over_time) + '%' }"
-                        :title="`${formatDate(item.date)}: ${item.clicks} clicks`"></div>
-                </div>
-                <div class="bar-chart__labels">
-                    <span v-if="charts?.clicks_over_time?.length">{{ formatDate(charts.clicks_over_time[0]?.date)
-                    }}</span>
-                    <span v-if="charts?.clicks_over_time?.length">{{
-                        formatDate(charts.clicks_over_time[charts.clicks_over_time.length - 1]?.date) }}</span>
+                <div class="bar-chart-wrap">
+                    <div class="bar-chart">
+                        <div v-for="item in charts?.clicks_over_time" :key="item.date" class="bar-col"
+                            @mouseenter="(e) => showTip(e, `${formatDate(item.date)}: ${item.clicks} clicks`)"
+                            @mouseleave="hideTip">
+                            <div class="bar-chart__bar"
+                                :style="{ height: getHeight(item.clicks, charts?.clicks_over_time) + '%' }"></div>
+                            <span class="bar-xlabel">{{ formatDate(item.date) }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <Teleport to="body">
+                <div v-if="tooltip.visible" class="float-tooltip"
+                    :style="{ left: tooltip.x + 'px', top: tooltip.y + 'px' }">{{ tooltip.text }}</div>
+            </Teleport>
 
             <!-- Two Column Charts -->
             <div class="charts-grid two-col">
@@ -150,9 +163,11 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
                         <h3 class="chart-card__title">Hourly</h3>
                     </div>
                     <div class="bar-chart-v">
-                        <div v-for="item in charts?.hourly_distribution" :key="item.hour" class="bar-v"
-                            :style="{ height: getBarWidth(item.count, charts?.hourly_distribution) * 1.5 + '%' }">
-                            <span class="bar-v-label">{{ item.hour }}h</span>
+                        <div v-for="item in charts?.hourly_distribution" :key="item.hour" class="bar-col-v">
+                            <div class="bar-tooltip">{{ item.hour }}:00 &mdash; {{ item.count }} clicks</div>
+                            <div class="bar-v" :style="{ height: getBarPx(item.count, charts?.hourly_distribution) }">
+                            </div>
+                            <span class="bar-xlabel-v">{{ item.hour }}</span>
                         </div>
                     </div>
                 </div>
@@ -167,7 +182,8 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
                             <span class="day-name">{{ item.day }}</span>
                             <div class="day-bar-wrap">
                                 <div class="day-bar"
-                                    :style="{ width: getBarWidth(item.count, charts?.day_of_week) + '%' }"></div>
+                                    :style="{ width: getBarWidth(item.count, charts?.day_of_week) + '%' }">
+                                </div>
                             </div>
                             <span class="day-count">{{ item.count }}</span>
                         </div>
@@ -206,7 +222,8 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
                             <span class="device-name">{{ item.device_type || 'Unknown' }}</span>
                             <div class="device-bar-wrap">
                                 <div class="device-bar"
-                                    :style="{ width: getBarWidth(item.count, charts?.devices) + '%' }"></div>
+                                    :style="{ width: getBarWidth(item.count, charts?.devices) + '%' }">
+                                </div>
                             </div>
                             <span class="device-count">{{ item.count }}</span>
                         </div>
@@ -273,8 +290,12 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
                         <h3 class="chart-card__title">New Links</h3>
                     </div>
                     <div class="bar-chart-v mini">
-                        <div v-for="item in charts?.new_links" :key="item.date" class="bar-v mini"
-                            :style="{ height: getBarWidth(item.count, charts?.new_links) * 2 + '%' }"></div>
+                        <div v-for="item in charts?.new_links" :key="item.date" class="bar-col-v">
+                            <div class="bar-tooltip">{{ formatDate(item.date) }}: {{ item.count }} new links</div>
+                            <div class="bar-v mini" :style="{ height: getMiniBarPx(item.count, charts?.new_links) }">
+                            </div>
+                            <span class="bar-xlabel-v mini">{{ formatDate(item.date) }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -500,7 +521,7 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
 }
 
 .chart-card {
-    background: linear-gradient(145deg, #2d2d2d 0%, #1a1a1a 100%);
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 20px;
@@ -526,67 +547,191 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
     margin: 4px 0 0;
 }
 
+.bar-chart-wrap {
+    overflow-x: auto;
+    overflow-y: visible;
+    padding-bottom: 28px;
+    padding-top: 40px;
+}
+
 .bar-chart {
     display: flex;
     align-items: flex-end;
     gap: 2px;
     height: 120px;
-    background: var(--surface-2);
-    border-radius: var(--radius);
-    padding: 4px;
+    background: transparent;
+    border-bottom: 2px solid var(--border);
+    padding: 0;
+    min-width: 100%;
+}
+
+.bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+    height: 100%;
+    min-width: 0;
+}
+
+.bar-col:hover .bar-tooltip {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.bar-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    z-index: 100;
+}
+
+.bar-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: var(--ink);
 }
 
 .bar-chart__bar {
-    flex: 1;
+    width: 100%;
     background: var(--red);
-    border-radius: 2px;
+    border-radius: 2px 2px 0 0;
     min-height: 4px;
-    transition: height 0.3s;
+    transition: height 0.3s, opacity 0.2s;
 }
 
-.bar-chart__labels {
-    display: flex;
-    justify-content: space-between;
+.bar-col:hover .bar-chart__bar {
+    opacity: 0.8;
+}
+
+.float-tooltip {
+    position: fixed;
+    transform: translate(-50%, -100%);
+    background: var(--ink);
+    color: #fff;
     font-family: var(--font-display);
-    font-size: 9px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 9999;
+    margin-top: -6px;
+}
+
+.float-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--ink);
+}
+
+.bar-xlabel {
+    font-family: var(--font-display);
+    font-size: 8px;
     color: var(--muted);
     text-transform: uppercase;
-    margin-top: 8px;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+    max-width: 28px;
+    text-align: center;
+    position: absolute;
+    bottom: -20px;
 }
 
 .bar-chart-v {
     display: flex;
     align-items: flex-end;
-    gap: 3px;
+    gap: 2px;
     height: 110px;
-    padding-bottom: 4px;
+    background: var(--surface-2);
+    border-radius: var(--radius);
+    padding: 4px 4px 0;
+    overflow: visible;
+    margin-bottom: 24px;
 }
 
 .bar-chart-v.mini {
     height: 80px;
 }
 
-.bar-v {
+.bar-col-v {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+    height: 100%;
+    min-width: 0;
+}
+
+.bar-col-v:hover .bar-tooltip {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.bar-col-v:hover .bar-v {
+    opacity: 0.8;
+}
+
+.bar-v {
+    width: 100%;
     background: var(--red);
     border-radius: 2px 2px 0 0;
     min-height: 4px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
+    transition: height 0.3s, opacity 0.2s;
 }
 
 .bar-v.mini {
     background: #27ae60;
 }
 
-.bar-v-label {
+.bar-xlabel-v {
     font-family: var(--font-display);
-    font-size: 8px;
-    color: #fff;
-    transform: rotate(-45deg);
-    margin-bottom: 4px;
-    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    font-size: 7px;
+    color: var(--muted);
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+    max-width: 22px;
+    text-align: center;
+    position: absolute;
+    bottom: -18px;
+}
+
+.bar-xlabel-v.mini {
+    font-size: 6px;
+    max-width: 18px;
+}
+
+.bar-v-label {
+    display: none;
 }
 
 .day-list {
@@ -606,13 +751,13 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
     font-family: var(--font-display);
     font-size: 11px;
     font-weight: 500;
-    color: #fff;
+    color: var(--ink);
 }
 
 .day-bar-wrap {
     flex: 1;
     height: 12px;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--surface-2);
     border-radius: 6px;
     overflow: hidden;
 }
@@ -629,7 +774,7 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
     font-family: var(--font-display);
     font-size: 11px;
     font-weight: 600;
-    color: #fff;
+    color: var(--ink);
 }
 
 .country-list {

@@ -19,7 +19,7 @@ use Inertia\Response;
 class AffiliateController extends Controller
 {
     /**
-     * Story 4.3: Affiliate enrollment + Story 4.4: Earnings dashboard.
+     * Affiliate enrollment and earnings dashboard.
      */
     public function index(): Response
     {
@@ -64,7 +64,7 @@ class AffiliateController extends Controller
     }
 
     /**
-     * Story 4.3: Enroll user in affiliate program.
+     * Enroll user in affiliate program.
      */
     public function enroll(): RedirectResponse
     {
@@ -88,7 +88,7 @@ class AffiliateController extends Controller
     }
 
     /**
-     * Story 4.5: Submit payout request.
+     * Submit payout request.
      */
     public function requestPayout(Request $request): RedirectResponse
     {
@@ -138,7 +138,7 @@ class AffiliateController extends Controller
     }
 
     /**
-     * Story 4.6: Payout history.
+     * Payout history.
      */
     public function payouts(): Response
     {
