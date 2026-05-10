@@ -3,6 +3,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Setting;
 use App\Services\CaptchaService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -49,6 +50,74 @@ class HandleInertiaRequests extends Middleware
             }
         }
 
+        $brandingKeys = [
+            'app_name',
+            'app_tagline',
+            'logo_url',
+            'favicon_url',
+            'footer_text',
+            'meta_description',
+            'meta_keywords',
+            'og_image',
+            'schema_json',
+            // Per-page SEO
+            'seo_home_title',
+            'seo_home_description',
+            'seo_privacy_title',
+            'seo_privacy_description',
+            'seo_terms_title',
+            'seo_terms_description',
+            'seo_cookies_title',
+            'seo_cookies_description',
+            'seo_gdpr_title',
+            'seo_gdpr_description',
+            'seo_help_title',
+            'seo_help_description',
+            'seo_affiliate_title',
+            'seo_affiliate_description',
+            'seo_contact_title',
+            'seo_contact_description',
+            'seo_api_docs_title',
+            'seo_api_docs_description',
+        ];
+
+        $settings = Setting::whereIn('key', $brandingKeys)
+            ->pluck('value', 'key')
+            ->toArray();
+
+        $defaults = [
+            'app_name' => 'Super Url Shortener',
+            'app_tagline' => 'Shorten URLs with style and analytics',
+            'logo_url' => '',
+            'favicon_url' => '',
+            'footer_text' => '© ' . date('Y') . ' Super Url Shortener. All rights reserved.',
+            'meta_description' => 'Shorten URLs with style and analytics. Track clicks, geographic data, and more.',
+            'meta_keywords' => 'url shortener, link shortener, url tracker, analytics, qr code',
+            'og_image' => '',
+            'schema_json' => '{"@context":"https://schema.org","@type":"WebApplication","name":"Super Url Shortener","applicationCategory":"UtilitiesApplication"}',
+            // Per-page SEO defaults
+            'seo_home_title' => '',
+            'seo_home_description' => '',
+            'seo_privacy_title' => '',
+            'seo_privacy_description' => '',
+            'seo_terms_title' => '',
+            'seo_terms_description' => '',
+            'seo_cookies_title' => '',
+            'seo_cookies_description' => '',
+            'seo_gdpr_title' => '',
+            'seo_gdpr_description' => '',
+            'seo_help_title' => '',
+            'seo_help_description' => '',
+            'seo_affiliate_title' => '',
+            'seo_affiliate_description' => '',
+            'seo_contact_title' => '',
+            'seo_contact_description' => '',
+            'seo_api_docs_title' => '',
+            'seo_api_docs_description' => '',
+        ];
+
+        $settings = array_merge($defaults, $settings);
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -61,6 +130,8 @@ class HandleInertiaRequests extends Middleware
                 'new_token' => $request->session()->get('new_token'),
                 'new_token_name' => $request->session()->get('new_token_name'),
             ],
+            'settings' => $settings,
+            'appName' => $settings['app_name'] ?? 'Super Url Shortener',
         ];
     }
 }

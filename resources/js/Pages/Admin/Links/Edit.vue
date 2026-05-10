@@ -109,7 +109,7 @@ const icons = {
                                 <input v-model="form.destination_url" type="url" class="field__input" required />
                                 <span v-if="form.errors.destination_url" class="field__error">{{
                                     form.errors.destination_url
-                                }}</span>
+                                    }}</span>
                             </div>
 
                             <div class="field">
@@ -119,7 +119,7 @@ const icons = {
                                     <option value="private">Private (password protected)</option>
                                 </select>
                                 <span v-if="form.errors.visibility" class="field__error">{{ form.errors.visibility
-                                }}</span>
+                                    }}</span>
                             </div>
 
                             <div v-if="form.visibility === 'private'" class="field">
@@ -142,7 +142,7 @@ const icons = {
                                     rows="3" placeholder="Social share description"></textarea>
                                 <span v-if="form.errors.og_description" class="field__error">{{
                                     form.errors.og_description
-                                }}</span>
+                                    }}</span>
                             </div>
 
                             <div class="field">
@@ -153,7 +153,7 @@ const icons = {
                                     <option value="force">Force specific ad</option>
                                 </select>
                                 <span v-if="form.errors.ad_override" class="field__error">{{ form.errors.ad_override
-                                }}</span>
+                                    }}</span>
                             </div>
 
                             <div v-if="form.ad_override === 'force'" class="field">
@@ -201,14 +201,14 @@ const icons = {
                                 </Link>
                                 <span class="other-link__url" :title="otherLink.destination_url">{{
                                     otherLink.destination_url
-                                    }}</span>
+                                }}</span>
                             </div>
                         </div>
                         <div class="other-link__stats">
                             <span class="other-link__clicks">{{ otherLink.clicks_count?.toLocaleString() ?? 0 }}
                                 clicks</span>
                             <span class="other-link__date">{{ new Date(otherLink.created_at).toLocaleDateString()
-                                }}</span>
+                            }}</span>
                         </div>
                     </div>
                 </div>
@@ -219,24 +219,6 @@ const icons = {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
-
-:root {
-    --font-display: 'Oswald', sans-serif;
-    --font-body: 'Crimson Pro', serif;
-    --red: #e74c3c;
-    --red-dark: #c0392b;
-    --gold: #d4af37;
-    --ink: #1a1a1a;
-    --ink-soft: #444;
-    --muted: #888;
-    --border: #e8e5e0;
-    --surface: #fff;
-    --surface-2: #f5f3ef;
-    --radius: 4px;
-    --transition: all 0.2s ease;
-}
-
 /* ── Page Header ──────────────────────────── */
 .page-header {
     display: flex;

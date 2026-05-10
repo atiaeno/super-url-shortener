@@ -1,9 +1,13 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import Masthead from '@/Components/Masthead.vue';
 import EditorialFooter from '@/Components/EditorialFooter.vue';
+
+const page = usePage();
+const seoTitle = computed(() => page.props.settings?.seo_help_title || 'Help Center');
+const seoDescription = computed(() => page.props.settings?.seo_help_description || '');
 
 const activeCategory = ref('getting-started');
 const expandedQuestions = ref(new Set());
@@ -148,7 +152,10 @@ const isExpanded = (id) => expandedQuestions.value.has(id);
 </script>
 
 <template>
-    <Head title="Help Center — ShortLink" />
+
+    <Head :title="`${seoTitle} — ${page.props.settings?.app_name || 'ShortLink'}`">
+        <meta v-if="seoDescription" name="description" :content="seoDescription">
+    </Head>
 
     <div class="help-page">
         <Masthead variant="light" :show-nav="true" />
@@ -158,18 +165,14 @@ const isExpanded = (id) => expandedQuestions.value.has(id);
             <header class="help-header">
                 <div class="issue-label">Support & Documentation</div>
                 <h1>Help<br><span>Center</span></h1>
-                <p class="deck">Comprehensive answers to common questions. Browse by category or search for specific topics.</p>
+                <p class="deck">Comprehensive answers to common questions. Browse by category or search for specific
+                    topics.</p>
             </header>
 
             <!-- Category Navigation -->
             <nav class="category-nav">
-                <button
-                    v-for="cat in categories"
-                    :key="cat.id"
-                    class="category-btn"
-                    :class="{ 'active': activeCategory === cat.id }"
-                    @click="activeCategory = cat.id"
-                >
+                <button v-for="cat in categories" :key="cat.id" class="category-btn"
+                    :class="{ 'active': activeCategory === cat.id }" @click="activeCategory = cat.id">
                     <span class="category-num">{{ cat.num }}</span>
                     <span class="category-label">{{ cat.label }}</span>
                 </button>
@@ -177,20 +180,13 @@ const isExpanded = (id) => expandedQuestions.value.has(id);
 
             <!-- FAQ Accordion -->
             <div class="faq-container">
-                <div
-                    v-for="faq in currentFaqs"
-                    :key="faq.id"
-                    class="faq-item"
-                    :class="{ 'expanded': isExpanded(faq.id) }"
-                >
-                    <button
-                        class="faq-question"
-                        @click="toggleQuestion(faq.id)"
-                    >
+                <div v-for="faq in currentFaqs" :key="faq.id" class="faq-item"
+                    :class="{ 'expanded': isExpanded(faq.id) }">
+                    <button class="faq-question" @click="toggleQuestion(faq.id)">
                         <span class="faq-text">{{ faq.question }}</span>
                         <span class="faq-toggle">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M19 9l-7 7-7-7" class="toggle-icon"/>
+                                <path d="M19 9l-7 7-7-7" class="toggle-icon" />
                             </svg>
                         </span>
                     </button>
@@ -211,14 +207,14 @@ const isExpanded = (id) => expandedQuestions.value.has(id);
                         <a href="mailto:support@shortlink.app" class="cta-btn cta-btn--primary">
                             <span>Email Support</span>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                                <polyline points="22,6 12,13 2,6"/>
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                <polyline points="22,6 12,13 2,6" />
                             </svg>
                         </a>
                         <Link :href="route('dashboard')" class="cta-btn cta-btn--secondary">
                             <span>Visit Dashboard</span>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M9 18l6-6-6-6"/>
+                                <path d="M9 18l6-6-6-6" />
                             </svg>
                         </Link>
                     </div>
@@ -349,7 +345,7 @@ h1 span {
 
 .faq-item:hover {
     border-color: #ccc;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .faq-item.expanded {

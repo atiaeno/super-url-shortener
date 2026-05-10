@@ -34,8 +34,8 @@ const formatDate = (dateStr) => {
 
     <AdminLayout>
         <template #header-icon>
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
         </template>
         <template #header>Edit User</template>
 
@@ -88,7 +88,8 @@ const formatDate = (dateStr) => {
                         <div class="form-actions">
                             <Link :href="route('admin.users.index')" class="btn-ghost">Cancel</Link>
                             <button type="submit" :disabled="form.processing" class="btn-primary">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.save" />
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    v-html="icons.save" />
                                 {{ form.processing ? 'Saving...' : 'Save Changes' }}
                             </button>
                         </div>
@@ -104,8 +105,11 @@ const formatDate = (dateStr) => {
                 <div class="status-grid">
                     <div class="status-item">
                         <span class="status-item__label">Account Status</span>
-                        <span class="status-item__value" :class="user.ban_type === 'none' ? 'status--active' : (user.ban_type === 'soft' ? 'status--soft' : 'status--hard')">
-                            {{ user.ban_type === 'none' ? 'Active' : (user.ban_type === 'soft' ? 'Soft Banned' : 'Hard Banned') }}
+                        <span class="status-item__value"
+                            :class="user.ban_type === 'none' ? 'status--active' : (user.ban_type === 'soft' ? 'status--soft' : 'status--hard')">
+                            {{ user.ban_type === 'none' ? 'Active' : (user.ban_type === 'soft' ? 'Soft Banned' : 'Hard
+                            Banned')
+                            }}
                         </span>
                     </div>
                     <div class="status-item">
@@ -122,24 +126,6 @@ const formatDate = (dateStr) => {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
-
-:root {
-    --font-display: 'Oswald', sans-serif;
-    --font-body: 'Crimson Pro', serif;
-    --red: #e74c3c;
-    --red-dark: #c0392b;
-    --gold: #d4af37;
-    --ink: #1a1a1a;
-    --ink-soft: #444;
-    --muted: #888;
-    --border: #e8e5e0;
-    --surface: #fff;
-    --surface-2: #f5f3ef;
-    --radius: 4px;
-    --transition: all 0.2s ease;
-}
-
 /* ── Page Header ──────────────────────────── */
 .page-header {
     display: flex;

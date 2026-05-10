@@ -183,23 +183,6 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Oswald:wght@400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
-
-:root {
-    --red: #e74c3c;
-    --gold: #d4af37;
-    --ink: #1a1a1a;
-    --muted: #888;
-    --border: #e8e5e0;
-    --bg: #fafafa;
-    --surface: #fff;
-    --surface-2: #f5f3ef;
-    --font-display: 'Oswald', sans-serif;
-    --font-body: 'Crimson Pro', serif;
-    --font-admin: 'DM Sans', sans-serif;
-    --radius: 4px;
-}
-
 * {
     font-family: var(--font-admin);
     font-size: 13px;

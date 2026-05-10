@@ -1,9 +1,13 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
 import Masthead from '@/Components/Masthead.vue';
 import EditorialFooter from '@/Components/EditorialFooter.vue';
+
+const page = usePage();
+const seoTitle = computed(() => page.props.settings?.seo_affiliate_title || 'Affiliate Program');
+const seoDescription = computed(() => page.props.settings?.seo_affiliate_description || '');
 
 const props = defineProps({
     canLogin: Boolean,
@@ -54,7 +58,9 @@ const countryName = (code) => {
 
 <template>
 
-    <Head title="Affiliate Program — ShortLink" />
+    <Head :title="`${seoTitle} — ${page.props.settings?.app_name || 'ShortLink'}`">
+        <meta v-if="seoDescription" name="description" :content="seoDescription">
+    </Head>
 
     <div class="editorial">
         <Masthead variant="blend" :show-nav="true" />

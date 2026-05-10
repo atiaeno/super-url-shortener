@@ -70,6 +70,9 @@ Route::get('/api-docs', fn() => Inertia::render('ApiDocs'))->name('api-docs');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
+// ── Public Settings API ───────────────────────────────────────────────────────
+Route::get('/api/settings', [SettingsController::class, 'publicSettings'])->name('settings.public');
+
 // ── OAuth ───────────────────────────────────────────────────────────────────
 Route::get('/auth/{provider}', [SocialAuthController::class, 'redirect'])->name('social.redirect');
 Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');

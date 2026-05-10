@@ -3,6 +3,7 @@
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import '@/../css/admin_setting.css';
 
 const props = defineProps({
     settings: Object,
@@ -12,9 +13,35 @@ const props = defineProps({
 const form = useForm({
     app_name: props.settings.app_name,
     app_tagline: props.settings.app_tagline,
+    logo: null,
+    favicon: null,
     logo_url: props.settings.logo_url,
     favicon_url: props.settings.favicon_url,
     footer_text: props.settings.footer_text,
+    meta_description: props.settings.meta_description,
+    meta_keywords: props.settings.meta_keywords,
+    og_image: null,
+    og_image_url: props.settings.og_image,
+    schema_json: props.settings.schema_json,
+    // Per-page SEO
+    seo_home_title: props.settings.seo_home_title,
+    seo_home_description: props.settings.seo_home_description,
+    seo_privacy_title: props.settings.seo_privacy_title,
+    seo_privacy_description: props.settings.seo_privacy_description,
+    seo_terms_title: props.settings.seo_terms_title,
+    seo_terms_description: props.settings.seo_terms_description,
+    seo_cookies_title: props.settings.seo_cookies_title,
+    seo_cookies_description: props.settings.seo_cookies_description,
+    seo_gdpr_title: props.settings.seo_gdpr_title,
+    seo_gdpr_description: props.settings.seo_gdpr_description,
+    seo_help_title: props.settings.seo_help_title,
+    seo_help_description: props.settings.seo_help_description,
+    seo_affiliate_title: props.settings.seo_affiliate_title,
+    seo_affiliate_description: props.settings.seo_affiliate_description,
+    seo_contact_title: props.settings.seo_contact_title,
+    seo_contact_description: props.settings.seo_contact_description,
+    seo_api_docs_title: props.settings.seo_api_docs_title,
+    seo_api_docs_description: props.settings.seo_api_docs_description,
     donation_enabled: props.settings.donation_enabled === 'true',
     donation_button_id: props.settings.donation_button_id,
     features_affiliate: props.settings.features_affiliate === 'true',
@@ -43,7 +70,10 @@ const cacheForm = useForm({ type: 'all' });
 const importForm = useForm({ file: null });
 
 const submit = () => {
-    form.post(route('admin.settings.update'), { preserveScroll: true });
+    form.post(route('admin.settings.update'), {
+        preserveScroll: true,
+        forceFormData: true,
+    });
 };
 
 const purgeCache = () => {
@@ -65,12 +95,13 @@ const activeTab = ref('branding');
 
 const tabs = [
     { id: 'branding', label: 'Branding', roman: 'I.', icon: `<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>` },
-    { id: 'features', label: 'Features', roman: 'II.', icon: `<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>` },
-    { id: 'redirect', label: 'Redirect Page', roman: 'III.', icon: `<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>` },
-    { id: 'security', label: 'Security', roman: 'IV.', icon: `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>` },
-    { id: 'cache', label: 'Cache', roman: 'V.', icon: `<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>` },
-    { id: 'maintenance', label: 'Maintenance', roman: 'VI.', icon: `<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>` },
-    { id: 'data', label: 'Import / Export', roman: 'VII.', icon: `<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>` },
+    { id: 'seo', label: 'SEO', roman: 'II.', icon: `<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>` },
+    { id: 'features', label: 'Features', roman: 'III.', icon: `<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>` },
+    { id: 'redirect', label: 'Redirect Page', roman: 'IV.', icon: `<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>` },
+    { id: 'security', label: 'Security', roman: 'V.', icon: `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>` },
+    { id: 'cache', label: 'Cache', roman: 'VI.', icon: `<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>` },
+    { id: 'maintenance', label: 'Maintenance', roman: 'VII.', icon: `<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>` },
+    { id: 'data', label: 'Import / Export', roman: 'VIII.', icon: `<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>` },
 ];
 
 const ringOffset = computed(() => 226 * (1 - 0.6));
@@ -148,19 +179,65 @@ const icons = {
                                 </div>
                                 <div class="field-grid">
                                     <div class="field">
-                                        <label class="field__label">Logo URL</label>
-                                        <input v-model="form.logo_url" type="url" class="field__input"
-                                            placeholder="https://..." />
+                                        <label class="field__label">Logo (Upload)</label>
+                                        <input type="file" @input="form.logo = $event.target.files[0]"
+                                            class="field__input" accept="image/*" />
+                                        <p class="field__hint">PNG, JPG, SVG, WebP (max 2MB)</p>
+                                        <img v-if="form.logo_url" :src="form.logo_url"
+                                            style="height:40px;margin-top:8px" alt="Logo" />
                                     </div>
                                     <div class="field">
-                                        <label class="field__label">Favicon URL</label>
-                                        <input v-model="form.favicon_url" type="url" class="field__input"
-                                            placeholder="https://..." />
+                                        <label class="field__label">Favicon (Upload)</label>
+                                        <input type="file" @input="form.favicon = $event.target.files[0]"
+                                            class="field__input" accept="image/*" />
+                                        <p class="field__hint">PNG, ICO, JPG (max 512KB)</p>
+                                        <img v-if="form.favicon_url" :src="form.favicon_url"
+                                            style="height:32px;margin-top:8px" alt="Favicon" />
                                     </div>
+                                </div>
+                                <div class="field-grid">
+                                    <div class="field">
+                                        <label class="field__label">Logo URL (or enter URL)</label>
+                                        <input v-model="form.logo_url" type="text" class="field__input"
+                                            placeholder="https://... or leave empty if uploading" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field__label">Favicon URL (or enter URL)</label>
+                                        <input v-model="form.favicon_url" type="text" class="field__input"
+                                            placeholder="https://... or leave empty if uploading" />
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label class="field__label">OG Image / Cover (Upload)</label>
+                                    <input type="file" @input="form.og_image = $event.target.files[0]"
+                                        class="field__input" accept="image/*" />
+                                    <p class="field__hint">1200x630px recommended for social sharing</p>
+                                    <img v-if="form.og_image_url" :src="form.og_image_url"
+                                        style="height:80px;margin-top:8px;border-radius:4px" alt="OG Image" />
                                 </div>
                                 <div class="field">
                                     <label class="field__label">Footer Text</label>
                                     <input v-model="form.footer_text" type="text" class="field__input" />
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <h4 style="margin:16px 0 12px;font-size:14px;color:#444">SEO Settings</h4>
+                                <div class="field">
+                                    <label class="field__label">Meta Description</label>
+                                    <textarea v-model="form.meta_description" rows="2" class="field__input"
+                                        placeholder="Page description for search engines"></textarea>
+                                </div>
+                                <div class="field">
+                                    <label class="field__label">Meta Keywords</label>
+                                    <input v-model="form.meta_keywords" type="text" class="field__input"
+                                        placeholder="url shortener, link tracker, analytics" />
+                                </div>
+                                <div class="field">
+                                    <label class="field__label">Schema.org JSON-LD</label>
+                                    <textarea v-model="form.schema_json" rows="3"
+                                        class="field__input field__input--mono"
+                                        placeholder='{"@context":"https://schema.org",...}'></textarea>
                                 </div>
 
                                 <div class="divider"></div>
@@ -190,10 +267,118 @@ const icons = {
                             </div>
                         </div>
 
+                        <!-- ═══ SEO ═══ -->
+                        <div v-if="activeTab === 'seo'" class="panel" style="padding:0;background:transparent">
+                            <div class="panel__header" style="padding:0 0 16px;border:none">
+                                <span class="panel__marker">II.</span>
+                                <h3 class="panel__title">Page SEO Settings</h3>
+                            </div>
+
+                            <div class="seo-grid">
+                                <div class="seo-section">
+                                    <div class="seo-section__title">Home</div>
+                                    <div class="field-grid">
+                                        <div class="field"><label class="field__label">Title</label><input
+                                                v-model="form.seo_home_title" type="text" class="field__input" /></div>
+                                        <div class="field"><label class="field__label">Description</label><input
+                                                v-model="form.seo_home_description" type="text" class="field__input" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="seo-section">
+                                    <div class="seo-section__title">Privacy</div>
+                                    <div class="field-grid">
+                                        <div class="field"><label class="field__label">Title</label><input
+                                                v-model="form.seo_privacy_title" type="text" class="field__input" />
+                                        </div>
+                                        <div class="field"><label class="field__label">Description</label><input
+                                                v-model="form.seo_privacy_description" type="text"
+                                                class="field__input" /></div>
+                                    </div>
+                                </div>
+                                <div class="seo-section">
+                                    <div class="seo-section__title">Terms</div>
+                                    <div class="field-grid">
+                                        <div class="field"><label class="field__label">Title</label><input
+                                                v-model="form.seo_terms_title" type="text" class="field__input" /></div>
+                                        <div class="field"><label class="field__label">Description</label><input
+                                                v-model="form.seo_terms_description" type="text" class="field__input" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="seo-section">
+                                    <div class="seo-section__title">Cookies</div>
+                                    <div class="field-grid">
+                                        <div class="field"><label class="field__label">Title</label><input
+                                                v-model="form.seo_cookies_title" type="text" class="field__input" />
+                                        </div>
+                                        <div class="field"><label class="field__label">Description</label><input
+                                                v-model="form.seo_cookies_description" type="text"
+                                                class="field__input" /></div>
+                                    </div>
+                                </div>
+                                <div class="seo-section">
+                                    <div class="seo-section__title">GDPR</div>
+                                    <div class="field-grid">
+                                        <div class="field"><label class="field__label">Title</label><input
+                                                v-model="form.seo_gdpr_title" type="text" class="field__input" /></div>
+                                        <div class="field"><label class="field__label">Description</label><input
+                                                v-model="form.seo_gdpr_description" type="text" class="field__input" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="seo-section">
+                                    <div class="seo-section__title">Help</div>
+                                    <div class="field-grid">
+                                        <div class="field"><label class="field__label">Title</label><input
+                                                v-model="form.seo_help_title" type="text" class="field__input" /></div>
+                                        <div class="field"><label class="field__label">Description</label><input
+                                                v-model="form.seo_help_description" type="text" class="field__input" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="seo-section">
+                                    <div class="seo-section__title">Affiliate</div>
+                                    <div class="field-grid">
+                                        <div class="field"><label class="field__label">Title</label><input
+                                                v-model="form.seo_affiliate_title" type="text" class="field__input" />
+                                        </div>
+                                        <div class="field"><label class="field__label">Description</label><input
+                                                v-model="form.seo_affiliate_description" type="text"
+                                                class="field__input" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="seo-section">
+                                    <div class="seo-section__title">Contact</div>
+                                    <div class="field-grid">
+                                        <div class="field"><label class="field__label">Title</label><input
+                                                v-model="form.seo_contact_title" type="text" class="field__input" />
+                                        </div>
+                                        <div class="field"><label class="field__label">Description</label><input
+                                                v-model="form.seo_contact_description" type="text"
+                                                class="field__input" /></div>
+                                    </div>
+                                </div>
+                                <div class="seo-section">
+                                    <div class="seo-section__title">API Docs</div>
+                                    <div class="field-grid">
+                                        <div class="field"><label class="field__label">Title</label><input
+                                                v-model="form.seo_api_docs_title" type="text" class="field__input" />
+                                        </div>
+                                        <div class="field"><label class="field__label">Description</label><input
+                                                v-model="form.seo_api_docs_description" type="text"
+                                                class="field__input" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- ═══ FEATURES ═══ -->
                         <div v-if="activeTab === 'features'" class="panel">
                             <div class="panel__header">
-                                <span class="panel__marker">II.</span>
+                                <span class="panel__marker">III.</span>
                                 <h3 class="panel__title">Feature Modules</h3>
                             </div>
                             <div class="panel__body">
@@ -204,46 +389,18 @@ const icons = {
                                 ]" :key="feat.id">
                                     <input v-model="form[feat.model]" type="checkbox" :id="feat.id"
                                         class="toggle-check" />
-                                    <div>
+                                    <div class="feature-card__content">
                                         <label :for="feat.id" class="feature-card__title">{{ feat.title }}</label>
                                         <p class="feature-card__desc">{{ feat.desc }}</p>
                                     </div>
                                 </div>
-
-                                <div class="divider"></div>
-
-                                <div class="field">
-                                    <label class="field__label">Auto-Suspend Threshold (reports)</label>
-                                    <input v-model="form.auto_suspend_threshold" type="number" min="1"
-                                        class="field__input field__input--sm" />
-                                    <p class="field__hint">Number of unique reports within 24h to auto-suspend a link.
-                                    </p>
-                                </div>
-
-                                <template v-if="form.features_affiliate">
-                                    <div class="divider"></div>
-
-                                    <div class="field">
-                                        <label class="field__label">Minimum Payout ($)</label>
-                                        <input v-model="form.affiliate_min_payout" type="number" min="1" step="1"
-                                            class="field__input field__input--sm" />
-                                        <p class="field__hint">Minimum earnings required to request a payout.</p>
-                                    </div>
-
-                                    <div class="field">
-                                        <label class="field__label">Payout Methods</label>
-                                        <input v-model="form.affiliate_payout_methods" type="text"
-                                            class="field__input field__input--sm" />
-                                        <p class="field__hint">Comma-separated: PayPal, Bank Transfer, Crypto</p>
-                                    </div>
-                                </template>
                             </div>
                         </div>
 
                         <!-- ═══ REDIRECT PAGE ═══ -->
                         <div v-if="activeTab === 'redirect'" class="panel">
                             <div class="panel__header">
-                                <span class="panel__marker">III.</span>
+                                <span class="panel__marker">IV.</span>
                                 <h3 class="panel__title">Redirect Page</h3>
                             </div>
                             <div class="panel__body">
@@ -523,810 +680,3 @@ const icons = {
         </div>
     </AdminLayout>
 </template>
-
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
-
-:root {
-    --font-display: 'Oswald', sans-serif;
-    --font-body: 'Crimson Pro', serif;
-    --red: #e74c3c;
-    --red-dark: #c0392b;
-    --gold: #d4af37;
-    --ink: #1a1a1a;
-    --ink-soft: #444;
-    --muted: #888;
-    --border: #e8e5e0;
-    --surface: #fff;
-    --surface-2: #f5f3ef;
-    --radius: 4px;
-    --transition: all 0.2s ease;
-}
-
-/* ── Page Header ──────────────────────────── */
-.page-header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 24px;
-    margin-bottom: 20px;
-}
-
-.page-header__marker {
-    font-family: var(--font-display);
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--red);
-    display: block;
-    margin-bottom: 8px;
-}
-
-.page-header__title {
-    font-family: var(--font-display);
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--ink);
-    margin: 0 0 4px;
-}
-
-.page-header__sub {
-    font-family: var(--font-body);
-    font-size: 15px;
-    font-style: italic;
-    color: var(--muted);
-    margin: 0;
-}
-
-/* ── Section Rule ─────────────────────────── */
-.section-rule {
-    height: 1px;
-    background: linear-gradient(90deg, var(--red) 60px, var(--border) 60px);
-    margin-bottom: 28px;
-}
-
-/* ── Layout ───────────────────────────────── */
-.settings-layout {
-    display: grid;
-    grid-template-columns: 220px 1fr;
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    min-height: 500px;
-}
-
-/* ── Sidebar ──────────────────────────────── */
-.settings-sidebar {
-    background: var(--surface);
-    display: flex;
-    flex-direction: column;
-    padding: 8px 0;
-}
-
-.sidebar-tab {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 18px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: var(--transition);
-    text-align: left;
-    border-left: 2px solid transparent;
-}
-
-.sidebar-tab:hover {
-    background: var(--surface-2);
-}
-
-.sidebar-tab--active {
-    background: var(--surface-2);
-    border-left-color: var(--red);
-}
-
-.sidebar-tab__icon {
-    width: 20px;
-    height: 20px;
-    color: var(--muted);
-    flex-shrink: 0;
-    transition: var(--transition);
-}
-
-.sidebar-tab__icon svg {
-    width: 100%;
-    height: 100%;
-}
-
-.sidebar-tab--active .sidebar-tab__icon {
-    color: var(--red);
-}
-
-.sidebar-tab__text {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-}
-
-.sidebar-tab__roman {
-    font-family: var(--font-display);
-    font-size: 9px;
-    font-weight: 700;
-    color: var(--muted);
-    transition: var(--transition);
-}
-
-.sidebar-tab--active .sidebar-tab__roman {
-    color: var(--red);
-}
-
-.sidebar-tab__label {
-    font-family: var(--font-display);
-    font-size: 12px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--ink-soft);
-    transition: var(--transition);
-}
-
-.sidebar-tab--active .sidebar-tab__label {
-    color: var(--ink);
-    font-weight: 600;
-}
-
-/* ── Content Area ─────────────────────────── */
-.settings-content {
-    background: var(--surface);
-    padding: 0;
-}
-
-/* ── Panel ────────────────────────────────── */
-.panel {
-    animation: fadeIn 0.15s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(4px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.panel__header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 20px 28px;
-    background: var(--surface-2);
-    border-bottom: 1px solid var(--border);
-}
-
-.panel__marker {
-    font-family: var(--font-display);
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--red);
-}
-
-.panel__title {
-    font-family: var(--font-display);
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--ink);
-    margin: 0;
-}
-
-.panel__body {
-    padding: 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.panel__desc {
-    font-family: var(--font-body);
-    font-size: 14px;
-    color: var(--muted);
-    font-style: italic;
-    margin: -8px 0 0;
-}
-
-/* ── Fields ───────────────────────────────── */
-.field-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.field__label {
-    font-family: var(--font-display);
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--ink-soft);
-}
-
-.field__input {
-    padding: 10px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--ink);
-    font-family: var(--font-body);
-    font-size: 14px;
-    transition: var(--transition);
-}
-
-.field__input:focus {
-    outline: none;
-    border-color: var(--red);
-    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.08);
-}
-
-.field__input--sm {
-    width: 100px;
-}
-
-.field__input--mono {
-    font-family: 'Courier New', monospace;
-    font-size: 13px;
-    resize: vertical;
-}
-
-.field__select {
-    padding: 10px 32px 10px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--ink);
-    font-family: var(--font-display);
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    min-width: 160px;
-    transition: var(--transition);
-}
-
-.field__select:focus {
-    outline: none;
-    border-color: var(--red);
-}
-
-.field__hint {
-    font-family: var(--font-body);
-    font-size: 12px;
-    color: var(--muted);
-    font-style: italic;
-    margin-top: 2px;
-}
-
-/* ── Toggle / Checkbox ────────────────────── */
-.toggle-check {
-    width: 16px;
-    height: 16px;
-    accent-color: var(--red);
-    margin-top: 2px;
-    flex-shrink: 0;
-    cursor: pointer;
-}
-
-.toggle-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.toggle-text {
-    font-family: var(--font-display);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--ink);
-    cursor: pointer;
-}
-
-/* ── Feature Card ─────────────────────────── */
-.feature-card {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    padding: 18px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    transition: var(--transition);
-}
-
-.feature-card:hover {
-    border-color: #d4d0cb;
-}
-
-.feature-card__title {
-    font-family: var(--font-display);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink);
-    display: block;
-    cursor: pointer;
-}
-
-.feature-card__desc {
-    font-family: var(--font-body);
-    font-size: 13px;
-    color: var(--muted);
-    margin-top: 4px;
-    line-height: 1.4;
-}
-
-/* ── Divider ──────────────────────────────── */
-.divider {
-    height: 1px;
-    background: var(--border);
-}
-
-/* ── Redirect Preview ─────────────────────── */
-.redirect-preview {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding: 20px 24px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-}
-
-.redirect-preview__ring {
-    position: relative;
-    width: 56px;
-    height: 56px;
-    flex-shrink: 0;
-}
-
-.redirect-preview__num {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-display);
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--ink);
-}
-
-.redirect-preview__value {
-    font-family: var(--font-display);
-    font-size: 22px;
-    font-weight: 600;
-    color: var(--ink);
-    display: block;
-    line-height: 1;
-}
-
-.redirect-preview__label {
-    font-family: var(--font-display);
-    font-size: 10px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--muted);
-    display: block;
-    margin-top: 4px;
-}
-
-/* ── Mode Cards ───────────────────────────── */
-.mode-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 4px;
-}
-
-.mode-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding: 20px 16px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: var(--transition);
-    text-align: center;
-}
-
-.mode-card:hover {
-    border-color: var(--ink-soft);
-}
-
-.mode-card--active {
-    border-color: var(--red);
-    background: #fef2f2;
-}
-
-.mode-card__radio {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.mode-card__icon {
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius);
-    background: var(--surface-2);
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-}
-
-.mode-card--active .mode-card__icon {
-    background: var(--red);
-    color: var(--surface);
-}
-
-.mode-card__icon svg {
-    width: 16px;
-    height: 16px;
-}
-
-.mode-card__title {
-    font-family: var(--font-display);
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--ink);
-}
-
-.mode-card__desc {
-    font-family: var(--font-body);
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.4;
-}
-
-/* ── Purge Box ────────────────────────────── */
-.purge-box {
-    padding: 20px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-}
-
-.purge-box__header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 14px;
-}
-
-.purge-box__icon {
-    width: 18px;
-    height: 18px;
-    color: var(--red);
-}
-
-.purge-box__title {
-    font-family: var(--font-display);
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--ink);
-}
-
-.purge-box__actions {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-}
-
-/* ── Maintenance Banner ───────────────────── */
-.maintenance-banner {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    padding: 18px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    transition: var(--transition);
-}
-
-.maintenance-banner--on {
-    background: #fffbeb;
-    border-color: #fcd34d;
-}
-
-.maintenance-banner__title {
-    font-family: var(--font-display);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink);
-    display: block;
-    cursor: pointer;
-}
-
-.maintenance-banner--on .maintenance-banner__title {
-    color: #92400e;
-}
-
-.maintenance-banner__desc {
-    font-family: var(--font-body);
-    font-size: 13px;
-    color: var(--muted);
-    margin-top: 4px;
-}
-
-.maintenance-banner--on .maintenance-banner__desc {
-    color: #b45309;
-}
-
-/* ── Data Grid ────────────────────────────── */
-.data-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-.data-tile {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 18px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    transition: var(--transition);
-}
-
-.data-tile:hover {
-    border-color: #d4d0cb;
-}
-
-.data-tile--full {
-    grid-column: 1 / -1;
-}
-
-.data-tile__icon {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.data-tile__icon svg {
-    width: 18px;
-    height: 18px;
-}
-
-.data-tile__icon--blue {
-    background: #eff6ff;
-    color: #3b82f6;
-}
-
-.data-tile__icon--green {
-    background: #f0fdf4;
-    color: #16a34a;
-}
-
-.data-tile__icon--gold {
-    background: #fef9f0;
-    color: var(--gold);
-}
-
-.data-tile__text {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.data-tile__text strong {
-    font-family: var(--font-display);
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: var(--ink);
-}
-
-.data-tile__text span {
-    font-family: var(--font-body);
-    font-size: 12px;
-    color: var(--muted);
-}
-
-/* ── Buttons ──────────────────────────────── */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 9px 18px;
-    border-radius: var(--radius);
-    font-family: var(--font-display);
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border: 1px solid transparent;
-    cursor: pointer;
-    transition: var(--transition);
-    text-decoration: none;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-.btn--primary {
-    background: var(--red);
-    border-color: var(--red);
-    color: var(--surface);
-}
-
-.btn--primary:hover {
-    background: var(--red-dark);
-    border-color: var(--red-dark);
-}
-
-.btn--primary:disabled {
-    opacity: 0.5;
-    pointer-events: none;
-}
-
-.btn--danger {
-    background: var(--red);
-    border-color: var(--red);
-    color: var(--surface);
-}
-
-.btn--danger:hover {
-    background: var(--red-dark);
-}
-
-.btn--success {
-    background: #22c55e;
-    border-color: #22c55e;
-    color: var(--surface);
-}
-
-.btn--success:hover {
-    background: #16a34a;
-}
-
-.btn--ghost {
-    background: var(--surface);
-    border-color: var(--border);
-    color: var(--ink);
-}
-
-.btn--ghost:hover {
-    background: var(--surface-2);
-    border-color: var(--ink-soft);
-}
-
-.btn--lg {
-    padding: 11px 28px;
-    font-size: 12px;
-}
-
-/* ── Save Bar ─────────────────────────────── */
-.save-bar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 16px;
-    padding: 18px 28px;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-}
-
-.save-bar__status {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #16a34a;
-    font-family: var(--font-display);
-    font-size: 11px;
-    font-weight: 500;
-    text-transform: uppercase;
-}
-
-.save-bar__status svg {
-    width: 16px;
-    height: 16px;
-}
-
-/* ── Utilities ────────────────────────────── */
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
-
-.file-upload-btn {
-    cursor: pointer;
-}
-
-/* ── Responsive ───────────────────────────── */
-@media (max-width: 768px) {
-    .settings-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .settings-sidebar {
-        flex-direction: row;
-        overflow-x: auto;
-        padding: 0;
-        border-bottom: 1px solid var(--border);
-    }
-
-    .sidebar-tab {
-        border-left: none;
-        border-bottom: 2px solid transparent;
-        padding: 10px 14px;
-        white-space: nowrap;
-    }
-
-    .sidebar-tab--active {
-        border-left-color: transparent;
-        border-bottom-color: var(--red);
-    }
-
-    .sidebar-tab__roman {
-        display: none;
-    }
-
-    .field-grid,
-    .mode-grid,
-    .data-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .panel__body {
-        padding: 20px 18px;
-    }
-
-    .panel__header {
-        padding: 16px 18px;
-    }
-
-    .save-bar {
-        padding: 14px 18px;
-    }
-
-    .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-}
-</style>

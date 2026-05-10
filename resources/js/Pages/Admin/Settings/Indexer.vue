@@ -349,28 +349,6 @@ const getStatusColor = (status) => {
     </AdminLayout>
 </template>
 
-<style>
-* {
-    font-size: 13px;
-    color: #000;
-}
-
-:root {
-    --font-display: 'Oswald', sans-serif;
-    --font-body: system-ui, -apple-system, sans-serif;
-    --primary: #e74c3c;
-    --primary-dark: #c0392b;
-    --ink: #000000;
-    --ink-soft: #333333;
-    --muted: #666666;
-    --border: #e8e5e0;
-    --surface: #fff;
-    --surface-2: #f5f3ef;
-    --radius: 4px;
-    --transition: all 0.2s ease;
-}
-</style>
-
 <style scoped>
 .page-header {
     display: flex;

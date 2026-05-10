@@ -273,25 +273,6 @@ const deleteLink = (linkId) => {
     </AdminLayout>
 </template>
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
-
-:root {
-    --font-display: 'Oswald', sans-serif;
-    --font-body: 'Crimson Pro', serif;
-    --primary: #e74c3c;
-    --primary-dark: #c0392b;
-    --ink: #000000;
-    --ink-soft: #333333;
-    --muted: #666666;
-    --border: #e8e5e0;
-    --surface: #fff;
-    --surface-2: #f5f3ef;
-    --radius: 4px;
-    --transition: all 0.2s ease;
-}
-</style>
-
 <style scoped>
 /* ── Page Header ──────────────────────────── */
 .page-header {

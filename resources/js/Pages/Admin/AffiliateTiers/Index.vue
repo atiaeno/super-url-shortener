@@ -243,7 +243,7 @@ const submitRates = () => { ratesForm.post(route('admin.affiliate-tiers.country-
                                 <span class="rates-table__th rates-table__th--code">Country</span>
                                 <span class="rates-table__th rates-table__th--rate">$ / {{
                                     fmtMult(ratesModal.view_multiplier)
-                                    }} views</span>
+                                }} views</span>
                                 <span class="rates-table__th rates-table__th--action"></span>
                             </div>
                             <div class="rates-table__body">
@@ -304,7 +304,7 @@ const submitRates = () => { ratesForm.post(route('admin.affiliate-tiers.country-
                                 <input v-model="createForm.name" type="text" placeholder="e.g., Elite"
                                     class="field__input" required />
                                 <span v-if="createForm.errors.name" class="field__error">{{ createForm.errors.name
-                                    }}</span>
+                                }}</span>
                             </div>
                             <div class="field">
                                 <label class="field__label">Visit Threshold</label>
@@ -327,7 +327,7 @@ const submitRates = () => { ratesForm.post(route('admin.affiliate-tiers.country-
                                 </div>
                                 <span v-if="createForm.errors.view_rate" class="field__error">{{
                                     createForm.errors.view_rate
-                                    }}</span>
+                                }}</span>
                             </div>
                         </div>
                         <div class="modal__actions">
@@ -379,7 +379,7 @@ const submitRates = () => { ratesForm.post(route('admin.affiliate-tiers.country-
                                     </select>
                                 </div>
                                 <span v-if="editForm.errors.view_rate" class="field__error">{{ editForm.errors.view_rate
-                                    }}</span>
+                                }}</span>
                             </div>
                             <label class="toggle">
                                 <input type="checkbox" v-model="editForm.is_active" class="toggle__input" />
@@ -404,24 +404,6 @@ const submitRates = () => { ratesForm.post(route('admin.affiliate-tiers.country-
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
-
-:root {
-    --font-display: 'Oswald', sans-serif;
-    --font-body: 'Crimson Pro', serif;
-    --red: #e74c3c;
-    --red-dark: #c0392b;
-    --gold: #d4af37;
-    --ink: #1a1a1a;
-    --ink-soft: #444;
-    --muted: #888;
-    --border: #e8e5e0;
-    --surface: #fff;
-    --surface-2: #f5f3ef;
-    --radius: 4px;
-    --transition: all 0.2s ease;
-}
-
 /* ── Page Header ──────────────────────────── */
 .page-header {
     display: flex;

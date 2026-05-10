@@ -261,19 +261,6 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
-
-:root {
-    --font-display: 'Oswald', sans-serif;
-    --red: #e74c3c;
-    --ink: #000000;
-    --muted: #333333;
-    --border: #e5e5e5;
-    --surface: #fff;
-    --radius: 4px;
-}
-
 .page-content {
     max-width: 1000px;
     margin: 0 auto;

@@ -28,8 +28,8 @@ const icons = {
 
     <AdminLayout>
         <template #header-icon>
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
         </template>
         <template #header>Create User</template>
 
@@ -58,13 +58,15 @@ const icons = {
                         <div class="form-grid">
                             <div class="field">
                                 <label class="field__label">Name <span class="required">*</span></label>
-                                <input v-model="form.name" type="text" class="field__input" placeholder="Enter full name" required />
+                                <input v-model="form.name" type="text" class="field__input"
+                                    placeholder="Enter full name" required />
                                 <span v-if="form.errors.name" class="field__error">{{ form.errors.name }}</span>
                             </div>
 
                             <div class="field">
                                 <label class="field__label">Email <span class="required">*</span></label>
-                                <input v-model="form.email" type="email" class="field__input" placeholder="Enter email address" required />
+                                <input v-model="form.email" type="email" class="field__input"
+                                    placeholder="Enter email address" required />
                                 <span v-if="form.errors.email" class="field__error">{{ form.errors.email }}</span>
                             </div>
 
@@ -81,7 +83,8 @@ const icons = {
                             <div class="field">
                                 <label class="field__label">Password <span class="required">*</span></label>
                                 <div class="password-field">
-                                    <input v-model="form.password" type="password" class="field__input" placeholder="Minimum 8 characters" required minlength="8" />
+                                    <input v-model="form.password" type="password" class="field__input"
+                                        placeholder="Minimum 8 characters" required minlength="8" />
                                     <span class="password-hint">Must be at least 8 characters</span>
                                 </div>
                                 <span v-if="form.errors.password" class="field__error">{{ form.errors.password }}</span>
@@ -91,7 +94,8 @@ const icons = {
                         <div class="form-actions">
                             <Link :href="route('admin.users.index')" class="btn-ghost">Cancel</Link>
                             <button type="submit" :disabled="form.processing" class="btn-primary">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" v-html="icons.save" />
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    v-html="icons.save" />
                                 {{ form.processing ? 'Creating...' : 'Create User' }}
                             </button>
                         </div>
@@ -125,24 +129,6 @@ const icons = {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
-
-:root {
-    --font-display: 'Oswald', sans-serif;
-    --font-body: 'Crimson Pro', serif;
-    --red: #e74c3c;
-    --red-dark: #c0392b;
-    --gold: #d4af37;
-    --ink: #1a1a1a;
-    --ink-soft: #444;
-    --muted: #888;
-    --border: #e8e5e0;
-    --surface: #fff;
-    --surface-2: #f5f3ef;
-    --radius: 4px;
-    --transition: all 0.2s ease;
-}
-
 /* ── Page Header ──────────────────────────── */
 .page-header {
     display: flex;

@@ -1,10 +1,16 @@
 ﻿<!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import axios from 'axios';
 import Masthead from '@/Components/Masthead.vue';
 import EditorialFooter from '@/Components/EditorialFooter.vue';
+
+const page = usePage();
+const appName = computed(() => page.props.settings?.app_name ?? 'Super Url Shortener');
+const appTagline = computed(() => page.props.settings?.app_tagline ?? 'Shorten URLs with style and analytics');
+const seoTitle = computed(() => page.props.settings?.seo_home_title || appName.value);
+const seoDescription = computed(() => page.props.settings?.seo_home_description || '');
 
 // Animated counter for stats
 const count1 = ref(0);
@@ -87,7 +93,9 @@ const scrollToSection = (id) => {
 
 <template>
 
-    <Head :title="`${appName} — Editorial`" />
+    <Head :title="`${seoTitle} — ${appName}`">
+        <meta v-if="seoDescription" name="description" :content="seoDescription">
+    </Head>
 
     <div class="editorial">
         <Masthead variant="blend" :show-nav="true" />
@@ -112,8 +120,7 @@ const scrollToSection = (id) => {
                     </h1>
 
                     <p class="hero-subdeck">
-                        The definitive URL shortening platform. Where every link becomes a precision instrument
-                        for tracking, sharing, and understanding digital presence.
+                        {{ appTagline }}
                     </p>
                 </div>
 

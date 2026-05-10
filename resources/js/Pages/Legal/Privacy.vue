@@ -1,12 +1,20 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import Masthead from '@/Components/Masthead.vue';
 import EditorialFooter from '@/Components/EditorialFooter.vue';
+
+const page = usePage();
+const seoTitle = computed(() => page.props.settings?.seo_privacy_title || 'Privacy Policy');
+const seoDescription = computed(() => page.props.settings?.seo_privacy_description || '');
 </script>
 
 <template>
-    <Head title="Privacy Policy — ShortLink" />
+
+    <Head :title="`${seoTitle} — ${page.props.settings?.app_name || 'ShortLink'}`">
+        <meta v-if="seoDescription" name="description" :content="seoDescription">
+    </Head>
 
     <div class="legal-page">
         <Masthead variant="light" :show-nav="true" />
@@ -48,18 +56,22 @@ import EditorialFooter from '@/Components/EditorialFooter.vue';
                 <section class="legal-section">
                     <span class="roman-num">III.</span>
                     <h2>Data Retention</h2>
-                    <p>We retain your personal information for as long as your account is active or as needed to provide you services. Analytics data for shortened URLs is retained indefinitely unless you delete the link. You may request deletion of your account and associated data at any time.</p>
+                    <p>We retain your personal information for as long as your account is active or as needed to provide
+                        you services. Analytics data for shortened URLs is retained indefinitely unless you delete the
+                        link. You may request deletion of your account and associated data at any time.</p>
                 </section>
 
                 <section class="legal-section">
                     <span class="roman-num">IV.</span>
                     <h2>Data Sharing</h2>
-                    <p>We do not sell, trade, or rent your personal information to third parties. We may share information only in the following circumstances:</p>
+                    <p>We do not sell, trade, or rent your personal information to third parties. We may share
+                        information only in the following circumstances:</p>
                     <ul>
                         <li>With your consent</li>
                         <li>To comply with legal obligations</li>
                         <li>To protect our rights or property</li>
-                        <li>With service providers who assist in our operations (under strict confidentiality agreements)</li>
+                        <li>With service providers who assist in our operations (under strict confidentiality
+                            agreements)</li>
                     </ul>
                 </section>
 
@@ -72,13 +84,16 @@ import EditorialFooter from '@/Components/EditorialFooter.vue';
                         <li>Remember your preferences</li>
                         <li>Analyze traffic patterns and improve our service</li>
                     </ul>
-                    <p>You can control cookies through your browser settings. However, disabling cookies may limit your ability to use certain features.</p>
+                    <p>You can control cookies through your browser settings. However, disabling cookies may limit your
+                        ability to use certain features.</p>
                 </section>
 
                 <section class="legal-section">
                     <span class="roman-num">VI.</span>
                     <h2>Security</h2>
-                    <p>We implement industry-standard security measures to protect your data, including encryption in transit (HTTPS), secure server infrastructure, and regular security audits. However, no method of transmission over the internet is 100% secure, and we cannot guarantee absolute security.</p>
+                    <p>We implement industry-standard security measures to protect your data, including encryption in
+                        transit (HTTPS), secure server infrastructure, and regular security audits. However, no method
+                        of transmission over the internet is 100% secure, and we cannot guarantee absolute security.</p>
                 </section>
 
                 <section class="legal-section">
@@ -98,7 +113,8 @@ import EditorialFooter from '@/Components/EditorialFooter.vue';
                 <section class="legal-section">
                     <span class="roman-num">VIII.</span>
                     <h2>Contact Us</h2>
-                    <p>If you have questions about this Privacy Policy, please contact us at <a href="mailto:privacy@shortlink.app">privacy@shortlink.app</a>.</p>
+                    <p>If you have questions about this Privacy Policy, please contact us at <a
+                            href="mailto:privacy@shortlink.app">privacy@shortlink.app</a>.</p>
                 </section>
             </div>
         </main>

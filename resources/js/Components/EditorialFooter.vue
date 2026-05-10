@@ -7,6 +7,10 @@ defineProps({
     donationEnabled: { type: Boolean, default: false },
     donationButtonId: { type: String, default: '' },
 });
+
+const page = usePage();
+const appName = computed(() => page.props.settings?.app_name ?? 'Super Url Shortener');
+const footerText = computed(() => page.props.settings?.footer_text ?? `© ${new Date().getFullYear()} Super Url Shortener. All rights reserved.`);
 </script>
 
 <template>
@@ -17,7 +21,7 @@ defineProps({
             <div class="footer__col">
                 <div class="footer__brand">
                     <span class="footer__logo-mark">/</span>
-                    <span class="footer__logo-text">ShortLink</span>
+                    <span class="footer__logo-text">{{ appName }}</span>
                 </div>
                 <div class="footer__rule"></div>
                 <p class="footer__about">
@@ -154,10 +158,7 @@ defineProps({
         <!-- Copyright Bar -->
         <div class="footer__copyright">
             <div class="footer__copyright-content">
-                <p class="footer__copyright-text">
-                    <span class="footer__copyright-year">© MMXXV</span>
-                    ShortLink — All Rights Reserved
-                </p>
+                <p class="footer__copyright-text">{{ footerText }}</p>
                 <p class="footer__credit">
                     Designed with precision by <a href="https://atiaeno.com" target="_blank" rel="noopener">atiaeno</a>
                 </p>

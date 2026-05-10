@@ -13,6 +13,7 @@ const user = computed(() => page.props.auth?.user);
 const canLogin = computed(() => page.props.canLogin ?? true);
 const canRegister = computed(() => page.props.canRegister ?? true);
 const affiliateEnabled = computed(() => page.props.featuresAffiliate ?? true);
+const appName = computed(() => page.props.settings?.app_name ?? 'Super Url Shortener');
 
 const scrolled = ref(false);
 const handleScroll = () => { scrolled.value = window.scrollY > 60; };
@@ -25,7 +26,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll));
         <div class="masthead__brand">
             <Link :href="route('welcome')" class="masthead__logo">
                 <span class="masthead__logo-mark">/</span>
-                <span class="masthead__logo-text">ShortLink</span>
+                <span class="masthead__logo-text">{{ appName }}</span>
             </Link>
             <div class="masthead__rule"></div>
         </div>

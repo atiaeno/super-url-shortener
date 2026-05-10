@@ -1,9 +1,13 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
-import { Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, usePage } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
 import Masthead from '@/Components/Masthead.vue';
 import EditorialFooter from '@/Components/EditorialFooter.vue';
+
+const page = usePage();
+const seoTitle = computed(() => page.props.settings?.seo_api_docs_title || 'API Documentation');
+const seoDescription = computed(() => page.props.settings?.seo_api_docs_description || '');
 
 const activeEndpoint = ref('create');
 const copyFeedback = ref({});
@@ -774,7 +778,9 @@ const copyCode = async (text, key) => {
 
 <template>
 
-    <Head title="API Documentation — ShortLink" />
+    <Head :title="`${seoTitle} — ${page.props.settings?.app_name || 'ShortLink'}`">
+        <meta v-if="seoDescription" name="description" :content="seoDescription">
+    </Head>
 
     <div class="api-page">
         <Masthead variant="light" :show-nav="true" />

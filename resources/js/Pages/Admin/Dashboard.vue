@@ -376,8 +376,6 @@ const getCountryBarWidth = (count) => {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
-
 @keyframes fadeUp {
     from {
         opacity: 0;
@@ -388,22 +386,6 @@ const getCountryBarWidth = (count) => {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-:root {
-    --font-display: 'Oswald', sans-serif;
-    --font-body: 'Crimson Pro', serif;
-    --red: #e74c3c;
-    --red-dark: #c0392b;
-    --gold: #d4af37;
-    --ink: #1a1a1a;
-    --ink-soft: #444;
-    --muted: #888;
-    --border: #e8e5e0;
-    --surface: #fff;
-    --surface-2: #f5f3ef;
-    --radius: 4px;
-    --transition: all 0.2s ease;
 }
 
 /* ── Page Header ──────────────────────────── */
@@ -457,7 +439,7 @@ const getCountryBarWidth = (count) => {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 1px;
- 
+
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;

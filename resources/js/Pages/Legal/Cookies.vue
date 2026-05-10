@@ -1,12 +1,20 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import Masthead from '@/Components/Masthead.vue';
 import EditorialFooter from '@/Components/EditorialFooter.vue';
+
+const page = usePage();
+const seoTitle = computed(() => page.props.settings?.seo_cookies_title || 'Cookie Policy');
+const seoDescription = computed(() => page.props.settings?.seo_cookies_description || '');
 </script>
 
 <template>
-    <Head title="Cookie Policy — ShortLink" />
+
+    <Head :title="`${seoTitle} — ${page.props.settings?.app_name || 'ShortLink'}`">
+        <meta v-if="seoDescription" name="description" :content="seoDescription">
+    </Head>
 
     <div class="legal-page">
         <Masthead variant="light" :show-nav="true" />
@@ -23,7 +31,9 @@ import EditorialFooter from '@/Components/EditorialFooter.vue';
                 <section class="legal-section">
                     <span class="roman-num">I.</span>
                     <h2>What Are Cookies</h2>
-                    <p>Cookies are small text files that are stored on your device when you visit a website. They help websites remember your preferences, understand how you interact with the site, and improve your browsing experience.</p>
+                    <p>Cookies are small text files that are stored on your device when you visit a website. They help
+                        websites remember your preferences, understand how you interact with the site, and improve your
+                        browsing experience.</p>
                 </section>
 
                 <section class="legal-section">
@@ -31,10 +41,14 @@ import EditorialFooter from '@/Components/EditorialFooter.vue';
                     <h2>How We Use Cookies</h2>
                     <p>We use cookies for the following purposes:</p>
                     <ul>
-                        <li><strong>Essential cookies:</strong> Required for the website to function properly, including authentication and security features.</li>
-                        <li><strong>Preference cookies:</strong> Remember your settings and preferences for a better experience.</li>
-                        <li><strong>Analytics cookies:</strong> Help us understand how visitors interact with our website.</li>
-                        <li><strong>Security cookies:</strong> Protect against fraudulent activity and improve security.</li>
+                        <li><strong>Essential cookies:</strong> Required for the website to function properly, including
+                            authentication and security features.</li>
+                        <li><strong>Preference cookies:</strong> Remember your settings and preferences for a better
+                            experience.</li>
+                        <li><strong>Analytics cookies:</strong> Help us understand how visitors interact with our
+                            website.</li>
+                        <li><strong>Security cookies:</strong> Protect against fraudulent activity and improve security.
+                        </li>
                     </ul>
                 </section>
 
@@ -107,19 +121,22 @@ import EditorialFooter from '@/Components/EditorialFooter.vue';
                 <section class="legal-section">
                     <span class="roman-num">VI.</span>
                     <h2>Consent</h2>
-                    <p>By using our website, you consent to the use of cookies as described in this policy. You may withdraw your consent at any time by adjusting your browser settings or contacting us.</p>
+                    <p>By using our website, you consent to the use of cookies as described in this policy. You may
+                        withdraw your consent at any time by adjusting your browser settings or contacting us.</p>
                 </section>
 
                 <section class="legal-section">
                     <span class="roman-num">VII.</span>
                     <h2>Changes to This Policy</h2>
-                    <p>We may update this Cookie Policy from time to time. We will notify you of any changes by posting the new policy on this page with an updated effective date.</p>
+                    <p>We may update this Cookie Policy from time to time. We will notify you of any changes by posting
+                        the new policy on this page with an updated effective date.</p>
                 </section>
 
                 <section class="legal-section">
                     <span class="roman-num">VIII.</span>
                     <h2>Contact Us</h2>
-                    <p>If you have questions about our use of cookies, please contact us at <a href="mailto:privacy@shortlink.app">privacy@shortlink.app</a>.</p>
+                    <p>If you have questions about our use of cookies, please contact us at <a
+                            href="mailto:privacy@shortlink.app">privacy@shortlink.app</a>.</p>
                 </section>
             </div>
         </main>

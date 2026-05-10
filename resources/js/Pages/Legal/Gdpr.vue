@@ -1,12 +1,20 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import Masthead from '@/Components/Masthead.vue';
 import EditorialFooter from '@/Components/EditorialFooter.vue';
+
+const page = usePage();
+const seoTitle = computed(() => page.props.settings?.seo_gdpr_title || 'GDPR Compliance');
+const seoDescription = computed(() => page.props.settings?.seo_gdpr_description || '');
 </script>
 
 <template>
-    <Head title="GDPR Compliance — ShortLink" />
+
+    <Head :title="`${seoTitle} — ${page.props.settings?.app_name || 'ShortLink'}`">
+        <meta v-if="seoDescription" name="description" :content="seoDescription">
+    </Head>
 
     <div class="legal-page">
         <Masthead variant="light" :show-nav="true" />
@@ -15,7 +23,8 @@ import EditorialFooter from '@/Components/EditorialFooter.vue';
             <header class="legal-header">
                 <div class="issue-label">Data Protection</div>
                 <h1>GDPR<br><span>Compliance</span></h1>
-                <p class="deck">Our commitment to the General Data Protection Regulation and your rights as a data subject.</p>
+                <p class="deck">Our commitment to the General Data Protection Regulation and your rights as a data
+                    subject.</p>
                 <div class="meta-badge">EU Regulation 2016/679</div>
             </header>
 
@@ -23,7 +32,9 @@ import EditorialFooter from '@/Components/EditorialFooter.vue';
                 <section class="legal-section">
                     <span class="roman-num">I.</span>
                     <h2>Data Controller</h2>
-                    <p>ShortLink operates as the data controller for personal information collected through our service. For data protection inquiries, contact our Data Protection Officer at <a href="mailto:dpo@shortlink.app">dpo@shortlink.app</a>.</p>
+                    <p>ShortLink operates as the data controller for personal information collected through our service.
+                        For data protection inquiries, contact our Data Protection Officer at <a
+                            href="mailto:dpo@shortlink.app">dpo@shortlink.app</a>.</p>
                 </section>
 
                 <section class="legal-section">
@@ -32,7 +43,8 @@ import EditorialFooter from '@/Components/EditorialFooter.vue';
                     <p>We process personal data based on the following legal grounds:</p>
                     <ul>
                         <li><strong>Consent:</strong> When you explicitly agree to our processing activities</li>
-                        <li><strong>Contract:</strong> Processing necessary to fulfill our service agreement with you</li>
+                        <li><strong>Contract:</strong> Processing necessary to fulfill our service agreement with you
+                        </li>
                         <li><strong>Legal Obligation:</strong> Compliance with applicable laws and regulations</li>
                         <li><strong>Legitimate Interests:</strong> Improving our services and ensuring security</li>
                     </ul>
@@ -42,7 +54,7 @@ import EditorialFooter from '@/Components/EditorialFooter.vue';
                     <span class="roman-num">III.</span>
                     <h2>Your Rights Under GDPR</h2>
                     <p>As a data subject, you have the following rights:</p>
-                    
+
                     <div class="rights-grid">
                         <div class="right-item">
                             <h3>Right to Access</h3>
@@ -74,7 +86,8 @@ import EditorialFooter from '@/Components/EditorialFooter.vue';
                 <section class="legal-section">
                     <span class="roman-num">IV.</span>
                     <h2>Data Transfers</h2>
-                    <p>We may transfer your data outside the European Economic Area (EEA). When we do, we ensure appropriate safeguards are in place:</p>
+                    <p>We may transfer your data outside the European Economic Area (EEA). When we do, we ensure
+                        appropriate safeguards are in place:</p>
                     <ul>
                         <li>Adequacy decisions by the European Commission</li>
                         <li>Standard contractual clauses approved by the EU</li>
@@ -85,7 +98,8 @@ import EditorialFooter from '@/Components/EditorialFooter.vue';
                 <section class="legal-section">
                     <span class="roman-num">V.</span>
                     <h2>Data Breach Notification</h2>
-                    <p>In the event of a personal data breach likely to result in a risk to your rights and freedoms, we will:</p>
+                    <p>In the event of a personal data breach likely to result in a risk to your rights and freedoms, we
+                        will:</p>
                     <ul>
                         <li>Notify the relevant supervisory authority within 72 hours</li>
                         <li>Inform affected individuals without undue delay</li>
@@ -153,19 +167,23 @@ import EditorialFooter from '@/Components/EditorialFooter.vue';
                         <li>Specify which right you wish to exercise</li>
                         <li>Provide identification to verify your identity</li>
                     </ul>
-                    <p>We will respond to your request within one month. Complex requests may require an extension of up to two additional months.</p>
+                    <p>We will respond to your request within one month. Complex requests may require an extension of up
+                        to two additional months.</p>
                 </section>
 
                 <section class="legal-section">
                     <span class="roman-num">IX.</span>
                     <h2>Complaints</h2>
-                    <p>If you believe we have not handled your data appropriately, you have the right to lodge a complaint with your local supervisory authority. We encourage you to contact us first so we can address your concerns.</p>
+                    <p>If you believe we have not handled your data appropriately, you have the right to lodge a
+                        complaint with your local supervisory authority. We encourage you to contact us first so we can
+                        address your concerns.</p>
                 </section>
 
                 <section class="legal-section">
                     <span class="roman-num">X.</span>
                     <h2>Updates to This Notice</h2>
-                    <p>We may update this GDPR compliance information to reflect changes in our practices or legal requirements. Check this page periodically for the latest information.</p>
+                    <p>We may update this GDPR compliance information to reflect changes in our practices or legal
+                        requirements. Check this page periodically for the latest information.</p>
                 </section>
             </div>
         </main>
