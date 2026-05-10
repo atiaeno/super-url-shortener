@@ -7,6 +7,21 @@ import '../../css/admin_sidebar.css';
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 
+// Get route function from ziggy - use global route
+const route = (name, params = {}) => {
+    // When called without arguments, return an object with current method
+    if (name === undefined) {
+        return {
+            current: (routeName) => {
+                const currentRoute = window.route().current();
+                return currentRoute === routeName || currentRoute.startsWith(routeName + '.');
+            }
+        };
+    }
+
+    return window.route(name, params);
+};
+
 const props = defineProps({
     collapsed: {
         type: Boolean,
@@ -26,9 +41,18 @@ const adminNavItems = [
     { label: 'Settings', icon: 'settings', route: 'admin.settings.index' },
 ];
 
+const isModerationActive = computed(() => {
+    const currentRoute = window.route().current();
+    return currentRoute.startsWith('admin.moderation');
+});
+
+// Keep dropdown open if a submenu is selected or if manually toggled
+const isModerationDropdownOpen = computed(() => {
+    return isModerationActive.value || moderationDropdownOpen.value;
+});
+
 const moderationDropdownOpen = ref(false);
 
-const toggleSidebar = () => emit('toggle');
 const toggleModerationDropdown = () => {
     moderationDropdownOpen.value = !moderationDropdownOpen.value;
     // Auto-close dropdown when sidebar is collapsed and dropdown opens
@@ -43,11 +67,13 @@ const toggleModerationDropdown = () => {
 
 const closeDropdownOnClickOutside = (event) => {
     const dropdown = document.querySelector('.nav-dropdown');
-    if (dropdown && !dropdown.contains(event.target)) {
+    if (dropdown && !dropdown.contains(event.target) && !isModerationActive.value) {
         moderationDropdownOpen.value = false;
         document.removeEventListener('click', closeDropdownOnClickOutside);
     }
 };
+
+const toggleSidebar = () => emit('toggle');
 
 const icons = {
     dashboard: `<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>`,
@@ -107,9 +133,9 @@ const icons = {
                     </Link>
 
                     <!-- Moderation Dropdown -->
-                    <div class="nav-dropdown" :class="{ 'nav-dropdown--open': moderationDropdownOpen }">
+                    <div class="nav-dropdown" :class="{ 'nav-dropdown--open': isModerationDropdownOpen }">
                         <button @click="toggleModerationDropdown" class="nav-item nav-item--dropdown"
-                            :class="{ 'nav-item--active': route().current('admin.moderation.index') || route().current('admin.moderation.reports') || route().current('admin.moderation.flagged') }">
+                            :class="{ 'nav-item--active': isModerationActive }">
                             <span class="nav-item__icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                                     v-html="icons.moderation" />
@@ -119,7 +145,7 @@ const icons = {
                             </Transition>
                             <Transition name="fade">
                                 <span v-if="!collapsed" class="nav-item__chevron"
-                                    :class="{ 'nav-item__chevron--open': moderationDropdownOpen }">
+                                    :class="{ 'nav-item__chevron--open': isModerationDropdownOpen }">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                                         v-html="icons['chevron-down']" />
                                 </span>
@@ -127,7 +153,7 @@ const icons = {
                         </button>
 
                         <Transition name="dropdown">
-                            <div v-show="moderationDropdownOpen" class="nav-dropdown__items">
+                            <div v-show="isModerationDropdownOpen" class="nav-dropdown__items">
                                 <Link :href="route('admin.moderation.reports')" class="nav-item nav-item--sub"
                                     :class="{ 'nav-item--active': route().current('admin.moderation.reports') }">
                                     <span class="nav-item__icon">
@@ -148,9 +174,6 @@ const icons = {
                                         <span v-if="!collapsed" class="nav-item__label">Flagged Links</span>
                                     </Transition>
                                 </Link>
-                                <div class="nav-dropdown-arrow">
-                                    <span class="material-icons">keyboard_arrow_down</span>
-                                </div>
                             </div>
                         </Transition>
                     </div>

@@ -30,7 +30,7 @@ class CaptchaService
      */
     public function verify(?string $token, string $ip): bool
     {
-        if (! $this->isEnabled()) {
+        if (!$this->isEnabled()) {
             return true;
         }
 
@@ -38,20 +38,31 @@ class CaptchaService
             return false;
         }
 
-        $secret = Setting::get('captcha_secret_key', config('services.recaptcha.secret_key', ''));
+        $secret = Setting::get('captcha_secret_key');
 
         if (empty($secret)) {
             return true;
         }
 
         try {
-            $response = Http::timeout(5)->asForm()->post(
-                'https://www.google.com/recaptcha/api/siteverify',
-                ['secret' => $secret, 'response' => $token, 'remoteip' => $ip]
-            );
+            $response = Http::timeout(10)
+                ->withUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+                ->asForm()
+                ->post(
+                    'https://www.google.com/recaptcha/api/siteverify',
+                    [
+                        'secret' => $secret,
+                        'response' => $token,
+                    ]
+                );
 
-            return (bool) ($response->json('success') ?? false);
-        } catch (\Throwable) {
+            $result = $response->json();
+
+            return (bool) ($result['success'] ?? false);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('reCAPTCHA verification error', [
+                'message' => $e->getMessage()
+            ]);
             return true;
         }
     }
