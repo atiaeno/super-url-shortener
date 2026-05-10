@@ -48,7 +48,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password'          => 'hashed',
+            'password' => 'hashed',
         ];
     }
 
@@ -65,6 +65,11 @@ class User extends Authenticatable
     public function socialAccounts(): HasMany
     {
         return $this->hasMany(SocialAccount::class);
+    }
+
+    public function reviewedReports(): HasMany
+    {
+        return $this->hasMany(Report::class, 'reviewed_by');
     }
 
     public function isAdmin(): bool

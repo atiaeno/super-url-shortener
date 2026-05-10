@@ -896,3 +896,317 @@
          max-width: 400px
      }
  }
+
+ /* Action Buttons */
+ .action-buttons {
+     display: flex;
+     gap: 12px;
+     justify-content: center;
+     margin-top: 20px;
+     flex-wrap: wrap
+ }
+
+ .action-btn {
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     padding: 10px 16px;
+     border: 1px solid var(--border);
+     border-radius: var(--radius);
+     background: var(--surface);
+     color: var(--ink);
+     font-family: var(--font-display);
+     font-size: 12px;
+     font-weight: 500;
+     text-transform: uppercase;
+     cursor: pointer;
+     transition: all 0.2s ease;
+     text-decoration: none
+ }
+
+ .action-btn:hover {
+     background: var(--bg);
+     border-color: var(--red);
+     color: var(--red)
+ }
+
+ .action-btn svg {
+     width: 16px;
+     height: 16px
+ }
+
+ .action-btn--report:hover {
+     background: #fef2f2;
+     border-color: #fca5a5;
+     color: var(--red)
+ }
+
+ .action-btn--share:hover {
+     background: #eff6ff;
+     border-color: #93c5fd;
+     color: #2563eb
+ }
+
+ /* Modal Styles */
+ .modal {
+     position: fixed;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background: rgba(0, 0, 0, 0.5);
+     display: none;
+     align-items: center;
+     justify-content: center;
+     z-index: 1000;
+     opacity: 0;
+     visibility: hidden;
+     transition: all 0.3s ease
+ }
+
+ .modal[style*="flex"] {
+     opacity: 1;
+     visibility: visible
+ }
+
+ .modal-backdrop {
+     position: absolute;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background: rgba(0, 0, 0, 0.5)
+ }
+
+ .modal-content {
+     background: var(--surface);
+     border: 1px solid var(--border);
+     border-radius: var(--radius);
+     max-width: 500px;
+     width: 90%;
+     max-height: 90vh;
+     overflow: hidden;
+     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+     position: relative;
+     animation: modalSlideIn 0.3s ease
+ }
+
+ @keyframes modalSlideIn {
+     from {
+         transform: translateY(-20px);
+         opacity: 0
+     }
+
+     to {
+         transform: translateY(0);
+         opacity: 1
+     }
+ }
+
+ .modal-header {
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     padding: 20px 24px;
+     border-bottom: 1px solid var(--border)
+ }
+
+ .modal-header h3 {
+     font-family: var(--font-display);
+     font-size: 18px;
+     font-weight: 600;
+     color: var(--ink);
+     margin: 0
+ }
+
+ .modal-close {
+     background: none;
+     border: none;
+     color: var(--muted);
+     font-size: 24px;
+     cursor: pointer;
+     padding: 0;
+     width: 30px;
+     height: 30px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     border-radius: var(--radius);
+     transition: all 0.2s ease
+ }
+
+ .modal-close:hover {
+     background: var(--bg);
+     color: var(--ink)
+ }
+
+ .modal-body {
+     padding: 24px
+ }
+
+ .modal-footer {
+     padding: 20px 24px;
+     border-top: 1px solid var(--border);
+     display: flex;
+     gap: 12px;
+     justify-content: flex-end
+ }
+
+ /* Report Form Styles */
+ .form-group {
+     margin-bottom: 20px
+ }
+
+ .form-group label {
+     display: block;
+     font-family: var(--font-display);
+     font-size: 12px;
+     font-weight: 500;
+     text-transform: uppercase;
+     color: var(--muted);
+     margin-bottom: 8px
+ }
+
+ .radio-group {
+     display: flex;
+     flex-direction: column;
+     gap: 8px
+ }
+
+ .radio-option {
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     padding: 12px;
+     border: 1px solid var(--border);
+     border-radius: var(--radius);
+     cursor: pointer;
+     transition: all 0.2s ease
+ }
+
+ .radio-option:hover {
+     background: var(--bg);
+     border-color: var(--red)
+ }
+
+ .radio-option input[type="radio"] {
+     margin: 0
+ }
+
+ .radio-option span {
+     font-family: monospace;
+     font-size: 12px;
+     color: var(--ink);
+     display: inline-block;
+     vertical-align: middle;
+     margin-left: 6px;
+ }
+
+ .form-group textarea {
+     width: 100%;
+     padding: 12px;
+     border: 1px solid var(--border);
+     border-radius: var(--radius);
+     font-family: var(--font-body);
+     font-size: 14px;
+     resize: vertical;
+     transition: all 0.2s ease
+ }
+
+ .form-group textarea:focus {
+     outline: none;
+     border-color: var(--red);
+     box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.1)
+ }
+
+ /* Share Options */
+ .share-options {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+     gap: 12px
+ }
+
+ .share-btn {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     gap: 8px;
+     padding: 16px 12px;
+     border: 1px solid var(--border);
+     border-radius: var(--radius);
+     background: var(--surface);
+     color: var(--ink);
+     font-family: var(--font-display);
+     font-size: 12px;
+     font-weight: 500;
+     text-transform: uppercase;
+     cursor: pointer;
+     transition: all 0.2s ease;
+     text-decoration: none
+ }
+
+ .share-btn:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1)
+ }
+
+ .share-btn svg {
+     width: 24px;
+     height: 24px
+ }
+
+ .share-btn--twitter:hover {
+     background: #1da1f2;
+     color: white;
+     border-color: #1da1f2
+ }
+
+ .share-btn--facebook:hover {
+     background: #1877f2;
+     color: white;
+     border-color: #1877f2
+ }
+
+ .share-btn--linkedin:hover {
+     background: #0077b5;
+     color: white;
+     border-color: #0077b5
+ }
+
+ .share-btn--whatsapp:hover {
+     background: #25d366;
+     color: white;
+     border-color: #25d366
+ }
+
+ .share-btn--telegram:hover {
+     background: #0088cc;
+     color: white;
+     border-color: #0088cc
+ }
+
+ .share-btn--copy:hover {
+     background: #10b981;
+     color: white;
+     border-color: #10b981
+ }
+
+ /* Responsive */
+ @media (max-width: 640px) {
+     .action-buttons {
+         flex-direction: column
+     }
+
+     .action-btn {
+         justify-content: center
+     }
+
+     .modal-content {
+         width: 95%;
+         margin: 20px
+     }
+
+     .share-options {
+         grid-template-columns: repeat(2, 1fr)
+     }
+ }

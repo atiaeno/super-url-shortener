@@ -183,6 +183,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // Content Moderation (Stories 6.1 - 6.4)
     Route::prefix('moderation')->name('moderation.')->group(function () {
         Route::get('/', [ModerationController::class, 'index'])->name('index');
+        Route::get('reports', [ModerationController::class, 'reports'])->name('reports');
+        Route::get('flagged', [ModerationController::class, 'flagged'])->name('flagged');
         Route::post('reports/{report}/review', [ModerationController::class, 'review'])->name('review');
         Route::post('batch', [ModerationController::class, 'batchReview'])->name('batch');
         Route::get('activity-log', [ModerationController::class, 'activityLog'])->name('activity-log');

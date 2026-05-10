@@ -137,6 +137,7 @@ class RedirectController extends Controller
             'ogTitle' => $link->og_title,
             'ogDescription' => $link->og_description,
             'ogUrl' => $link->short_url,
+            'link' => $link,  // Add the link object for report submission
             'ogImage' => $link->og_image,
         ]);
     }

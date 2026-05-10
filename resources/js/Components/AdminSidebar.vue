@@ -1,7 +1,8 @@
-<!-- © Atia Hegazy — atiaeno.com -->
+<!--// Atia Hegazy — atiaeno.com -->
 <script setup>
 import { ref, computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import '../../css/admin_sidebar.css';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -22,11 +23,31 @@ const adminNavItems = [
     { label: 'Payouts', icon: 'payouts', route: 'admin.payouts.index' },
     { label: 'Affiliate Tiers', icon: 'tiers', route: 'admin.affiliate-tiers.index' },
     { label: 'Advertising', icon: 'ads', route: 'admin.advertising.index' },
-    { label: 'Moderation', icon: 'moderation', route: 'admin.moderation.index' },
     { label: 'Settings', icon: 'settings', route: 'admin.settings.index' },
 ];
 
+const moderationDropdownOpen = ref(false);
+
 const toggleSidebar = () => emit('toggle');
+const toggleModerationDropdown = () => {
+    moderationDropdownOpen.value = !moderationDropdownOpen.value;
+    // Auto-close dropdown when sidebar is collapsed and dropdown opens
+    if (props.collapsed && moderationDropdownOpen.value) {
+        setTimeout(() => {
+            document.addEventListener('click', closeDropdownOnClickOutside);
+        }, 100);
+    } else {
+        document.removeEventListener('click', closeDropdownOnClickOutside);
+    }
+};
+
+const closeDropdownOnClickOutside = (event) => {
+    const dropdown = document.querySelector('.nav-dropdown');
+    if (dropdown && !dropdown.contains(event.target)) {
+        moderationDropdownOpen.value = false;
+        document.removeEventListener('click', closeDropdownOnClickOutside);
+    }
+};
 
 const icons = {
     dashboard: `<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>`,
@@ -39,7 +60,10 @@ const icons = {
     settings: `<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15.32 4.68l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z"/>`,
     logout: `<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>`,
     'chevron-left': `<polyline points="15 18 9 12 15 6"/>`,
+    'chevron-down': `<polyline points="6 9 12 15 18 9"/>`,
     external: `<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>`,
+    'report-queue': `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>`,
+    'flagged-links': `<path d="M3 21v-4m0 0V5a2 2 0 0 1 2-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 0 0-2 2zm9-13.5V9"/>`,
 };
 </script>
 
@@ -81,7 +105,57 @@ const icons = {
                             <span v-if="!collapsed" class="nav-item__label">{{ item.label }}</span>
                         </Transition>
                     </Link>
+
+                    <!-- Moderation Dropdown -->
+                    <div class="nav-dropdown" :class="{ 'nav-dropdown--open': moderationDropdownOpen }">
+                        <button @click="toggleModerationDropdown" class="nav-item nav-item--dropdown"
+                            :class="{ 'nav-item--active': route().current('admin.moderation.index') || route().current('admin.moderation.reports') || route().current('admin.moderation.flagged') }">
+                            <span class="nav-item__icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    v-html="icons.moderation" />
+                            </span>
+                            <Transition name="fade">
+                                <span v-if="!collapsed" class="nav-item__label">Moderation</span>
+                            </Transition>
+                            <Transition name="fade">
+                                <span v-if="!collapsed" class="nav-item__chevron"
+                                    :class="{ 'nav-item__chevron--open': moderationDropdownOpen }">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                        v-html="icons['chevron-down']" />
+                                </span>
+                            </Transition>
+                        </button>
+
+                        <Transition name="dropdown">
+                            <div v-show="moderationDropdownOpen" class="nav-dropdown__items">
+                                <Link :href="route('admin.moderation.reports')" class="nav-item nav-item--sub"
+                                    :class="{ 'nav-item--active': route().current('admin.moderation.reports') }">
+                                    <span class="nav-item__icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            v-html="icons['report-queue']" />
+                                    </span>
+                                    <Transition name="fade">
+                                        <span v-if="!collapsed" class="nav-item__label">Report Queue</span>
+                                    </Transition>
+                                </Link>
+                                <Link :href="route('admin.moderation.flagged')" class="nav-item nav-item--sub"
+                                    :class="{ 'nav-item--active': route().current('admin.moderation.flagged') }">
+                                    <span class="nav-item__icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                            v-html="icons['flagged-links']" />
+                                    </span>
+                                    <Transition name="fade">
+                                        <span v-if="!collapsed" class="nav-item__label">Flagged Links</span>
+                                    </Transition>
+                                </Link>
+                                <div class="nav-dropdown-arrow">
+                                    <span class="material-icons">keyboard_arrow_down</span>
+                                </div>
+                            </div>
+                        </Transition>
+                    </div>
                 </div>
+                <!-- ... -->
             </nav>
 
             <nav class="nav-section nav-section--external">
@@ -127,351 +201,3 @@ const icons = {
         </div>
     </aside>
 </template>
-
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
-
-:root {
-    --font-sidebar: 'DM Sans', sans-serif;
-}
-
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: var(--sidebar-width);
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    transition: width 0.3s ease;
-    z-index: 100;
-    overflow: hidden;
-}
-
-.sidebar--collapsed {
-    width: var(--sidebar-collapsed);
-}
-
-.sidebar__ambient {
-    display: none;
-}
-
-.sidebar__brand {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 16px 16px;
-    border-bottom: 1px solid var(--border);
-    position: relative;
-    z-index: 1;
-}
-
-.sidebar__logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    color: var(--ink);
-}
-
-.sidebar__logo-icon {
-    width: 28px;
-    height: 28px;
-    background: var(--red);
-    border-radius: var(--radius);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.sidebar__logo-icon svg {
-    width: 20px;
-    height: 20px;
-    color: #fff;
-}
-
-.sidebar__logo-text {
-    font-family: 'Oswald', sans-serif;
-    font-weight: 700;
-    font-size: 16px;
-    
-    text-transform: uppercase;
-    color: var(--ink);
-    white-space: nowrap;
-}
-
-.sidebar__toggle {
-    width: 28px;
-    height: 28px;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--muted);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-}
-
-.sidebar__toggle:hover {
-    background: var(--surface-2);
-    color: var(--ink);
-    border-color: #ccc;
-}
-
-.toggle-icon {
-    width: 16px;
-    height: 16px;
-    transition: transform 0.3s ease;
-}
-
-.toggle-icon--flipped {
-    transform: rotate(180deg);
-}
-
-.sidebar__content {
-    flex: 1;
-    padding: 12px 10px 16px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    position: relative;
-    z-index: 1;
-}
-
-.sidebar__content::-webkit-scrollbar {
-    width: 4px;
-}
-
-.sidebar__content::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.sidebar__content::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 2px;
-}
-
-.nav-section {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.nav-section__label {
-    font-family: var(--font-sidebar);
-    font-size: 10px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--muted);
-    padding: 0 8px;
-    margin-bottom: 2px;
-    white-space: nowrap;
-}
-
-.nav-section__items {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.nav-item {
-    font-family: var(--font-sidebar);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: var(--radius);
-    text-decoration: none;
-    color: var(--ink-soft);
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 0.2px;
-    transition: var(--transition);
-    position: relative;
-}
-
-.nav-item::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 20%;
-    bottom: 20%;
-    width: 2px;
-    background: var(--red);
-    border-radius: 0 2px 2px 0;
-    transform: scaleY(0);
-    transition: transform 0.2s ease;
-}
-
-.nav-item:hover {
-    color: var(--ink);
-    background: var(--surface-2);
-}
-
-.nav-item:hover::before {
-    transform: scaleY(0.6);
-}
-
-.nav-item--active {
-    color: var(--ink);
-    background: #fef2f2;
-}
-
-.nav-item--active::before {
-    transform: scaleY(1);
-}
-
-.nav-item__icon {
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.nav-item__icon svg {
-    width: 100%;
-    height: 100%;
-}
-
-.nav-item--active .nav-item__icon {
-    color: var(--red);
-}
-
-.nav-item__label {
-    white-space: nowrap;
-    font-family: var(--font-sidebar);
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.sidebar__user {
-    padding: 12px 10px 16px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    position: relative;
-    z-index: 1;
-}
-
-.user-card {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    transition: var(--transition);
-}
-
-.user-card:hover {
-    background: #eeeae4;
-}
-
-.user-card--collapsed {
-    justify-content: center;
-    padding: 12px;
-}
-
-.user-card__avatar {
-    width: 30px;
-    height: 30px;
-    background: var(--red);
-    border-radius: var(--radius);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-display);
-    font-size: 13px;
-    font-weight: 600;
-    color: #fff;
-    flex-shrink: 0;
-}
-
-.user-card__info {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    overflow: hidden;
-}
-
-.user-card__name {
-    font-family: 'Oswald', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--ink);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.user-card__email {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    color: var(--muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.logout-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 8px 12px;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--muted);
-    font-family: 'Oswald', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: var(--transition);
-    width: 100%;
-}
-
-.logout-btn:hover {
-    background: #fef2f2;
-    border-color: #fca5a5;
-    color: var(--red);
-}
-
-.logout-btn__icon {
-    width: 18px;
-    height: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.logout-btn__icon svg {
-    width: 100%;
-    height: 100%;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-    transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-    opacity: 0;
-    transform: translateX(-10px);
-}
-</style>
