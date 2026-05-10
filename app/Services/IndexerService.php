@@ -36,8 +36,12 @@ class IndexerService
             'xml_ping' => ['processed' => 0, 'success' => 0, 'failed' => 0],
         ];
 
-        if (!$this->settings->enabled) {
-            Log::info('Indexer: Disabled, skipping');
+        // Check if at least one service is enabled
+        $googleEnabled = $this->googleIndexer->isEnabled();
+        $indexNowEnabled = $this->indexNow->isEnabled();
+
+        if (!$this->settings->enabled && !$googleEnabled && !$indexNowEnabled) {
+            Log::info('Indexer: All services disabled, skipping');
             return $results;
         }
 
