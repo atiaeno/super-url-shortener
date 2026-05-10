@@ -18,6 +18,7 @@ const form = useForm({
     interval_minutes: props.settings.interval_minutes || 5,
     google_service_account_json: props.settings.google_service_account_json || '',
     indexnow_enabled: props.settings.indexnow_enabled || false,
+    indexnow_key: props.settings.indexnow_key || '',
     xml_ping_enabled: props.settings.xml_ping_enabled || false,
     ping_services: props.settings.ping_services || ['google', 'bing'],
 });
@@ -33,6 +34,12 @@ const saveSettings = () => {
     });
 };
 
+const queueAllLinks = () => {
+    if (confirm('Add all public links to the indexing queue?')) {
+        window.location.href = '/admin/settings/indexer/queue-all';
+    }
+};
+
 const runIndexer = () => {
     window.location.href = '/admin/settings/indexer/run';
 };
@@ -46,6 +53,10 @@ const clearQueue = () => {
 const pingServicesOptions = [
     { value: 'google', label: 'Google' },
     { value: 'bing', label: 'Bing' },
+    { value: 'yandex', label: 'Yandex' },
+    { value: 'yahoo', label: 'Yahoo' },
+    { value: 'duckduckgo', label: 'DuckDuckGo' },
+    { value: 'baidu', label: 'Baidu' },
 ];
 
 const formatDate = (dateStr) => {
@@ -70,6 +81,7 @@ const getStatusColor = (status) => {
 </script>
 
 <template>
+
     <Head title="SEO Indexer Settings" />
     <AdminLayout>
         <template #header-icon>
@@ -92,18 +104,11 @@ const getStatusColor = (status) => {
 
             <!-- Tabs -->
             <div class="tabs">
-                <button
-                    @click="activeTab = 'settings'"
-                    class="tab"
-                    :class="{ 'tab--active': activeTab === 'settings' }"
-                >
+                <button @click="activeTab = 'settings'" class="tab"
+                    :class="{ 'tab--active': activeTab === 'settings' }">
                     Settings
                 </button>
-                <button
-                    @click="activeTab = 'queue'"
-                    class="tab"
-                    :class="{ 'tab--active': activeTab === 'queue' }"
-                >
+                <button @click="activeTab = 'queue'" class="tab" :class="{ 'tab--active': activeTab === 'queue' }">
                     Queue & Logs
                 </button>
             </div>
@@ -127,35 +132,21 @@ const getStatusColor = (status) => {
                         <div class="settings-card__body" v-if="form.enabled">
                             <div class="form-group">
                                 <label class="form-label">Service Account JSON</label>
-                                <textarea
-                                    v-model="form.google_service_account_json"
-                                    class="form-textarea"
-                                    rows="6"
-                                    placeholder='{"type": "service_account", ...}'
-                                ></textarea>
+                                <textarea v-model="form.google_service_account_json" class="form-textarea" rows="6"
+                                    placeholder='{"type": "service_account", ...}'></textarea>
                                 <p class="form-hint">Paste your Google Service Account JSON credentials</p>
                             </div>
 
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Links Per Batch</label>
-                                    <input
-                                        type="number"
-                                        v-model="form.links_per_batch"
-                                        class="form-input"
-                                        min="1"
-                                        max="100"
-                                    >
+                                    <input type="number" v-model="form.links_per_batch" class="form-input" min="1"
+                                        max="100">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Interval (minutes)</label>
-                                    <input
-                                        type="number"
-                                        v-model="form.interval_minutes"
-                                        class="form-input"
-                                        min="1"
-                                        max="1440"
-                                    >
+                                    <input type="number" v-model="form.interval_minutes" class="form-input" min="1"
+                                        max="1440">
                                 </div>
                             </div>
                         </div>
@@ -172,6 +163,15 @@ const getStatusColor = (status) => {
                                 </label>
                             </div>
                             <p class="settings-card__desc">Submit URLs to Bing and Yandex via IndexNow protocol</p>
+                        </div>
+                        <div v-if="form.indexnow_enabled" class="settings-card__body">
+                            <div class="form-group">
+                                <label class="form-label">IndexNow Key</label>
+                                <input type="text" v-model="form.indexnow_key" class="form-input"
+                                    placeholder="Enter your IndexNow key (8-128 chars)">
+                                <p class="form-hint">Get your key at <a href="https://www.indexnow.org/"
+                                        target="_blank">indexnow.org</a></p>
+                            </div>
                         </div>
                     </div>
 
@@ -192,16 +192,9 @@ const getStatusColor = (status) => {
                             <div class="form-group">
                                 <label class="form-label">Ping Services</label>
                                 <div class="checkbox-group">
-                                    <label
-                                        v-for="option in pingServicesOptions"
-                                        :key="option.value"
-                                        class="checkbox-label"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            :value="option.value"
-                                            v-model="form.ping_services"
-                                        >
+                                    <label v-for="option in pingServicesOptions" :key="option.value"
+                                        class="checkbox-label">
+                                        <input type="checkbox" :value="option.value" v-model="form.ping_services">
                                         <span>{{ option.label }}</span>
                                     </label>
                                 </div>
@@ -213,6 +206,9 @@ const getStatusColor = (status) => {
                     <div class="form-actions">
                         <button type="submit" class="btn-primary" :disabled="isSaving">
                             {{ isSaving ? 'Saving...' : 'Save Settings' }}
+                        </button>
+                        <button type="button" @click="queueAllLinks" class="btn-secondary">
+                            Queue All Public Links
                         </button>
                         <button type="button" @click="runIndexer" class="btn-secondary">
                             Run Indexer Now
@@ -516,11 +512,11 @@ const getStatusColor = (status) => {
     border-radius: 50%;
 }
 
-.toggle input:checked + .toggle__slider {
+.toggle input:checked+.toggle__slider {
     background-color: var(--primary);
 }
 
-.toggle input:checked + .toggle__slider:before {
+.toggle input:checked+.toggle__slider:before {
     transform: translateX(20px);
 }
 

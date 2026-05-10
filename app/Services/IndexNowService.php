@@ -101,7 +101,7 @@ class IndexNowService
 
     private function generateKey(): string
     {
-        return config('indexnow.key', config('app.key'));
+        return $this->settings->indexnow_key ?? '';
     }
 
     public function submitToAll(string $url): array

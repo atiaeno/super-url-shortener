@@ -14,6 +14,8 @@ class IndexerLog extends Model
     protected $fillable = [
         'link_id',
         'service',
+        'type',
+        'url',
         'response_status',
         'response_message',
         'request_url',

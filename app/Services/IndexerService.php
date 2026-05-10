@@ -4,6 +4,7 @@
 
 namespace App\Services;
 
+use App\Models\IndexerLog;
 use App\Models\IndexerQueue;
 use App\Models\IndexerSetting;
 use App\Models\Link;
@@ -24,6 +25,8 @@ class IndexerService
         $this->xmlPing = new XmlPingService();
     }
 
+    private $offset = 0;
+
     public function run(): array
     {
         $results = [
@@ -37,19 +40,89 @@ class IndexerService
             return $results;
         }
 
-        // Process Google Indexer queue
+        // Get current offset from settings
+        $this->offset = $this->settings->last_offset ?? 0;
+        $batchSize = $this->settings->links_per_batch;
+
+        // Get total public links count
+        $totalLinks = Link::where('visibility', 'public')
+            ->count();
+
+        // Reset offset if we've processed all links
+        if ($this->offset >= $totalLinks) {
+            $this->offset = 0;
+        }
+
+        // Get public links with offset (batch)
+        $publicLinks = Link::where('visibility', 'public')
+            ->offset($this->offset)
+            ->limit($batchSize)
+            ->get();
+
+        // Process Google Indexer
         if ($this->googleIndexer->isEnabled()) {
-            $results['google'] = $this->processQueue('google');
+            $results['google'] = $this->processLinks($publicLinks, 'google');
         }
 
         // Process IndexNow
         if ($this->indexNow->isEnabled()) {
-            $results['indexnow'] = $this->processQueue('indexnow');
+            $results['indexnow'] = $this->processLinks($publicLinks, 'indexnow');
         }
+
+        // Update offset for next run
+        $newOffset = $this->offset + $publicLinks->count();
+        $this->settings->last_offset = $newOffset >= $totalLinks ? 0 : $newOffset;
+        $this->settings->save();
 
         // XML Ping - run once per execution
         if ($this->xmlPing->isEnabled()) {
             $this->runXmlPing();
+        }
+
+        return $results;
+    }
+
+    private function processLinks($links, string $type): array
+    {
+        $results = ['processed' => 0, 'success' => 0, 'failed' => 0];
+
+        foreach ($links as $link) {
+            $url = $this->getPublicUrl($link);
+            $success = false;
+            $message = '';
+
+            try {
+                switch ($type) {
+                    case 'google':
+                        $success = $this->googleIndexer->submitUrl($url, $link->id);
+                        $message = $success ? 'Submitted to Google' : 'Google submission failed';
+                        break;
+                    case 'indexnow':
+                        $success = $this->indexNow->submitUrl($url);
+                        $message = $success ? 'Submitted to IndexNow' : 'IndexNow submission failed';
+                        break;
+                }
+            } catch (\Exception $e) {
+                $message = $e->getMessage();
+            }
+
+            // Log each link
+            IndexerLog::create([
+                'link_id' => $link->id,
+                'service' => $type,
+                'type' => 'auto',
+                'url' => $url,
+                'response_status' => $success ? 'success' : 'failed',
+                'response_message' => $message,
+            ]);
+
+            if ($success) {
+                $results['success']++;
+            } else {
+                $results['failed']++;
+            }
+
+            $results['processed']++;
         }
 
         return $results;

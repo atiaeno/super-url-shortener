@@ -25,3 +25,6 @@ Schedule::command('affiliates:daily-sync')->dailyAt('01:00');
 
 // Aggregate link analytics daily at 03:30
 Schedule::command('analytics:aggregate')->dailyAt('03:30');
+
+// SEO Indexer: process queue and submit URLs to search engines hourly
+Schedule::command('indexer:run')->hourly();

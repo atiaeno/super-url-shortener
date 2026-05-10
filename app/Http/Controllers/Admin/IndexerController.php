@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\IndexerLog;
 use App\Models\IndexerQueue;
 use App\Models\IndexerSetting;
+use App\Models\Link;
 use App\Services\IndexerService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -38,6 +39,7 @@ class IndexerController extends Controller
             'interval_minutes' => 'integer|min:1|max:1440',
             'google_service_account_json' => 'nullable|string',
             'indexnow_enabled' => 'boolean',
+            'indexnow_key' => 'nullable|string|min:8|max:128',
             'xml_ping_enabled' => 'boolean',
             'ping_services' => 'array',
         ]);
@@ -80,5 +82,22 @@ class IndexerController extends Controller
             ->delete();
 
         return back()->with('success', 'Old queue entries cleared');
+    }
+
+    public function queueAll()
+    {
+        $indexer = new IndexerService();
+
+        $publicLinks = Link::where('is_private', false)
+            ->whereNull('password')
+            ->get();
+
+        $count = 0;
+        foreach ($publicLinks as $link) {
+            $indexer->addToAllQueues($link);
+            $count++;
+        }
+
+        return back()->with('success', "{$count} links added to queue");
     }
 }
