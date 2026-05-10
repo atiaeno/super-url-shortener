@@ -26,5 +26,8 @@ Schedule::command('affiliates:daily-sync')->dailyAt('01:00');
 // Aggregate link analytics daily at 03:30
 Schedule::command('analytics:aggregate')->dailyAt('03:30');
 
-// SEO Indexer: process queue and submit URLs to search engines hourly
-Schedule::command('indexer:run')->hourly();
+// SEO Indexer: process queue based on interval_minutes setting (default hourly)
+$indexerInterval = \App\Models\Setting::get('indexer_interval_minutes', 60);
+Schedule::command('indexer:run')->everyMinute()->when(function () use ($indexerInterval) {
+    return true;  // Run every minute, the command itself checks the interval
+});

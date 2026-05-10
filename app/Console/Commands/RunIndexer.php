@@ -1,9 +1,10 @@
 <?php
-
 // © Atia Hegazy — atiaeno.com
 
 namespace App\Console\Commands;
 
+use App\Models\IndexerSetting;
+use App\Models\Setting;
 use App\Services\IndexerService;
 use Illuminate\Console\Command;
 
@@ -15,6 +16,14 @@ class RunIndexer extends Command
 
     public function handle(IndexerService $indexer): int
     {
+        $settings = IndexerSetting::getSettings();
+        $intervalMinutes = (int) Setting::get('indexer_interval_minutes', 60);
+
+        if (!$this->option('force') && $settings->next_run && now()->isBefore($settings->next_run)) {
+            $this->info("Skipping - next run at {$settings->next_run} (interval: {$intervalMinutes}min)");
+            return Command::SUCCESS;
+        }
+
         $this->info('Starting URL indexer...');
 
         $results = $indexer->run();
@@ -33,6 +42,11 @@ class RunIndexer extends Command
 
         $stats = $indexer->getQueueStats();
         $this->info("Queue Status: Pending: {$stats['pending']}, Failed: {$stats['failed']}");
+
+        // Update last_run and next_run in database
+        $settings->last_run = now();
+        $settings->next_run = now()->addMinutes($intervalMinutes);
+        $settings->save();
 
         return Command::SUCCESS;
     }

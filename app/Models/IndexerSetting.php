@@ -23,6 +23,8 @@ class IndexerSetting extends Model
         'last_offset',
         'google_links_sent_date',
         'google_links_sent_today',
+        'last_run',
+        'next_run',
     ];
 
     protected $casts = [
@@ -35,6 +37,8 @@ class IndexerSetting extends Model
         'google_links_sent_today' => 'integer',
         'last_offset' => 'integer',
         'ping_services' => 'array',
+        'last_run' => 'datetime',
+        'next_run' => 'datetime',
     ];
 
     public static function getSettings()

@@ -8,6 +8,7 @@ use App\Models\IndexerLog;
 use App\Models\IndexerQueue;
 use App\Models\IndexerSetting;
 use App\Models\Link;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Log;
 
 class IndexerService
@@ -257,11 +258,15 @@ class IndexerService
 
     public function getQueueStats(): array
     {
+        $settings = IndexerSetting::getSettings();
+
         return [
             'pending' => 0,
             'processing' => 0,
             'completed' => IndexerLog::where('response_status', 'success')->whereDate('created_at', today())->count(),
             'failed' => IndexerLog::where('response_status', 'failed')->whereDate('created_at', today())->count(),
+            'last_run' => $settings->last_run?->toIso8601String(),
+            'next_run' => $settings->next_run?->toIso8601String(),
         ];
     }
 }
