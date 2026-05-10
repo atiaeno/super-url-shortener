@@ -50,9 +50,15 @@ const pingSitemap = () => {
 };
 
 const clearQueue = () => {
-    if (confirm('Clear old completed/failed entries from queue?')) {
+    if (confirm('Clear all log entries?')) {
         window.location.href = '/admin/settings/indexer/clear';
     }
+};
+
+const activeMessage = ref(null);
+
+const showMessage = (msg) => {
+    activeMessage.value = msg;
 };
 
 const resubmitLink = (linkId) => {
@@ -264,12 +270,11 @@ const getStatusColor = (status) => {
                     </div>
                 </div>
 
-                <!-- Clear Queue -->
-                <div class="queue-actions">
-                    <button @click="clearQueue" class="btn-ghost">Clear Old Entries</button>
-                </div>
-
                 <!-- Logs Table -->
+                <div class="logs-header">
+                    <h3 class="logs-title">Recent Activity</h3>
+                    <button @click="clearQueue" class="btn-clear">Clear All Logs</button>
+                </div>
                 <div class="logs-card">
                     <h3 class="logs-title">Recent Activity</h3>
                     <div class="table-wrapper">
@@ -298,7 +303,8 @@ const getStatusColor = (status) => {
                                             {{ log.response_status }}
                                         </span>
                                     </td>
-                                    <td class="message-cell">{{ log.response_message }}</td>
+                                    <td class="message-cell" :title="log.response_message"
+                                        @click="showMessage(log.response_message)">{{ log.response_message }}</td>
                                     <td>
                                         <button @click="resubmitLink(log.link_id)" class="btn-icon-small"
                                             title="Resubmit">
@@ -310,6 +316,14 @@ const getStatusColor = (status) => {
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Message Modal -->
+        <div v-if="activeMessage" class="message-modal" @click.self="activeMessage = null">
+            <div class="message-modal__box">
+                <button class="message-modal__close" @click="activeMessage = null">✕</button>
+                <pre style="white-space: pre-wrap; word-break: break-all; margin: 0;">{{ activeMessage }}</pre>
             </div>
         </div>
     </AdminLayout>
@@ -777,5 +791,42 @@ const getStatusColor = (status) => {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    cursor: pointer;
+}
+
+.message-cell:hover {
+    text-decoration: underline dotted;
+}
+
+.message-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.message-modal__box {
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    max-width: 600px;
+    width: 90%;
+    word-break: break-all;
+    font-size: 13px;
+    line-height: 1.6;
+    position: relative;
+}
+
+.message-modal__close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
 }
 </style>

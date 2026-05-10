@@ -49,6 +49,12 @@ class IndexerController extends Controller
         $settings->update($validated);
         $settings->save();
 
+        // Create IndexNow key verification file in public/
+        if (!empty($validated['indexnow_key'])) {
+            $key = $validated['indexnow_key'];
+            file_put_contents(public_path($key . '.txt'), $key);
+        }
+
         return back()->with('success', 'Indexer settings updated');
     }
 
@@ -89,9 +95,10 @@ class IndexerController extends Controller
 
     public function clearQueue()
     {
-        IndexerLog::where('created_at', '<', now()->subDays(30))->delete();
+        $count = IndexerLog::count();
+        IndexerLog::truncate();
 
-        return back()->with('success', 'Old log entries cleared');
+        return back()->with('success', "{$count} log entries cleared");
     }
 
     public function queueAll()

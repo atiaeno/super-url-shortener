@@ -15,9 +15,14 @@ class IndexerSetting extends Model
         'links_per_batch',
         'interval_minutes',
         'google_service_account_json',
+        'google_daily_limit',
         'indexnow_enabled',
+        'indexnow_key',
         'xml_ping_enabled',
         'ping_services',
+        'last_offset',
+        'google_links_sent_date',
+        'google_links_sent_today',
     ];
 
     protected $casts = [
@@ -26,6 +31,9 @@ class IndexerSetting extends Model
         'xml_ping_enabled' => 'boolean',
         'links_per_batch' => 'integer',
         'interval_minutes' => 'integer',
+        'google_daily_limit' => 'integer',
+        'google_links_sent_today' => 'integer',
+        'last_offset' => 'integer',
         'ping_services' => 'array',
     ];
 

@@ -69,34 +69,29 @@ class IndexNowService
 
     private function submitToIndexNow(string $url, string $host, string $targetHost): bool
     {
+        $key = $this->generateKey();
+        $siteHost = parse_url(config('app.url'), PHP_URL_HOST);
+
         try {
             $payload = [
-                'host' => $host,
-                'key' => $this->generateKey(),
+                'host' => $siteHost,
+                'key' => $key,
+                'keyLocation' => config('app.url') . '/' . $key . '.txt',
                 'urlList' => [$url],
             ];
 
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post(self::INDEXNOW_ENDPOINT, $payload);
+            ])->post('https://' . $targetHost . '/indexnow', $payload);
 
-            $status = $response->successful() ? 'success' : 'failed';
+            if ($response->successful() || $response->status() === 202) {
+                return true;
+            }
 
-            Log::info('IndexNow: Submission result', [
-                'url' => $url,
-                'status' => $status,
-                'response' => $response->body(),
-            ]);
-
-            return $response->successful();
+            throw new \Exception('HTTP ' . $response->status() . ': ' . $response->body());
         } catch (\Exception $e) {
-            Log::error('IndexNow: Exception submitting URL', [
-                'url' => $url,
-                'message' => $e->getMessage(),
-            ]);
+            throw $e;
         }
-
-        return false;
     }
 
     private function generateKey(): string

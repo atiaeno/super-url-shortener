@@ -4,7 +4,6 @@
 
 namespace App\Services;
 
-use App\Models\IndexerLog;
 use App\Models\IndexerSetting;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -106,7 +105,6 @@ class GoogleIndexerService
 
         $accessToken = $this->getAccessToken();
         if (!$accessToken) {
-            $this->logResult($linkId, 'failed', 'Failed to get access token');
             return false;
         }
 
@@ -122,29 +120,13 @@ class GoogleIndexerService
             $responseData = $response->json();
             $status = $response->successful() ? 'success' : 'failed';
 
-            $this->logResult(
-                $linkId,
-                $status,
-                $responseData['notificationDispatch'] ?? $response->body(),
-                $url
-            );
-
             if ($response->successful()) {
-                Log::info('Google Indexer: URL submitted successfully', ['url' => $url]);
                 return true;
             }
 
-            Log::error('Google Indexer: Failed to submit URL', [
-                'url' => $url,
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
+            throw new \Exception($response->body());
         } catch (\Exception $e) {
-            Log::error('Google Indexer: Exception submitting URL', [
-                'url' => $url,
-                'message' => $e->getMessage(),
-            ]);
-            $this->logResult($linkId, 'error', $e->getMessage(), $url);
+            throw $e;
         }
 
         return false;
@@ -166,7 +148,7 @@ class GoogleIndexerService
             }
 
             // Rate limiting - wait between requests
-            usleep(100000); // 100ms delay
+            usleep(100000);  // 100ms delay
         }
 
         return $results;
@@ -193,7 +175,6 @@ class GoogleIndexerService
             ]);
 
             if ($response->successful()) {
-                $this->logResult($linkId, 'deleted', 'URL removed from index', $url);
                 return true;
             }
         } catch (\Exception $e) {
@@ -204,18 +185,5 @@ class GoogleIndexerService
         }
 
         return false;
-    }
-
-    private function logResult(?int $linkId, string $status, string $message, ?string $url = null): void
-    {
-        if ($linkId) {
-            IndexerLog::create([
-                'link_id' => $linkId,
-                'service' => 'google',
-                'response_status' => $status,
-                'response_message' => $message,
-                'request_url' => $url,
-            ]);
-        }
     }
 }
