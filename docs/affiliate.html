@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affiliate Program - ShortLink Documentation</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #e74c3c;
+            --dark: #1a1a1a;
+            --gray-900: #111;
+            --gray-800: #1f2937;
+            --gray-700: #374151;
+            --gray-600: #4b5563;
+            --gray-500: #6b7280;
+            --gray-400: #9ca3af;
+            --gray-300: #d1d5db;
+            --gray-200: #e5e7eb;
+            --gray-100: #f3f4f6;
+            --gray-50: #f9fafb;
+            --white: #fff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-800);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: var(--dark);
+            color: var(--white);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            padding: 0 16px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 16px;
+        }
+
+        .logo h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-section {
+            padding: 0 12px;
+            margin-bottom: 16px;
+        }
+
+        .nav-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray-500);
+            margin-bottom: 8px;
+            padding: 0 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 8px 10px;
+            color: var(--gray-300);
+            text-decoration: none;
+            font-size: 13px;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .nav-link.active {
+            border-left: 2px solid var(--primary);
+        }
+
+        .main {
+            flex: 1;
+            margin-left: 240px;
+            padding: 24px 32px;
+            max-width: 720px;
+        }
+
+        .doc-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .doc-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+        }
+
+        .doc-header p {
+            font-size: 14px;
+            color: var(--gray-600);
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 12px;
+            border-left: 3px solid var(--primary);
+            padding-left: 10px;
+        }
+
+        .section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin: 12px 0 8px;
+        }
+
+        .section p {
+            color: var(--gray-700);
+            margin-bottom: 10px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 24px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            border-radius: 3px;
+            overflow: hidden;
+            font-size: 12px;
+        }
+
+        th,
+        td {
+            padding: 14px 16px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--gray-800);
+            color: var(--white);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        td {
+            border-bottom: 1px solid var(--gray-100);
+            font-size: 14px;
+        }
+
+        ul {
+            margin-left: 16px;
+            margin-bottom: 10px;
+        }
+
+        li {
+            margin-bottom: 4px;
+            color: var(--gray-700);
+        }
+
+        .step {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: var(--white);
+            border-radius: 8px;
+            border: 1px solid var(--gray-200);
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>Short<span>Link</span></h1>
+            </div>
+            <nav class="nav-section">
+                <div class="nav-title">Getting Started</div>
+                <a href="index.html" class="nav-link">Introduction</a>
+                <a href="installation.html" class="nav-link">Installation</a>
+                <a href="configuration.html" class="nav-link">Configuration</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-title">Features</div>
+                <a href="features.html" class="nav-link">Core Features</a>
+                <a href="api.html" class="nav-link">API Reference</a>
+                <a href="affiliate.html" class="nav-link active">Affiliate Program</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-title">Deployment</div>
+                <a href="deployment.html" class="nav-link">Deployment</a>
+                <a href="troubleshooting.html" class="nav-link">Troubleshooting</a>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="doc-header">
+                <h1>Affiliate Program</h1>
+                <p>Built-in tiered commission system for earning revenue.</p>
+            </header>
+
+            <section class="section">
+                <h2>How It Works</h2>
+                <p>Users enroll in the affiliate program and receive a unique referral code. When visitors use their
+                    links and convert (click), the affiliate earns commissions based on tier rates.</p>
+            </section>
+
+            <section class="section">
+                <h2>Tier System</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <tr>
+                            <th>Tier</th>
+                            <th>Visit Threshold</th>
+                            <th>Commission Rate</th>
+                            <th>View Rate</th>
+                        </tr>
+                        <tr>
+                            <td>Bronze</td>
+                            <td>0 visits</td>
+                            <td>5%</td>
+                            <td>$0.02/1000 views</td>
+                        </tr>
+                        <tr>
+                            <td>Silver</td>
+                            <td>500 visits</td>
+                            <td>7%</td>
+                            <td>$0.03/1000 views</td>
+                        </tr>
+                        <tr>
+                            <td>Gold</td>
+                            <td>1000 visits</td>
+                            <td>10%</td>
+                            <td>$0.05/1000 views</td>
+                        </tr>
+                        <tr>
+                            <td>Platinum</td>
+                            <td>5000 visits</td>
+                            <td>15%</td>
+                            <td>$0.08/1000 views</td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Country Multipliers</h2>
+                <p>Higher rates for tiered countries:</p>
+                <ul>
+                    <li><strong>US, UK, CA, AU</strong> - 2x multiplier</li>
+                    <li><strong>DE, FR, JP, NL</strong> - 1.5x multiplier</li>
+                    <li>Other countries - 1x (base rate)</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>Admin Configuration</h2>
+                <ul>
+                    <li><strong>Minimum Payout</strong> - Default $50 (configurable)</li>
+                    <li><strong>Payout Methods</strong> - PayPal, Bank Transfer, Crypto</li>
+                    <li><strong>Auto-approve</strong> - Option to auto-approve small payouts</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>Payout Process</h2>
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div>
+                        <h3>Affiliate Requests Payout</h3>
+                        <p>Must meet minimum balance threshold.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div>
+                        <h3>Admin Reviews</h3>
+                        <p>Admin approves or rejects the request.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div>
+                        <h3>Payment Processed</h3>
+                        <p>Mark as paid after processing payment.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>API Endpoints</h2>
+                <ul>
+                    <li><code>GET /api/v1/affiliate</code> - Get affiliate profile</li>
+                    <li><code>POST /api/v1/affiliate/enroll</code> - Enroll in program</li>
+                    <li><code>GET /api/v1/affiliate/tiers</code> - List tiers</li>
+                    <li><code>POST /api/v1/affiliate/payout</code> - Request payout</li>
+                    <li><code>GET /api/v1/affiliate/payouts</code> - Payout history</li>
+                </ul>
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>

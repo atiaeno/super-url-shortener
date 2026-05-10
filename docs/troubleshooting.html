@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Troubleshooting - ShortLink Documentation</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #e74c3c;
+            --dark: #1a1a1a;
+            --gray-900: #111;
+            --gray-800: #1f2937;
+            --gray-700: #374151;
+            --gray-600: #4b5563;
+            --gray-500: #6b7280;
+            --gray-400: #9ca3af;
+            --gray-300: #d1d5db;
+            --gray-200: #e5e7eb;
+            --gray-100: #f3f4f6;
+            --gray-50: #f9fafb;
+            --white: #fff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-800);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: var(--dark);
+            color: var(--white);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            padding: 0 16px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 16px;
+        }
+
+        .logo h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-section {
+            padding: 0 12px;
+            margin-bottom: 16px;
+        }
+
+        .nav-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray-500);
+            margin-bottom: 8px;
+            padding: 0 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 8px 10px;
+            color: var(--gray-300);
+            text-decoration: none;
+            font-size: 13px;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .nav-link.active {
+            border-left: 2px solid var(--primary);
+        }
+
+        .main {
+            flex: 1;
+            margin-left: 240px;
+            padding: 24px 32px;
+            max-width: 720px;
+        }
+
+        .doc-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .doc-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+        }
+
+        .doc-header p {
+            font-size: 14px;
+            color: var(--gray-600);
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 12px;
+            border-left: 3px solid var(--primary);
+            padding-left: 10px;
+        }
+
+        .section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin: 12px 0 8px;
+        }
+
+        .section p {
+            color: var(--gray-700);
+            margin-bottom: 10px;
+        }
+
+        pre {
+            background: var(--gray-900);
+            color: var(--gray-100);
+            padding: 12px 14px;
+            border-radius: 3px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--gray-100);
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-size: 12px;
+            color: var(--primary);
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        ul {
+            margin-left: 16px;
+            margin-bottom: 10px;
+        }
+
+        li {
+            margin-bottom: 4px;
+            color: var(--gray-700);
+        }
+
+        .issue {
+            background: var(--white);
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .issue h3 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>Short<span>Link</span></h1>
+            </div>
+            <nav class="nav-section">
+                <div class="nav-title">Getting Started</div>
+                <a href="index.html" class="nav-link">Introduction</a>
+                <a href="installation.html" class="nav-link">Installation</a>
+                <a href="configuration.html" class="nav-link">Configuration</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-title">Features</div>
+                <a href="features.html" class="nav-link">Core Features</a>
+                <a href="api.html" class="nav-link">API Reference</a>
+                <a href="affiliate.html" class="nav-link">Affiliate Program</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-title">Deployment</div>
+                <a href="deployment.html" class="nav-link">Deployment</a>
+                <a href="troubleshooting.html" class="nav-link active">Troubleshooting</a>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="doc-header">
+                <h1>Troubleshooting</h1>
+                <p>Common issues and their solutions.</p>
+            </header>
+
+            <section class="section">
+                <h2>Common Issues</h2>
+
+                <div class="issue">
+                    <h3>500 Server Error</h3>
+                    <ul>
+                        <li>Check <code>storage/logs/laravel.log</code> for details</li>
+                        <li>Run <code>php artisan config:clear</code></li>
+                        <li>Check folder permissions: <code>storage/</code> and <code>bootstrap/cache/</code> must be
+                            writable</li>
+                    </ul>
+                </div>
+
+                <div class="issue">
+                    <h3>Redirects Not Working</h3>
+                    <ul>
+                        <li>Ensure URL rewriting is enabled in Nginx/Apache</li>
+                        <li>Check <code>.env</code> has correct <code>APP_URL</code></li>
+                        <li>Verify <code>public/.htaccess</code> exists (Apache)</li>
+                    </ul>
+                </div>
+
+                <div class="issue">
+                    <h3>Queue Jobs Not Running</h3>
+                    <ul>
+                        <li>Verify Supervisor is running: <code>sudo supervisorctl status</code></li>
+                        <li>Check queue worker logs: <code>storage/logs/worker.log</code></li>
+                        <li>Restart worker: <code>sudo supervisorctl restart shortlink-queue</code></li>
+                    </ul>
+                </div>
+
+                <div class="issue">
+                    <h3>Database Connection Failed</h3>
+                    <ul>
+                        <li>Verify credentials in <code>.env</code></li>
+                        <li>Test connection: <code>php artisan tinker</code> then
+                            <code>DB::connection()->getPdo()</code></li>
+                        <li>Ensure MySQL user has access to database</li>
+                    </ul>
+                </div>
+
+                <div class="issue">
+                    <h3>Redis Connection Failed</h3>
+                    <ul>
+                        <li>Verify Redis is running: <code>redis-cli ping</code></li>
+                        <li>Check <code>REDIS_HOST</code> in <code>.env</code></li>
+                        <li>Install phpredis extension: <code>sudo apt install php8.2-redis</code></li>
+                    </ul>
+                </div>
+
+                <div class="issue">
+                    <h3>OAuth Login Not Working</h3>
+                    <ul>
+                        <li>Verify callback URLs in OAuth provider settings</li>
+                        <li>Check <code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code> in
+                            <code>.env</code></li>
+                        <li>Ensure redirect URLs match exactly</li>
+                    </ul>
+                </div>
+
+                <div class="issue">
+                    <h3>Scheduler Not Running</h3>
+                    <ul>
+                        <li>Verify cron entry: <code>crontab -l</code></li>
+                        <li>Check cron is running: <code>sudo service cron status</code></li>
+                        <li>Test manually: <code>php artisan schedule:run</code></li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Useful Commands</h2>
+                <pre>php artisan config:clear      # Clear config cache
+php artisan cache:clear       # Clear application cache
+php artisan route:clear       # Clear route cache
+php artisan view:clear        # Clear view cache
+php artisan optimize          # Optimize for production
+php artisan queue:restart     # Restart queue workers
+php artisan migrate:fresh     # Fresh database (dev only)</pre>
+            </section>
+
+            <section class="section">
+                <h2>Debug Mode</h2>
+                <p>For development, enable debug in <code>.env</code>:</p>
+                <pre>APP_DEBUG=true
+APP_ENV=local</pre>
+                <p>Disable in production!</p>
+            </section>
+
+            <section class="section">
+                <h2>Getting Help</h2>
+                <ul>
+                    <li>Check <code>storage/logs/laravel.log</code></li>
+                    <li>Run <code>php artisan --version</code> to verify Laravel</li>
+                    <li>Check PHP version: <code>php -v</code> (needs 8.2+)</li>
+                    <li>Run <code>php artisan about</code> for system info</li>
+                </ul>
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration - ShortLink Documentation</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #e74c3c;
+            --dark: #1a1a1a;
+            --gray-900: #111;
+            --gray-800: #1f2937;
+            --gray-700: #374151;
+            --gray-600: #4b5563;
+            --gray-500: #6b7280;
+            --gray-400: #9ca3af;
+            --gray-300: #d1d5db;
+            --gray-200: #e5e7eb;
+            --gray-100: #f3f4f6;
+            --gray-50: #f9fafb;
+            --white: #fff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-800);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: var(--dark);
+            color: var(--white);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            padding: 0 16px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 16px;
+        }
+
+        .logo h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-section {
+            padding: 0 12px;
+            margin-bottom: 16px;
+        }
+
+        .nav-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray-500);
+            margin-bottom: 8px;
+            padding: 0 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 8px 10px;
+            color: var(--gray-300);
+            text-decoration: none;
+            font-size: 13px;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .nav-link.active {
+            border-left: 2px solid var(--primary);
+        }
+
+        .main {
+            flex: 1;
+            margin-left: 240px;
+            padding: 24px 32px;
+            max-width: 720px;
+        }
+
+        .doc-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .doc-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+        }
+
+        .doc-header p {
+            font-size: 14px;
+            color: var(--gray-600);
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 12px;
+            border-left: 3px solid var(--primary);
+            padding-left: 10px;
+        }
+
+        .section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin: 12px 0 8px;
+        }
+
+        .section p {
+            color: var(--gray-700);
+            margin-bottom: 10px;
+        }
+
+        pre {
+            background: var(--gray-900);
+            color: var(--gray-100);
+            padding: 12px 14px;
+            border-radius: 3px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--gray-100);
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-size: 12px;
+            color: var(--primary);
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            border-radius: 3px;
+            overflow: hidden;
+            font-size: 12px;
+        }
+
+        th,
+        td {
+            padding: 8px 10px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--gray-800);
+            color: var(--white);
+            font-weight: 500;
+            font-size: 11px;
+        }
+
+        td {
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        tr:last-child td {
+            border: none;
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            color: #1e40af;
+        }
+
+        ul {
+            margin-left: 16px;
+            margin-bottom: 10px;
+        }
+
+        li {
+            margin-bottom: 4px;
+            color: var(--gray-700);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>Short<span>Link</span></h1>
+            </div>
+            <nav class="nav-section">
+                <div class="nav-title">Getting Started</div>
+                <a href="index.html" class="nav-link">Introduction</a>
+                <a href="installation.html" class="nav-link">Installation</a>
+                <a href="configuration.html" class="nav-link active">Configuration</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-title">Features</div>
+                <a href="features.html" class="nav-link">Core Features</a>
+                <a href="api.html" class="nav-link">API Reference</a>
+                <a href="affiliate.html" class="nav-link">Affiliate Program</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-title">Deployment</div>
+                <a href="deployment.html" class="nav-link">Deployment</a>
+                <a href="troubleshooting.html" class="nav-link">Troubleshooting</a>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="doc-header">
+                <h1>Configuration</h1>
+                <p>Learn about all the configuration options available in ShortLink.</p>
+            </header>
+
+            <section class="section">
+                <h2>Environment Variables</h2>
+                <p>Key settings in your <code>.env</code> file:</p>
+
+                <div class="table-wrapper">
+                    <table>
+                        <tr>
+                            <th>Variable</th>
+                            <th>Description</th>
+                            <th>Default</th>
+                        </tr>
+                        <tr>
+                            <td><code>APP_NAME</code></td>
+                            <td>Application name</td>
+                            <td>ShortLink</td>
+                        </tr>
+                        <tr>
+                            <td><code>APP_URL</code></td>
+                            <td>Your domain URL</td>
+                            <td>http://localhost</td>
+                        </tr>
+                        <tr>
+                            <td><code>APP_LOCALE</code></td>
+                            <td>Default language</td>
+                            <td>en</td>
+                        </tr>
+                        <tr>
+                            <td><code>DB_CONNECTION</code></td>
+                            <td>Database driver</td>
+                            <td>mysql</td>
+                        </tr>
+                        <tr>
+                            <td><code>QUEUE_CONNECTION</code></td>
+                            <td>Queue driver</td>
+                            <td>redis</td>
+                        </tr>
+                        <tr>
+                            <td><code>CACHE_STORE</code></td>
+                            <td>Cache driver</td>
+                            <td>redis</td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Database Settings</h2>
+                <p>Configure in Admin Panel > Settings. These can also be set via environment:</p>
+                <ul>
+                    <li><strong>app_name</strong> - Site name displayed in header</li>
+                    <li><strong>app_logo</strong> - URL to logo image</li>
+                    <li><strong>default_language</strong> - Site language</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>Feature Toggles</h2>
+                <p>Control which features are enabled:</p>
+                <div class="table-wrapper">
+                    <table>
+                        <tr>
+                            <th>Setting</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                        </tr>
+                        <tr>
+                            <td><code>features_affiliate</code></td>
+                            <td>Enable/disable affiliate program</td>
+                            <td>boolean</td>
+                        </tr>
+                        <tr>
+                            <td><code>features_gdpr</code></td>
+                            <td>Enable GDPR data retention</td>
+                            <td>boolean</td>
+                        </tr>
+                        <tr>
+                            <td><code>features_ads</code></td>
+                            <td>Show ads on redirect pages</td>
+                            <td>boolean</td>
+                        </tr>
+                        <tr>
+                            <td><code>donation_enabled</code></td>
+                            <td>Show donation button</td>
+                            <td>boolean</td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Redirect Settings</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <tr>
+                            <th>Setting</th>
+                            <th>Description</th>
+                            <th>Default</th>
+                        </tr>
+                        <tr>
+                            <td><code>redirect_countdown</code></td>
+                            <td>Seconds before auto-redirect</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td><code>redirect_mode</code></td>
+                            <td>auto | manual | countdown</td>
+                            <td>countdown</td>
+                        </tr>
+                        <tr>
+                            <td><code>redirect_captcha</code></td>
+                            <td>Show captcha before redirect</td>
+                            <td>false</td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Captcha Configuration</h2>
+                <ul>
+                    <li><strong>captcha_enabled</strong> - Enable reCAPTCHA</li>
+                    <li><strong>captcha_site_key</strong> - reCAPTCHA v2 site key</li>
+                    <li><strong>captcha_secret_key</strong> - reCAPTCHA v2 secret key</li>
+                </ul>
+                <div class="alert alert-info">
+                    Get your keys from <a href="https://www.google.com/recaptcha" target="_blank">Google reCAPTCHA</a>.
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>OAuth Setup</h2>
+                <p>Configure social login in <code>.env</code>:</p>
+                <pre>GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URL="${APP_URL}/auth/google/callback"
+
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+GITHUB_REDIRECT_URL="${APP_URL}/auth/github/callback"</pre>
+            </section>
+
+            <section class="section">
+                <h2>SEO Indexer Settings</h2>
+                <p>Configure in Admin Panel > Settings > Indexer:</p>
+                <ul>
+                    <li><strong>enabled</strong> - Enable/disable indexer</li>
+                    <li><strong>links_per_batch</strong> - Links to process per run (default: 10)</li>
+                    <li><strong>interval_minutes</strong> - Minutes between runs (default: 60)</li>
+                    <li><strong>google_daily_limit</strong> - Max Google API calls/day (default: 200)</li>
+                    <li><strong>indexnow_enabled</strong> - Enable IndexNow</li>
+                    <li><strong>indexnow_key</strong> - Your IndexNow key</li>
+                    <li><strong>xml_ping_enabled</strong> - Enable XML sitemap ping</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>Affiliate Settings</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <tr>
+                            <th>Setting</th>
+                            <th>Description</th>
+                            <th>Default</th>
+                        </tr>
+                        <tr>
+                            <td><code>affiliate_min_payout</code></td>
+                            <td>Minimum payout amount</td>
+                            <td>50</td>
+                        </tr>
+                        <tr>
+                            <td><code>affiliate_payout_methods</code></td>
+                            <td>Available methods</td>
+                            <td>PayPal,BankTransfer</td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>GDPR Settings</h2>
+                <ul>
+                    <li><strong>gdpr_data_retention_days</strong> - Click data retention period (default: 365)</li>
+                </ul>
+                <div class="alert alert-info">
+                    The system automatically anonymizes IPs and deletes old click data based on these settings.
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>

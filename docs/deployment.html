@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deployment - ShortLink Documentation</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #e74c3c;
+            --dark: #1a1a1a;
+            --gray-900: #111;
+            --gray-800: #1f2937;
+            --gray-700: #374151;
+            --gray-600: #4b5563;
+            --gray-500: #6b7280;
+            --gray-400: #9ca3af;
+            --gray-300: #d1d5db;
+            --gray-200: #e5e7eb;
+            --gray-100: #f3f4f6;
+            --gray-50: #f9fafb;
+            --white: #fff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-800);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: var(--dark);
+            color: var(--white);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            padding: 0 16px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 16px;
+        }
+
+        .logo h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-section {
+            padding: 0 12px;
+            margin-bottom: 16px;
+        }
+
+        .nav-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray-500);
+            margin-bottom: 8px;
+            padding: 0 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 8px 10px;
+            color: var(--gray-300);
+            text-decoration: none;
+            font-size: 13px;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .nav-link.active {
+            border-left: 2px solid var(--primary);
+        }
+
+        .main {
+            flex: 1;
+            margin-left: 240px;
+            padding: 24px 32px;
+            max-width: 720px;
+        }
+
+        .doc-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .doc-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+        }
+
+        .doc-header p {
+            font-size: 14px;
+            color: var(--gray-600);
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 12px;
+            border-left: 3px solid var(--primary);
+            padding-left: 10px;
+        }
+
+        .section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin: 12px 0 8px;
+        }
+
+        .section p {
+            color: var(--gray-700);
+            margin-bottom: 10px;
+        }
+
+        pre {
+            background: var(--gray-900);
+            color: var(--gray-100);
+            padding: 12px 14px;
+            border-radius: 3px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--gray-100);
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-size: 12px;
+            color: var(--primary);
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        ul {
+            margin-left: 16px;
+            margin-bottom: 10px;
+        }
+
+        li {
+            margin-bottom: 4px;
+            color: var(--gray-700);
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            color: #92400e;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>Short<span>Link</span></h1>
+            </div>
+            <nav class="nav-section">
+                <div class="nav-title">Getting Started</div>
+                <a href="index.html" class="nav-link">Introduction</a>
+                <a href="installation.html" class="nav-link">Installation</a>
+                <a href="configuration.html" class="nav-link">Configuration</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-title">Features</div>
+                <a href="features.html" class="nav-link">Core Features</a>
+                <a href="api.html" class="nav-link">API Reference</a>
+                <a href="affiliate.html" class="nav-link">Affiliate Program</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-title">Deployment</div>
+                <a href="deployment.html" class="nav-link active">Deployment</a>
+                <a href="troubleshooting.html" class="nav-link">Troubleshooting</a>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="doc-header">
+                <h1>Deployment</h1>
+                <p>Deploy ShortLink to production with Nginx and SSL.</p>
+            </header>
+
+            <section class="section">
+                <h2>Nginx Configuration</h2>
+                <pre>server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+    root /var/www/shortlink/public;
+    
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+    
+    index index.php index.html;
+    
+    charset utf-8;
+    
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+    
+    location ~ /\.ht {
+        deny all;
+    }
+    
+    location ~ /\.git {
+        deny all;
+    }
+    
+    location ~ /\.env {
+        deny all;
+    }
+    
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+    
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+    
+    location ~* \.(jpg|jpeg|gif|png|webp|svg|woff|woff2|ttf|eot|css|js)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}</pre>
+            </section>
+
+            <section class="section">
+                <h2>SSL/HTTPS Setup</h2>
+                <p>Using Let's Encrypt (free):</p>
+                <pre>sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com</pre>
+                <p>Or use Cloudflare for free SSL.</p>
+            </section>
+
+            <section class="section">
+                <h2>Production Optimizations</h2>
+                <ul>
+                    <li><strong>APP_ENV=production</strong></li>
+                    <li><strong>APP_DEBUG=false</strong></li>
+                    <li><strong>QUEUE_CONNECTION=redis</strong></li>
+                    <li><strong>CACHE_STORE=redis</strong></li>
+                    <li><strong>SESSION_DRIVER=redis</strong></li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>Folder Permissions</h2>
+                <pre>sudo chown -R www-data:www-data /var/www/shortlink
+sudo chmod -R 755 /var/www/shortlink
+sudo chmod -R 775 /var/www/shortlink/storage
+sudo chmod -R 775 /var/www/shortlink/bootstrap/cache</pre>
+            </section>
+
+            <section class="section">
+                <h2>Queue Worker (Supervisor)</h2>
+                <pre>[program:shortlink-queue]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/shortlink/artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=www-data
+numprocs=2
+redirect_stderr=true
+stdout_logfile=/var/www/shortlink/storage/logs/worker.log
+stopwaitsecs=3600</pre>
+            </section>
+
+            <section class="section">
+                <h2>Scheduler Cron</h2>
+                <pre>* * * * * cd /var/www/shortlink && php artisan schedule:run >> /dev/null 2>&1</pre>
+            </section>
+
+            <section class="section">
+                <h2>Deploy Script</h2>
+                <pre>git pull origin main
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+npm run build
+sudo systemctl restart supervisor
+sudo systemctl restart nginx</pre>
+            </section>
+
+            <section class="section">
+                <h2>Shared Hosting</h2>
+                <div class="alert alert-warning">
+                    <strong>Note:</strong> ShortLink requires SSH access for Composer, queue workers, and scheduler.
+                    Most shared hosting plans won't work. Use a VPS (DigitalOcean, Linode, AWS Lightsail) or managed
+                    hosting (Forge, Vapor).
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>
