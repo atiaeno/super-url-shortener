@@ -40,44 +40,48 @@ class IndexerService
             return $results;
         }
 
-        // Get current offset from settings
         $this->offset = $this->settings->last_offset ?? 0;
         $batchSize = $this->settings->links_per_batch;
 
-        // Get total public links count
+        $today = now()->toDateString();
+        if ($this->settings->google_links_sent_date !== $today) {
+            $this->settings->google_links_sent_date = $today;
+            $this->settings->google_links_sent_today = 0;
+        }
+
         $totalLinks = Link::where('visibility', 'public')
             ->count();
 
-        // Reset offset if we've processed all links
         if ($this->offset >= $totalLinks) {
             $this->offset = 0;
         }
 
-        // Get public links with offset (batch)
         $publicLinks = Link::where('visibility', 'public')
             ->offset($this->offset)
             ->limit($batchSize)
             ->get();
 
-        // Process Google Indexer
         if ($this->googleIndexer->isEnabled()) {
-            $results['google'] = $this->processLinks($publicLinks, 'google');
+            $dailyLimit = $this->settings->google_daily_limit ?? 200;
+            $linksSentToday = $this->settings->google_links_sent_today ?? 0;
+
+            if ($linksSentToday < $dailyLimit) {
+                $results['google'] = $this->processLinks($publicLinks, 'google');
+                $this->settings->google_links_sent_today = $linksSentToday + $results['google']['processed'];
+                $this->offset += $publicLinks->count();
+            } else {
+                Log::info('Google Indexer: Daily limit reached (' . $dailyLimit . ')');
+            }
+        } else {
+            $this->offset += $publicLinks->count();
         }
 
-        // Process IndexNow
         if ($this->indexNow->isEnabled()) {
             $results['indexnow'] = $this->processLinks($publicLinks, 'indexnow');
         }
 
-        // Update offset for next run
-        $newOffset = $this->offset + $publicLinks->count();
-        $this->settings->last_offset = $newOffset >= $totalLinks ? 0 : $newOffset;
+        $this->settings->last_offset = $this->offset >= $totalLinks ? 0 : $this->offset;
         $this->settings->save();
-
-        // XML Ping - run once per execution
-        if ($this->xmlPing->isEnabled()) {
-            $this->runXmlPing();
-        }
 
         return $results;
     }
@@ -254,10 +258,10 @@ class IndexerService
     public function getQueueStats(): array
     {
         return [
-            'pending' => IndexerQueue::where('status', 'pending')->count(),
-            'processing' => IndexerQueue::where('status', 'processing')->count(),
-            'completed' => IndexerQueue::where('status', 'completed')->count(),
-            'failed' => IndexerQueue::where('status', 'failed')->count(),
+            'pending' => 0,
+            'processing' => 0,
+            'completed' => IndexerLog::where('response_status', 'success')->whereDate('created_at', today())->count(),
+            'failed' => IndexerLog::where('response_status', 'failed')->whereDate('created_at', today())->count(),
         ];
     }
 }

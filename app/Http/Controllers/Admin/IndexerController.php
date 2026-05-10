@@ -38,6 +38,7 @@ class IndexerController extends Controller
             'links_per_batch' => 'integer|min:1|max:100',
             'interval_minutes' => 'integer|min:1|max:1440',
             'google_service_account_json' => 'nullable|string',
+            'google_daily_limit' => 'integer|min:1|max:200',
             'indexnow_enabled' => 'boolean',
             'indexnow_key' => 'nullable|string|min:8|max:128',
             'xml_ping_enabled' => 'boolean',
@@ -75,13 +76,22 @@ class IndexerController extends Controller
         return back()->with('success', 'Indexer ran successfully');
     }
 
+    public function pingSitemap()
+    {
+        $xmlPing = new \App\Services\XmlPingService();
+        $results = $xmlPing->pingSitemap();
+
+        $successCount = count(array_filter($results, fn($r) => $r === true));
+        $totalCount = count($results);
+
+        return back()->with('success', "Sitemap ping completed: {$successCount}/{$totalCount} services");
+    }
+
     public function clearQueue()
     {
-        IndexerQueue::whereIn('status', ['completed', 'failed'])
-            ->where('created_at', '<', now()->subDays(30))
-            ->delete();
+        IndexerLog::where('created_at', '<', now()->subDays(30))->delete();
 
-        return back()->with('success', 'Old queue entries cleared');
+        return back()->with('success', 'Old log entries cleared');
     }
 
     public function queueAll()

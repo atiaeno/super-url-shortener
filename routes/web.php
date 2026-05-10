@@ -206,6 +206,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         Route::post('/', [\App\Http\Controllers\Admin\IndexerController::class, 'update'])->name('update');
         Route::post('index-now', [\App\Http\Controllers\Admin\IndexerController::class, 'indexNow'])->name('index-now');
         Route::get('run', [\App\Http\Controllers\Admin\IndexerController::class, 'runNow'])->name('run');
+        Route::get('ping-sitemap', [\App\Http\Controllers\Admin\IndexerController::class, 'pingSitemap'])->name('ping-sitemap');
         Route::get('clear', [\App\Http\Controllers\Admin\IndexerController::class, 'clearQueue'])->name('clear');
         Route::get('queue-all', [\App\Http\Controllers\Admin\IndexerController::class, 'queueAll'])->name('queue-all');
     });

@@ -102,64 +102,8 @@ class XmlPingService
 
     public function pingSitemap(): array
     {
-        $sitemapUrl = $this->getSitemapUrl();
-
-        // Ping sitemap URL
-        $results = $this->ping($sitemapUrl);
-
-        // Also submit all URLs from sitemap to search engines
-        $this->submitAllUrlsFromSitemap($sitemapUrl);
-
-        return $results;
-    }
-
-    private function submitAllUrlsFromSitemap(string $sitemapUrl): void
-    {
-        try {
-            $response = Http::timeout(30)->get($sitemapUrl);
-
-            if (!$response->successful()) {
-                return;
-            }
-
-            $xml = simplexml_load_string($response->body());
-
-            if (!$xml || !isset($xml->url)) {
-                return;
-            }
-
-            $urls = [];
-            foreach ($xml->url as $url) {
-                if (isset($url->loc)) {
-                    $urls[] = (string) $url->loc;
-                }
-            }
-
-            if (empty($urls)) {
-                return;
-            }
-
-            $services = $this->settings->ping_services ?? array_keys(self::PING_SERVICES);
-
-            foreach ($services as $service) {
-                if (in_array($service, ['google', 'bing'])) {
-                    // Use IndexNow for Google and Bing
-                    $indexNowService = new \App\Services\IndexNowService();
-
-                    if ($service === 'bing' && $indexNowService->isEnabled()) {
-                        $indexNowService->submitBatch($urls, 'bing');
-                    }
-
-                    // Google uses URL Inspection API - just ping the sitemap
-                    if ($service === 'google') {
-                        $this->pingService('google', $sitemapUrl);
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            Log::error('XML Ping: Failed to submit URLs from sitemap', [
-                'message' => $e->getMessage(),
-            ]);
-        }
+        // Only ping sitemap URL - don't submit every URL every hour
+        // Search engines will discover URLs from the sitemap on their own
+        return $this->ping($this->getSitemapUrl());
     }
 }

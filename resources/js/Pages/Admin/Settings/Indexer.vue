@@ -1,7 +1,7 @@
 // © Atia Hegazy — atiaeno.com
 <script setup>
 import { ref, computed } from 'vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
@@ -17,6 +17,7 @@ const form = useForm({
     links_per_batch: props.settings.links_per_batch || 10,
     interval_minutes: props.settings.interval_minutes || 5,
     google_service_account_json: props.settings.google_service_account_json || '',
+    google_daily_limit: props.settings.google_daily_limit || 200,
     indexnow_enabled: props.settings.indexnow_enabled || false,
     indexnow_key: props.settings.indexnow_key || '',
     xml_ping_enabled: props.settings.xml_ping_enabled || false,
@@ -44,9 +45,24 @@ const runIndexer = () => {
     window.location.href = '/admin/settings/indexer/run';
 };
 
+const pingSitemap = () => {
+    window.location.href = '/admin/settings/indexer/ping-sitemap';
+};
+
 const clearQueue = () => {
     if (confirm('Clear old completed/failed entries from queue?')) {
         window.location.href = '/admin/settings/indexer/clear';
+    }
+};
+
+const resubmitLink = (linkId) => {
+    if (linkId) {
+        router.post('/admin/settings/indexer/index-now', { link_id: linkId }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                alert('Link resubmitted for indexing');
+            },
+        });
     }
 };
 
@@ -144,6 +160,12 @@ const getStatusColor = (status) => {
                                         max="100">
                                 </div>
                                 <div class="form-group">
+                                    <label class="form-label">Google Daily Limit</label>
+                                    <input type="number" v-model="form.google_daily_limit" class="form-input" min="1"
+                                        max="200" placeholder="200">
+                                    <p class="form-hint">Google limits ~200 URLs/day</p>
+                                </div>
+                                <div class="form-group">
                                     <label class="form-label">Interval (minutes)</label>
                                     <input type="number" v-model="form.interval_minutes" class="form-input" min="1"
                                         max="1440">
@@ -213,6 +235,9 @@ const getStatusColor = (status) => {
                         <button type="button" @click="runIndexer" class="btn-secondary">
                             Run Indexer Now
                         </button>
+                        <button type="button" @click="pingSitemap" class="btn-secondary">
+                            Ping Sitemap
+                        </button>
                     </div>
                 </form>
             </div>
@@ -256,6 +281,7 @@ const getStatusColor = (status) => {
                                     <th>Service</th>
                                     <th>Status</th>
                                     <th>Message</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -273,6 +299,12 @@ const getStatusColor = (status) => {
                                         </span>
                                     </td>
                                     <td class="message-cell">{{ log.response_message }}</td>
+                                    <td>
+                                        <button @click="resubmitLink(log.link_id)" class="btn-icon-small"
+                                            title="Resubmit">
+                                            ↻
+                                        </button>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -284,11 +316,14 @@ const getStatusColor = (status) => {
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Oswald:wght@400;500;700&display=swap');
+* {
+    font-size: 13px;
+    color: #000;
+}
 
 :root {
     --font-display: 'Oswald', sans-serif;
-    --font-body: 'Crimson Pro', serif;
+    --font-body: system-ui, -apple-system, sans-serif;
     --primary: #e74c3c;
     --primary-dark: #c0392b;
     --ink: #000000;
@@ -598,6 +633,20 @@ const getStatusColor = (status) => {
 
 .btn-ghost:hover {
     color: var(--ink);
+}
+
+.btn-icon-small {
+    padding: 4px 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-icon-small:hover {
+    background: var(--primary);
+    color: white;
 }
 
 .stats-grid {
