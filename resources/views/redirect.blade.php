@@ -162,21 +162,20 @@
                     </div>
                 @endif
 
-                <div class="dest-link">Destination: <a
-                        href="{{ $destination }}">{{ Str::limit($destination, 60) }}</a></div>
+                <div class="dest-link" id="destLink" @if ($redirectCaptcha) style="display:none" @endif>
+                    Destination: <a href="{{ $destination }}">{{ Str::limit($destination, 60) }}</a></div>
 
                 <!-- Report and Share Actions -->
                 <div class="action-buttons">
-                    <button class="action-btn action-btn--report" onclick="openReportModal()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                            <polyline points="14 2 14 8 20 8" />
-                            <line x1="16" y1="13" x2="8" y2="13" />
-                            <line x1="16" y1="17" x2="8" y2="17" />
-                            <polyline points="10 9 9 9 8 9" />
-                        </svg>
-                        Report Link
-                    </button>
+                    @if ($link)
+                        <button class="action-btn action-btn--report" onclick="openReportModal()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                                <line x1="4" y1="22" x2="4" y2="15" />
+                            </svg>
+                            Report Link
+                        </button>
+                    @endif
                     <button class="action-btn action-btn--share" onclick="openShareModal()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="18" cy="5" r="3" />
@@ -250,6 +249,9 @@
                 window.onCaptchaPass = function() {
                     captchaPassed = true;
                     if (btn.dataset.ready === 'true') btn.classList.add('active');
+                    // Show destination link after captcha passed
+                    var destLink = document.getElementById('destLink');
+                    if (destLink) destLink.style.display = 'block';
                 };
 
                 function enableButton() {
@@ -481,7 +483,7 @@
             const formData = new FormData(event.target);
 
             try {
-                const response = await fetch(`/links/{{ $link->id }}/report`, {
+                const response = await fetch(`/links/{{ $link ? $link->id : '' }}/report`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'

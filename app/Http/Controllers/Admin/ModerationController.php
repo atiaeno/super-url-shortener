@@ -41,6 +41,29 @@ class ModerationController extends Controller
     }
 
     /**
+     * Display flagged links.
+     */
+    public function flagged(): Response
+    {
+        $flaggedLinks = Link::where('report_count', '>', 0)
+            ->withCount('reports')
+            ->with(['reports' => function ($query) {
+                $query->latest()->limit(5);
+            }])
+            ->orderByDesc('report_count')
+            ->paginate(50);
+
+        return Inertia::render('Admin/Moderation/Flagged', [
+            'flaggedLinks' => $flaggedLinks,
+            'stats' => [
+                'flagged' => Link::where('report_count', '>', 0)->count(),
+                'auto_suspended' => Link::whereNotNull('auto_suspended_at')->count(),
+                'high_priority' => Link::where('report_count', '>=', 5)->count(),
+            ],
+        ]);
+    }
+
+    /**
      * Display all reports queue.
      */
     public function reports(Request $request): Response
@@ -94,29 +117,6 @@ class ModerationController extends Controller
                 'pending' => Report::pending()->count(),
                 'reviewed' => Report::reviewed()->count(),
                 'today' => Report::whereDate('created_at', today())->count(),
-            ],
-        ]);
-    }
-
-    /**
-     * Display flagged links.
-     */
-    public function flagged(): Response
-    {
-        $flaggedLinks = Link::where('report_count', '>', 0)
-            ->withCount('reports')
-            ->with(['reports' => function ($query) {
-                $query->latest()->limit(5);
-            }])
-            ->orderByDesc('report_count')
-            ->paginate(50);
-
-        return Inertia::render('Admin/Moderation/Flagged', [
-            'flaggedLinks' => $flaggedLinks,
-            'stats' => [
-                'flagged' => Link::where('report_count', '>', 0)->count(),
-                'auto_suspended' => Link::whereNotNull('auto_suspended_at')->count(),
-                'high_priority' => Link::where('report_count', '>=', 5)->count(),
             ],
         ]);
     }

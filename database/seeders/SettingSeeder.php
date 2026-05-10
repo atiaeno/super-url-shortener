@@ -30,7 +30,10 @@ class SettingSeeder extends Seeder
             ['key' => 'cache_ttl_redirect', 'value' => '86400', 'group' => 'cache'],
             ['key' => 'cache_ttl_analytics', 'value' => '3600', 'group' => 'cache'],
             // Security
-            ['key' => 'captcha_enabled', 'value' => 'false', 'group' => 'security'],
+            ['key' => 'captcha_enabled', 'value' => 'true', 'group' => 'security'],
+            ['key' => 'captcha_site_key', 'value' => '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI', 'group' => 'security'],
+            ['key' => 'captcha_secret_key', 'value' => '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI', 'group' => 'security'],
+            ['key' => 'redirect_captcha', 'value' => 'true', 'group' => 'security'],
             ['key' => 'safe_browsing_enabled', 'value' => 'false', 'group' => 'security'],
             ['key' => 'maintenance_mode', 'value' => 'false', 'group' => 'security'],
             ['key' => 'maintenance_message', 'value' => 'We are performing scheduled maintenance. Please check back soon.', 'group' => 'security'],

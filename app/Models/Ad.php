@@ -5,6 +5,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class Ad extends Model
 {
@@ -27,6 +28,40 @@ class Ad extends Model
         'is_active' => 'boolean',
         'countdown_seconds' => 'integer',
     ];
+
+    protected static string $cacheKey = 'ads_all';
+    protected static int $cacheTTL = 43200;  // 30 days in minutes
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function () {
+            Cache::forget(self::$cacheKey);
+        });
+
+        static::updated(function () {
+            Cache::forget(self::$cacheKey);
+        });
+
+        static::deleted(function () {
+            Cache::forget(self::$cacheKey);
+        });
+    }
+
+    public static function getCachedActive()
+    {
+        return Cache::remember(self::$cacheKey, self::$cacheTTL, function () {
+            return self::active()->get();
+        });
+    }
+
+    public static function getCachedForPlacement(string $placement)
+    {
+        $ads = self::getCachedActive();
+        $filtered = $ads->where('placement', $placement);
+        return $filtered->isNotEmpty() ? $filtered->random() : null;
+    }
 
     public function scopeActive($query)
     {

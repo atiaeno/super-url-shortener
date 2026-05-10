@@ -23,28 +23,34 @@ class RedirectController extends Controller
             ->orWhere('custom_alias', $shortCode)
             ->first();
 
+        // Get promotions for all states
+        $promotions = $this->getPromotions();
+
         // Not found at all
         if (!$link) {
-            return response()->view('redirect', [
+            return response()->view('redirect', array_merge([
                 'state' => 'not-found',
                 'shortCode' => $shortCode,
-            ], 404);
+                'link' => null,
+            ], $promotions), 404);
         }
 
         // Expired
         if ($link->expires_at && $link->expires_at->isPast()) {
-            return response()->view('redirect', [
+            return response()->view('redirect', array_merge([
                 'state' => 'expired',
                 'expiresAt' => $link->expires_at,
-            ], 410);
+                'link' => $link,
+            ], $promotions), 410);
         }
 
         // Deactivated
         if (!$link->is_active) {
-            return response()->view('redirect', [
+            return response()->view('redirect', array_merge([
                 'state' => 'not-found',
                 'shortCode' => $shortCode,
-            ], 404);
+                'link' => $link,
+            ], $promotions), 404);
         }
 
         // Password protected — show password gate
@@ -53,19 +59,21 @@ class RedirectController extends Controller
                 if (password_verify($request->input('password', ''), $link->password)) {
                     session(["unlocked:{$link->id}" => true]);
                 } else {
-                    return response()->view('redirect', [
+                    return response()->view('redirect', array_merge([
                         'state' => 'password',
                         'shortCode' => $shortCode,
                         'error' => true,
-                    ], 403);
+                        'link' => $link,
+                    ], $promotions), 403);
                 }
             } else {
                 if (!session("unlocked:{$link->id}")) {
-                    return response()->view('redirect', [
+                    return response()->view('redirect', array_merge([
                         'state' => 'password',
                         'shortCode' => $shortCode,
                         'error' => false,
-                    ], 403);
+                        'link' => $link,
+                    ], $promotions), 403);
                 }
             }
         }
@@ -102,19 +110,8 @@ class RedirectController extends Controller
             $this->markAdSeen($request, $link->id);
         }
 
-        // Get promotions for all placements
-        $headerPromotion = Ad::active()->forPlacement('header')->inRandomOrder()->first();
-        $footerPromotion = Ad::active()->forPlacement('footer')->inRandomOrder()->first();
-        $leftSidePromotion = Ad::active()->forPlacement('left_side')->inRandomOrder()->first();
-        $rightSidePromotion = Ad::active()->forPlacement('right_side')->inRandomOrder()->first();
-        $beforeCounterPromotion = Ad::active()->forPlacement('before_counter')->inRandomOrder()->first();
-        $underCounterPromotion = Ad::active()->forPlacement('under_counter')->inRandomOrder()->first();
-        $aboveButtonPromotion = Ad::active()->forPlacement('above_button')->inRandomOrder()->first();
-        $underButtonPromotion = Ad::active()->forPlacement('under_button')->inRandomOrder()->first();
-        $popupPromotion = Ad::active()->forPlacement('popup')->inRandomOrder()->first();
-
         // Always show the redirect page — user sees destination, timer, and optional ad
-        return response()->view('redirect', [
+        return response()->view('redirect', array_merge([
             'state' => 'redirect',
             'destination' => $destinationUrl,
             'countdown' => $countdown,
@@ -124,22 +121,13 @@ class RedirectController extends Controller
             'adContent' => $adContent,
             'adPlacement' => $ad ? $ad->placement : null,
             'adFormat' => $ad ? $ad->format : null,
-            'headerPromotion' => $headerPromotion,
-            'footerPromotion' => $footerPromotion,
-            'leftSidePromotion' => $leftSidePromotion,
-            'rightSidePromotion' => $rightSidePromotion,
-            'beforeCounterPromotion' => $beforeCounterPromotion,
-            'underCounterPromotion' => $underCounterPromotion,
-            'aboveButtonPromotion' => $aboveButtonPromotion,
-            'underButtonPromotion' => $underButtonPromotion,
-            'popupPromotion' => $popupPromotion,
             'title' => $link->og_title ?? 'Redirecting…',
             'ogTitle' => $link->og_title,
             'ogDescription' => $link->og_description,
             'ogUrl' => $link->short_url,
-            'link' => $link,  // Add the link object for report submission
+            'link' => $link,
             'ogImage' => $link->og_image,
-        ]);
+        ], $promotions));
     }
 
     /**
@@ -300,5 +288,23 @@ class RedirectController extends Controller
             ->when($countryCode, fn($q) => $q->forCountry($countryCode))
             ->inRandomOrder()
             ->first();
+    }
+
+    /**
+     * Get all promotions for all placements.
+     */
+    private function getPromotions(): array
+    {
+        return [
+            'headerPromotion' => Ad::getCachedForPlacement('header'),
+            'footerPromotion' => Ad::getCachedForPlacement('footer'),
+            'leftSidePromotion' => Ad::getCachedForPlacement('left_side'),
+            'rightSidePromotion' => Ad::getCachedForPlacement('right_side'),
+            'beforeCounterPromotion' => Ad::getCachedForPlacement('before_counter'),
+            'underCounterPromotion' => Ad::getCachedForPlacement('under_counter'),
+            'aboveButtonPromotion' => Ad::getCachedForPlacement('above_button'),
+            'underButtonPromotion' => Ad::getCachedForPlacement('under_button'),
+            'popupPromotion' => Ad::getCachedForPlacement('popup'),
+        ];
     }
 }
