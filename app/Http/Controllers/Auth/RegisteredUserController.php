@@ -4,6 +4,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use App\Models\User;
 use App\Rules\NotDisposableEmail;
 use App\Services\CaptchaService;
@@ -24,7 +25,9 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Auth/Register');
+        return Inertia::render('Auth/Register', [
+            'recaptchaSiteKey' => Setting::get('captcha_site_key', ''),
+        ]);
     }
 
     /**

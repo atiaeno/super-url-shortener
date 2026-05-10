@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -19,6 +20,7 @@ class PasswordResetLinkController extends Controller
     {
         return Inertia::render('Auth/ForgotPassword', [
             'status' => session('status'),
+            'recaptchaSiteKey' => Setting::get('captcha_site_key', ''),
         ]);
     }
 
@@ -31,7 +33,16 @@ class PasswordResetLinkController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
+            'recaptcha_token' => ['nullable', 'string'],
         ]);
+
+        // Verify CAPTCHA token if enabled
+        $captcha = app(\App\Services\CaptchaService::class);
+        if (!$captcha->verify($request->input('recaptcha_token'), $request->ip())) {
+            throw ValidationException::withMessages([
+                'recaptcha_token' => 'CAPTCHA verification failed. Please try again.',
+            ]);
+        }
 
         // We will send the password reset link to this user. Once we have attempted
         // to send the link, we will examine the response then see the message we
