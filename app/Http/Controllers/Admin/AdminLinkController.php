@@ -83,10 +83,17 @@ class AdminLinkController extends Controller
             $validated['ad_id'] = null;
         }
 
+        // If destination_url changed, bust the rendered page cache
+        if ($validated['destination_url'] !== $link->getOriginal('destination_url')) {
+            $domainKey = $link->domain_id ?? 'default';
+            Cache::forget("redirect:page:{$domainKey}:{$link->short_code}");
+        }
+
         $link->update($validated);
 
-        // Update cache
-        Cache::put("redirect:{$link->short_code}", $link->destination_url, now()->addHours(24));
+        // Update destination cache (domain-scoped key)
+        $domainKey = $link->domain_id ?? 'default';
+        Cache::put("redirect:{$domainKey}:{$link->short_code}", $link->destination_url, now()->addHours(24));
 
         if ($link->user_id) {
             return redirect()

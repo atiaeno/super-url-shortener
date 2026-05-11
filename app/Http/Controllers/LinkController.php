@@ -122,8 +122,9 @@ class LinkController extends Controller
             'password' => $validated['password'] ?? null,
         ]);
 
-        // Cache the redirect
-        Cache::put("redirect:{$link->short_code}", $link->destination_url, now()->addHours(24));
+        // Cache the redirect (domain-scoped key)
+        $domainKey = $link->domain_id ?? 'default';
+        Cache::put("redirect:{$domainKey}:{$link->short_code}", $link->destination_url, now()->addHours(24));
 
         // Fetch OG tags asynchronously
         FetchOgTagsJob::dispatch($link->id)->onQueue('default');
@@ -256,10 +257,17 @@ class LinkController extends Controller
             $validated['ad_id'] = null;
         }
 
+        // If destination_url is being changed, bust the rendered page cache
+        if (isset($validated['destination_url']) && $validated['destination_url'] !== $link->getOriginal('destination_url')) {
+            $domainKey = $link->domain_id ?? 'default';
+            Cache::forget("redirect:page:{$domainKey}:{$link->short_code}");
+        }
+
         $link->update($validated);
 
-        // Update cache
-        Cache::put("redirect:{$link->short_code}", $link->destination_url, now()->addHours(24));
+        // Update destination cache (domain-scoped key)
+        $domainKey = $link->domain_id ?? 'default';
+        Cache::put("redirect:{$domainKey}:{$link->short_code}", $link->destination_url, now()->addHours(24));
 
         return redirect()
             ->route('links.index')
@@ -273,8 +281,10 @@ class LinkController extends Controller
     {
         $this->authorize('delete', $link);
 
-        // Clear cache
-        Cache::forget("redirect:{$link->short_code}");
+        // Clear destination and page caches
+        $domainKey = $link->domain_id ?? 'default';
+        Cache::forget("redirect:{$domainKey}:{$link->short_code}");
+        Cache::forget("redirect:page:{$domainKey}:{$link->short_code}");
 
         $link->delete();
 
@@ -292,11 +302,12 @@ class LinkController extends Controller
 
         $link->update(['is_active' => !$link->is_active]);
 
-        // Clear cache if deactivating
+        // Clear cache if deactivating, update if activating
+        $domainKey = $link->domain_id ?? 'default';
         if (!$link->is_active) {
-            Cache::forget("redirect:{$link->short_code}");
+            Cache::forget("redirect:{$domainKey}:{$link->short_code}");
         } else {
-            Cache::put("redirect:{$link->short_code}", $link->destination_url, now()->addHours(24));
+            Cache::put("redirect:{$domainKey}:{$link->short_code}", $link->destination_url, now()->addHours(24));
         }
 
         $status = $link->is_active ? 'activated' : 'deactivated';

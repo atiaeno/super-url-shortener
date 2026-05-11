@@ -13,7 +13,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('links', function (Blueprint $table) {
-            $table->string('destination_url_hash', 64)->after('destination_url')->index();
+            $table->string('destination_url_hash', 64)->nullable()->after('destination_url')->index();
         });
 
         // Update existing records with hash values (compatible with SQLite)

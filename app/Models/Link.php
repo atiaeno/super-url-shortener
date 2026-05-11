@@ -49,12 +49,13 @@ class Link extends Model
         parent::boot();
 
         static::saving(function ($link) {
-            // Generate URL hash for duplicate checking
-            if ($link->isDirty('destination_url') && !$link->destination_url_hash) {
+            // Always sync hash whenever destination_url changes
+            if ($link->isDirty('destination_url')) {
                 $link->destination_url_hash = hash('sha256', $link->destination_url);
             }
 
-            if ($link->visibility === 'private' && $link->password) {
+            // Only hash password when it has actually changed
+            if ($link->isDirty('password') && $link->visibility === 'private' && $link->password) {
                 $link->password = bcrypt($link->password);
             }
             if ($link->visibility === 'public') {

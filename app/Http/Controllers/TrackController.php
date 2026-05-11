@@ -17,9 +17,11 @@ class TrackController extends Controller
     public function track(string $shortCode, Request $request)
     {
         // Find link
-        $link = Link::where('short_code', $shortCode)
-            ->orWhere('custom_alias', $shortCode)
-            ->first();
+        $link = Link::where(function ($q) use ($shortCode) {
+            $q
+                ->where('short_code', $shortCode)
+                ->orWhere('custom_alias', $shortCode);
+        })->first();
 
         // Silently ignore invalid links (don't leak info)
         if (!$link || !$link->is_active) {

@@ -27,12 +27,16 @@ class RedirectController extends Controller
         $domain = AliasDomain::where('domain', $currentDomain)->active()->first();
 
         // Look up the link with domain support
-        $query = Link::where('short_code', $shortCode)
-            ->orWhere('custom_alias', $shortCode);
+        $domainId = $domain?->id;
+        $query = Link::where(function ($q) use ($shortCode) {
+            $q
+                ->where('short_code', $shortCode)
+                ->orWhere('custom_alias', $shortCode);
+        });
 
         // If domain exists in our system, filter by domain
         if ($domain) {
-            $query->where('domain_id', $domain->id);
+            $query->where('domain_id', $domainId);
         } else {
             // If domain not found, look for links without domain_id (backward compatibility)
             $query->whereNull('domain_id');
@@ -97,8 +101,8 @@ class RedirectController extends Controller
 
         $destinationUrl = $link->destination_url;
 
-        // Cache destination for next time (24h TTL)
-        Cache::put("redirect:{$shortCode}", $destinationUrl, now()->addHours(24));
+        // Cache destination for next time (24h TTL) — domain-scoped to prevent cross-domain collisions
+        Cache::put("redirect:{$domainId}:{$shortCode}", $destinationUrl, now()->addHours(24));
 
         // Serve OG meta page for social crawlers (instant redirect via meta refresh)
         if ($this->isSocialCrawler($request->userAgent() ?? '')) {
@@ -106,18 +110,21 @@ class RedirectController extends Controller
                 ->header('Content-Type', 'text/html; charset=utf-8');
         }
 
-        // Check if page is cached
-        $cacheKey = "redirect:page:{$shortCode}";
+        // Check if page is cached — key includes domain to prevent cross-domain collisions
+        $cacheKey = "redirect:page:{$domainId}:{$shortCode}";
         $cacheDays = (int) Setting::get('redirect_cache_days', 7);
         $cachedHtml = Cache::get($cacheKey);
 
         if ($cachedHtml) {
-            // Serve cached page - inject shortCode for tracking
+            // Serve cached page - inject shortCode for tracking (JSON-encoded to prevent XSS)
+            $safeShortCode = json_encode($shortCode);
             $cachedHtml = str_replace(
                 "var shortCode = '';",
-                "var shortCode = '{$shortCode}';",
+                "var shortCode = {$safeShortCode};",
                 $cachedHtml
             );
+            // Still dispatch click tracking even for cached pages
+            LogClickJob::dispatch($link->id, $this->getClickData($request))->onQueue('default');
             return response($cachedHtml, 200)->header('Content-Type', 'text/html; charset=utf-8');
         }
 
@@ -138,8 +145,8 @@ class RedirectController extends Controller
             $this->markAdSeen($request, $link->id);
         }
 
-        // Render the page
-        $html = view('redirect', array_merge([
+        // Build view data once — used for both caching and the response
+        $viewData = array_merge([
             'state' => 'redirect',
             'shortCode' => $shortCode,
             'destination' => $destinationUrl,
@@ -156,30 +163,14 @@ class RedirectController extends Controller
             'ogUrl' => $link->short_url,
             'link' => $link,
             'ogImage' => $link->og_image,
-        ], $promotions))->render();
+        ], $promotions);
 
-        // Cache the rendered page
+        // Cache rendered HTML for subsequent requests (render once here, serve raw on cache hits)
+        $html = view('redirect', $viewData)->render();
         Cache::put($cacheKey, $html, now()->addDays($cacheDays));
 
-        // Return view response for testing compatibility
-        return response()->view('redirect', array_merge([
-            'state' => 'redirect',
-            'shortCode' => $shortCode,
-            'destination' => $destinationUrl,
-            'countdown' => $countdown,
-            'redirectMode' => $redirectMode,
-            'redirectCaptcha' => filter_var($redirectCaptcha, FILTER_VALIDATE_BOOLEAN),
-            'captchaSiteKey' => Setting::get('captcha_site_key', ''),
-            'adContent' => $adContent,
-            'adPlacement' => $ad ? $ad->placement : null,
-            'adFormat' => $ad ? $ad->format : null,
-            'title' => $link->og_title ?? 'Redirecting…',
-            'ogTitle' => $link->og_title,
-            'ogDescription' => $link->og_description,
-            'ogUrl' => $link->short_url,
-            'link' => $link,
-            'ogImage' => $link->og_image,
-        ], $promotions));
+        // Return a view response so tests can use assertViewHas()
+        return response()->view('redirect', $viewData);
     }
 
     /**
@@ -225,6 +216,12 @@ class RedirectController extends Controller
         $ogImageTag = $ogImage ? "<meta property=\"og:image\" content=\"{$ogImage}\">" : '';
         $twImageTag = $ogImage ? "<meta property=\"twitter:image\" content=\"{$ogImage}\">" : '';
 
+        // JSON-LD values must be JSON-escaped (not just HTML-escaped) to prevent broken JSON
+        $jsonTitle = json_encode($link->og_title ?? 'Short Link', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $jsonDesc = json_encode($link->og_description ?? "Visit {$destinationUrl}", JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $jsonUrl = json_encode($link->short_url, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $jsonAppName = json_encode(config('app.name', 'ShortLink'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
         return <<<HTML
             <!DOCTYPE html>
             <html lang="en">
@@ -242,7 +239,7 @@ class RedirectController extends Controller
             <meta name="twitter:description" content="{$ogDesc}">
             {$twImageTag}
             <script type="application/ld+json">
-            {"@context":"https://schema.org","@type":"WebPage","name":"{$ogTitle}","url":"{$shortUrl}","description":"{$ogDesc}","publisher":{"@type":"Organization","name":"{$appName}"}}
+            {"@context":"https://schema.org","@type":"WebPage","name":{$jsonTitle},"url":{$jsonUrl},"description":{$jsonDesc},"publisher":{"@type":"Organization","name":{$jsonAppName}}}
             </script>
             </head>
             <body>Redirecting…</body>

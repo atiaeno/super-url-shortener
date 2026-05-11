@@ -59,26 +59,31 @@ class UrlValidationService
 
     public static function sanitizeUrl(string $url): string
     {
-        // Remove any HTML entities or special characters that could be malicious
-        $url = htmlspecialchars_decode($url, ENT_QUOTES);
-        $url = filter_var($url, FILTER_SANITIZE_URL);
-        
+        // Trim whitespace only — FILTER_SANITIZE_URL silently strips characters
+        // (including non-ASCII) rather than encoding them, which would corrupt valid URLs.
+        // Validation is already handled by isValidUrl() / getValidationError() before this
+        // method is called, so we only need to normalise here.
+        $url = trim($url);
+
         // Normalize URL
         $url = rtrim($url, '/');
-        
+
         return $url;
     }
 
     private static function isBlockedHost(string $host): bool
     {
-        // Check exact matches
+        // Check exact matches (localhost, loopback, etc.)
         if (in_array(strtolower($host), self::$blockedDomains)) {
             return true;
         }
 
-        // Check for private IP ranges
-        if (filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-            return true;
+        // Only apply IP-range checks when the host is actually an IP address
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            // Block private and reserved IP ranges
+            if (filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+                return true;
+            }
         }
 
         return false;

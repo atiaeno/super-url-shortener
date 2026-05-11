@@ -21,11 +21,20 @@ class ApiAuth
             ], 401);
         }
 
-        $apiToken = ApiToken::where('token', $token)
+        $apiToken = ApiToken::with('user')
+            ->where('token', $token)
             ->valid()
             ->first();
 
         if (!$apiToken) {
+            return response()->json([
+                'error' => 'Unauthorized',
+                'message' => 'Invalid or expired API token.',
+            ], 401);
+        }
+
+        // Guard against orphaned tokens whose user was deleted
+        if (!$apiToken->user) {
             return response()->json([
                 'error' => 'Unauthorized',
                 'message' => 'Invalid or expired API token.',
@@ -37,15 +46,9 @@ class ApiAuth
             $apiToken->markAsUsed();
         }
 
-        // Set authenticated user for the request
+        // Set authenticated user for the request and auth guard
         $request->setUserResolver(fn() => $apiToken->user);
-
-        // Set the user in Laravel's auth system
-        $guard = app('auth')->guard();
-        $guard->setUser($apiToken->user);
-
-        // Also set in the request's user resolver for consistency
-        app('auth')->setUser($apiToken->user);
+        app('auth')->guard()->setUser($apiToken->user);
 
         return $next($request);
     }

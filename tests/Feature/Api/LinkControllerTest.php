@@ -420,7 +420,7 @@ class LinkControllerTest extends TestCase
             'user_id' => $this->user->id,
             'short_code' => 'old-code',
         ]);
-        Cache::put('redirect:old-code', 'https://old.com', 3600);
+        Cache::put('redirect:default:old-code', 'https://old.com', 3600);
 
         $this
             ->withHeader('Authorization', $this->authHeader)
@@ -429,7 +429,7 @@ class LinkControllerTest extends TestCase
                 'alias' => 'new-code',
             ]);
 
-        $this->assertNull(Cache::get('redirect:old-code'));
+        $this->assertNull(Cache::get('redirect:default:old-code'));
     }
 
     /**
@@ -463,13 +463,13 @@ class LinkControllerTest extends TestCase
             'user_id' => $this->user->id,
             'short_code' => 'to-delete',
         ]);
-        Cache::put('redirect:to-delete', 'https://example.com', 3600);
+        Cache::put('redirect:default:to-delete', 'https://example.com', 3600);
 
         $this
             ->withHeader('Authorization', $this->authHeader)
             ->deleteJson('/api/v1/links/' . $link->id);
 
-        $this->assertNull(Cache::get('redirect:to-delete'));
+        $this->assertNull(Cache::get('redirect:default:to-delete'));
     }
 
     /**

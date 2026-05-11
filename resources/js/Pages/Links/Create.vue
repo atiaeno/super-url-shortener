@@ -130,7 +130,7 @@ const createAnother = () => {
                             </div>
                             <div class="form-card">
                                 <div class="field-row">
-                                    <div class="field" v-if="$page.props.domains">
+                                    <div class="field" v-if="$page.props.domains && $page.props.domains.length > 0">
                                         <label class="label">
                                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                 stroke-width="1.5">
@@ -150,7 +150,7 @@ const createAnother = () => {
                                             </option>
                                         </select>
                                         <span v-if="form.errors.domain_id" class="error">{{ form.errors.domain_id
-                                        }}</span>
+                                            }}</span>
                                     </div>
 
                                     <div class="field">
@@ -169,7 +169,7 @@ const createAnother = () => {
                                                 pattern="[a-zA-Z0-9\-_]+" minlength="4" maxlength="20" />
                                         </div>
                                         <span v-if="form.errors.custom_alias" class="error">{{ form.errors.custom_alias
-                                        }}</span>
+                                            }}</span>
                                         <span class="hint">4–20 chars, letters, numbers, hyphens</span>
                                     </div>
                                 </div>

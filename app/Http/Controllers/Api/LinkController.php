@@ -89,8 +89,9 @@ class LinkController extends ApiController
             'og_image' => $validated['og_image'] ?? null,
         ]);
 
-        // Cache the redirect
-        Cache::put("redirect:{$link->short_code}", $link->destination_url, now()->addHours(24));
+        // Cache the redirect (key includes domain_id for multi-domain isolation)
+        $domainKey = $link->domain_id ?? 'default';
+        Cache::put("redirect:{$domainKey}:{$link->short_code}", $link->destination_url, now()->addHours(24));
 
         // Load domain relationship for response
         $link->load('domain');
@@ -144,7 +145,7 @@ class LinkController extends ApiController
         }
 
         $validator = Validator::make($request->all(), [
-            'url' => ['required', 'url', 'max:2048'],
+            'url' => ['sometimes', 'required', 'url', 'max:2048'],
             'alias' => ['nullable', 'string', 'min:3', 'max:50', 'alpha_dash', 'unique:links,short_code,' . $link->id, 'unique:links,custom_alias,' . $link->id],
             'domain_id' => ['nullable', 'integer', 'exists:alias_domains,id'],
             'campaign_tag' => ['nullable', 'string', 'max:100'],
@@ -162,6 +163,9 @@ class LinkController extends ApiController
 
         $validated = $validator->validated();
 
+        // Capture old cache keys BEFORE any mutation
+        $oldDomainKey = $link->domain_id ?? 'default';
+
         // Validate domain is active if provided
         if (!empty($validated['domain_id']) && $validated['domain_id'] !== $link->domain_id) {
             $domain = \App\Models\AliasDomain::find($validated['domain_id']);
@@ -171,16 +175,20 @@ class LinkController extends ApiController
             $link->domain_id = $validated['domain_id'];
         }
 
-        // Handle alias change
+        // Handle alias change — clear old caches before modifying the code
         if (isset($validated['alias']) && $validated['alias'] !== ($link->custom_alias ?? $link->short_code)) {
-            // Clear old cache
-            Cache::forget("redirect:{$link->short_code}");
+            Cache::forget("redirect:{$oldDomainKey}:{$link->short_code}");
+            Cache::forget("redirect:page:{$oldDomainKey}:{$link->short_code}");
 
             $link->short_code = $validated['alias'];
             $link->custom_alias = $validated['alias'];
         }
 
-        $link->destination_url = $validated['url'];
+        if (isset($validated['url'])) {
+            // destination_url changed — clear the rendered page cache so it's rebuilt
+            $link->destination_url = $validated['url'];
+            Cache::forget("redirect:page:{$oldDomainKey}:{$link->short_code}");
+        }
         $link->campaign_tag = $validated['campaign_tag'] ?? $link->campaign_tag;
         $link->visibility = $validated['visibility'] ?? $link->visibility;
         if (isset($validated['password'])) {
@@ -192,8 +200,9 @@ class LinkController extends ApiController
         $link->og_image = $validated['og_image'] ?? $link->og_image;
         $link->save();
 
-        // Update cache
-        Cache::put("redirect:{$link->short_code}", $link->destination_url, now()->addHours(24));
+        // Update destination cache (key includes domain for isolation)
+        $newDomainKey = $link->domain_id ?? 'default';
+        Cache::put("redirect:{$newDomainKey}:{$link->short_code}", $link->destination_url, now()->addHours(24));
 
         // Reload with domain relationship for response
         $link->load('domain');
@@ -222,8 +231,10 @@ class LinkController extends ApiController
             return $this->error('Link not found', 404);
         }
 
-        // Clear cache
-        Cache::forget("redirect:{$link->short_code}");
+        // Clear both destination and page caches
+        $domainKey = $link->domain_id ?? 'default';
+        Cache::forget("redirect:{$domainKey}:{$link->short_code}");
+        Cache::forget("redirect:page:{$domainKey}:{$link->short_code}");
 
         $link->delete();
 
