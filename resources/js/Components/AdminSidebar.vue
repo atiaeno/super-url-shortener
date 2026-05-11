@@ -31,16 +31,36 @@ const props = defineProps({
 
 const emit = defineEmits(['toggle']);
 
-const adminNavItems = [
-    { label: 'Dashboard', icon: 'dashboard', route: 'admin.dashboard' },
-    { label: 'Analytics', icon: 'analytics', route: 'admin.analytics' },
-    { label: 'Users', icon: 'users', route: 'admin.users.index' },
-    { label: 'Links', icon: 'links', route: 'admin.links.index' },
-    { label: 'Payouts', icon: 'payouts', route: 'admin.payouts.index' },
-    { label: 'Affiliate Tiers', icon: 'tiers', route: 'admin.affiliate-tiers.index' },
-    { label: 'Advertising', icon: 'ads', route: 'admin.advertising.index' },
-    { label: 'SEO Indexer', icon: 'indexer', route: 'admin.settings.indexer.index' },
-    { label: 'Settings', icon: 'settings', route: 'admin.settings.index' },
+const navGroups = [
+    {
+        label: 'Overview',
+        items: [
+            { label: 'Dashboard', icon: 'dashboard', route: 'admin.dashboard' },
+            { label: 'Analytics', icon: 'analytics', route: 'admin.analytics' },
+        ],
+    },
+    {
+        label: 'Content',
+        items: [
+            { label: 'Users', icon: 'users', route: 'admin.users.index' },
+            { label: 'Links', icon: 'links', route: 'admin.links.index' },
+        ],
+    },
+    {
+        label: 'Monetization',
+        items: [
+            { label: 'Payouts', icon: 'payouts', route: 'admin.payouts.index' },
+            { label: 'Affiliate Tiers', icon: 'tiers', route: 'admin.affiliate-tiers.index' },
+            { label: 'Advertising', icon: 'ads', route: 'admin.advertising.index' },
+        ],
+    },
+    {
+        label: 'System',
+        items: [
+            { label: 'SEO Indexer', icon: 'indexer', route: 'admin.settings.indexer.index' },
+            { label: 'Settings', icon: 'settings', route: 'admin.settings.index' },
+        ],
+    },
 ];
 
 const isModerationActive = computed(() => {
@@ -120,12 +140,13 @@ const icons = {
         </div>
 
         <div class="sidebar__content">
-            <nav class="nav-section">
+            <!-- Dynamic Nav Groups -->
+            <nav v-for="group in navGroups" :key="group.label" class="nav-section">
                 <Transition name="fade">
-                    <span v-if="!collapsed" class="nav-section__label">Admin</span>
+                    <span v-if="!collapsed" class="nav-section__label">{{ group.label }}</span>
                 </Transition>
                 <div class="nav-section__items">
-                    <Link v-for="item in adminNavItems" :key="item.route" :href="route(item.route)" class="nav-item"
+                    <Link v-for="item in group.items" :key="item.route" :href="route(item.route)" class="nav-item"
                         :class="{ 'nav-item--active': route().current(item.route) }">
                         <span class="nav-item__icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
@@ -135,7 +156,15 @@ const icons = {
                             <span v-if="!collapsed" class="nav-item__label">{{ item.label }}</span>
                         </Transition>
                     </Link>
+                </div>
+            </nav>
 
+            <!-- Moderation Group -->
+            <nav class="nav-section">
+                <Transition name="fade">
+                    <span v-if="!collapsed" class="nav-section__label">Moderation</span>
+                </Transition>
+                <div class="nav-section__items">
                     <!-- Moderation Dropdown -->
                     <div class="nav-dropdown" :class="{ 'nav-dropdown--open': isModerationDropdownOpen }">
                         <button @click="toggleModerationDropdown" class="nav-item nav-item--dropdown"
@@ -182,9 +211,9 @@ const icons = {
                         </Transition>
                     </div>
                 </div>
-                <!-- ... -->
             </nav>
 
+            <!-- External -->
             <nav class="nav-section nav-section--external">
                 <Transition name="fade">
                     <span v-if="!collapsed" class="nav-section__label">External</span>

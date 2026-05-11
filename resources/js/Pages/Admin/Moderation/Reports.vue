@@ -192,70 +192,65 @@ const reasonOptions = [
 
             <!-- Filters Section -->
             <section class="filters-section">
-                <div class="filters-card">
-                    <div class="filters-header">
-                        <h3 class="filters-title">Filters & Search</h3>
-                        <button @click="clearFilters" class="btn-clear">Clear All</button>
+                <form @submit.prevent="applyFilters" class="filter-bar">
+                    <div class="filter-bar__search">
+                        <svg class="filter-bar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                        <input v-model="filterForm.search" type="text" class="filter-bar__input"
+                            placeholder="Search link code or URL…">
                     </div>
 
-                    <form @submit.prevent="applyFilters" class="filters-form">
-                        <div class="filters-grid">
-                            <!-- Search -->
-                            <div class="filter-group filter-group--full">
-                                <label class="filter-label">Search</label>
-                                <input v-model="filterForm.search" type="text" class="filter-input"
-                                    placeholder="Search by link code or URL...">
-                            </div>
+                    <div class="filter-bar__divider"></div>
 
-                            <!-- Status Filter -->
-                            <div class="filter-group">
-                                <label class="filter-label">Status</label>
-                                <select v-model="filterForm.status" class="filter-select">
-                                    <option v-for="option in statusOptions" :key="option.value" :value="option.value">
-                                        {{ option.label }}
-                                    </option>
-                                </select>
-                            </div>
-
-                            <!-- Reason Filter -->
-                            <div class="filter-group">
-                                <label class="filter-label">Reason</label>
-                                <select v-model="filterForm.reason" class="filter-select">
-                                    <option v-for="option in reasonOptions" :key="option.value" :value="option.value">
-                                        {{ option.label }}
-                                    </option>
-                                </select>
-                            </div>
-
-                            <!-- Date From -->
-                            <div class="filter-group">
-                                <label class="filter-label">Date From</label>
-                                <input v-model="filterForm.date_from" type="date" class="filter-input">
-                            </div>
-
-                            <!-- Date To -->
-                            <div class="filter-group">
-                                <label class="filter-label">Date To</label>
-                                <input v-model="filterForm.date_to" type="date" class="filter-input">
-                            </div>
-
-                            <!-- Reviewer Filter -->
-                            <div class="filter-group">
-                                <label class="filter-label">Reviewed By</label>
-                                <select v-model="filterForm.reviewer_id" class="filter-select">
-                                    <option value="all">All Reviewers</option>
-                                    <option v-for="reviewer in reviewers" :key="reviewer.id" :value="reviewer.id">
-                                        {{ reviewer.name }}
-                                    </option>
-                                </select>
-                            </div>
+                    <div class="filter-bar__controls">
+                        <div class="filter-chip">
+                            <span class="filter-chip__label">Status</span>
+                            <select v-model="filterForm.status" class="filter-chip__select">
+                                <option v-for="o in statusOptions" :key="o.value" :value="o.value">{{ o.label }}
+                                </option>
+                            </select>
                         </div>
 
-                        <div class="filters-actions">
-                            <button type="submit" class="btn-apply">Apply Filters</button>
+                        <div class="filter-chip">
+                            <span class="filter-chip__label">Reason</span>
+                            <select v-model="filterForm.reason" class="filter-chip__select">
+                                <option v-for="o in reasonOptions" :key="o.value" :value="o.value">{{ o.label }}
+                                </option>
+                            </select>
                         </div>
-                    </form>
-                </div>
+
+                        <div class="filter-chip">
+                            <span class="filter-chip__label">Reviewer</span>
+                            <select v-model="filterForm.reviewer_id" class="filter-chip__select">
+                                <option value="all">All</option>
+                                <option v-for="r in reviewers" :key="r.id" :value="r.id">{{ r.name }}</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-chip filter-chip--date">
+                            <span class="filter-chip__label">From</span>
+                            <input v-model="filterForm.date_from" type="date" class="filter-chip__date">
+                        </div>
+
+                        <div class="filter-chip filter-chip--date">
+                            <span class="filter-chip__label">To</span>
+                            <input v-model="filterForm.date_to" type="date" class="filter-chip__date">
+                        </div>
+                    </div>
+
+                    <div class="filter-bar__actions">
+                        <button type="button" @click="clearFilters" class="filter-bar__clear">Reset</button>
+                        <button type="submit" class="filter-bar__apply">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                            </svg>
+                            Apply
+                        </button>
+                    </div>
+                </form>
             </section>
 
             <!-- Reports Table -->
@@ -305,7 +300,7 @@ const reasonOptions = [
                                     </td>
                                     <td>
                                         <span class="reason-badge">{{ reasonLabels[report.reason] || report.reason
-                                        }}</span>
+                                            }}</span>
                                     </td>
                                     <td class="col-center">
                                         <span class="status-badge" :class="statusColors[report.status]">
@@ -375,7 +370,7 @@ const reasonOptions = [
                         <div class="detail-row">
                             <span class="detail-label">Reason:</span>
                             <span class="detail-value">{{ reasonLabels[selectedReport.reason] || selectedReport.reason
-                            }}</span>
+                                }}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Status:</span>
@@ -571,129 +566,164 @@ const reasonOptions = [
     color: var(--muted);
 }
 
-/* ── Filters Section ─────────────────────── */
+/* ── Filter Bar ──────────────────────────── */
 .filters-section {
     margin-bottom: 24px;
 }
 
-.filters-card {
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
+    flex-wrap: wrap;
 }
 
-.filters-header {
+.filter-bar__search {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    background: var(--surface-2);
-    border-bottom: 1px solid var(--border);
+    gap: 8px;
+    padding: 0 14px;
+    min-width: 220px;
+    flex: 1;
+    border-right: 1px solid var(--border);
 }
 
-.filters-title {
-    font-family: var(--font-display);
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--ink);
-    margin: 0;
-}
-
-.btn-clear {
-    background: none;
-    border: 1px solid var(--border);
+.filter-bar__search-icon {
+    width: 15px;
+    height: 15px;
     color: var(--muted);
-    padding: 6px 12px;
-    border-radius: var(--radius);
-    font-family: var(--font-display);
-    font-size: 11px;
-    font-weight: 500;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: var(--transition);
+    flex-shrink: 0;
 }
 
-.btn-clear:hover {
-    background: var(--surface);
-    color: var(--primary);
-    border-color: var(--primary);
-}
-
-.filters-form {
-    padding: 20px;
-}
-
-.filters-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 20px;
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.filter-group--full {
-    grid-column: 1 / -1;
-}
-
-.filter-label {
-    font-family: var(--font-display);
-    font-size: 11px;
-    font-weight: 500;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 6px;
-}
-
-.filter-input,
-.filter-select {
-    padding: 8px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+.filter-bar__input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
     font-family: var(--font-body);
     font-size: 14px;
-    background: var(--surface);
     color: var(--ink);
-    transition: var(--transition);
+    padding: 11px 0;
+    min-width: 0;
 }
 
-.filter-input:focus,
-.filter-select:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
-}
-
-.filter-input::placeholder {
+.filter-bar__input::placeholder {
     color: var(--muted);
-    opacity: 0.7;
+    opacity: 0.65;
 }
 
-.filters-actions {
+.filter-bar__divider {
+    display: none;
+}
+
+.filter-bar__controls {
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    border-right: 1px solid var(--border);
 }
 
-.btn-apply {
-    background: var(--primary);
-    border: 1px solid var(--primary);
-    color: white;
-    padding: 8px 16px;
+.filter-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0 12px;
+    height: 42px;
+    border-right: 1px solid var(--border);
+}
+
+.filter-chip:last-child {
+    border-right: none;
+}
+
+.filter-chip__label {
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.filter-chip__select,
+.filter-chip__date {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--ink);
+    cursor: pointer;
+    padding: 0;
+    max-width: 110px;
+}
+
+.filter-chip__date {
+    max-width: 120px;
+    font-size: 12px;
+}
+
+.filter-bar__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+}
+
+.filter-bar__clear {
+    background: #f5f0eb;
+    border: 1px solid #e2d9ce;
+    color: #7a6e64;
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    padding: 7px 14px;
+    border-radius: var(--radius);
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.filter-bar__clear:hover {
+    background: #ede6dc;
+    border-color: #c9bfb4;
+    color: #4a3f35;
+}
+
+.filter-bar__apply {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--red);
+    border: 1px solid var(--red);
+    color: #fff;
+    padding: 7px 14px;
     border-radius: var(--radius);
     font-family: var(--font-display);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     cursor: pointer;
     transition: var(--transition);
+    white-space: nowrap;
 }
 
-.btn-apply:hover {
-    background: var(--primary-dark);
-    border-color: var(--primary-dark);
+.filter-bar__apply svg {
+    width: 12px;
+    height: 12px;
+}
+
+.filter-bar__apply:hover {
+    background: var(--primary-dark, #c0392b);
+    border-color: var(--primary-dark, #c0392b);
 }
 
 /* ── Table Section ───────────────────────── */

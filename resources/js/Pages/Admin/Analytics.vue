@@ -354,7 +354,7 @@ const getMiniBarPx = (count, data) => getBarPx(count, data, 76);
 * {
     font-family: var(--font-admin);
     font-size: 13px;
-    color: var(--ink);
+ 
 }
 
 .analytics-page {
@@ -434,9 +434,8 @@ const getMiniBarPx = (count, data) => getBarPx(count, data, 76);
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    
+    
     overflow: hidden;
     margin-bottom: 28px;
 }

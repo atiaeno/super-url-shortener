@@ -60,6 +60,9 @@ class HandleInertiaRequests extends Middleware
             'meta_keywords',
             'og_image',
             'schema_json',
+            'features_affiliate',
+            'features_ads',
+            'features_gdpr',
             // Per-page SEO
             'seo_home_title',
             'seo_home_description',
@@ -95,6 +98,9 @@ class HandleInertiaRequests extends Middleware
             'meta_keywords' => 'url shortener, link shortener, url tracker, analytics, qr code',
             'og_image' => '',
             'schema_json' => '{"@context":"https://schema.org","@type":"WebApplication","name":"Super Url Shortener","applicationCategory":"UtilitiesApplication"}',
+            'features_affiliate' => 'true',
+            'features_ads' => 'false',
+            'features_gdpr' => 'false',
             // Per-page SEO defaults
             'seo_home_title' => '',
             'seo_home_description' => '',

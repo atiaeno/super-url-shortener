@@ -1,6 +1,7 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
 import { Link, usePage } from '@inertiajs/vue3';
+import GdprBanner from '@/Components/GdprBanner.vue';
 import { computed } from 'vue';
 
 defineProps({
@@ -14,6 +15,7 @@ const footerText = computed(() => page.props.settings?.footer_text ?? `© ${new 
 </script>
 
 <template>
+    <GdprBanner />
     <footer class="editorial-footer">
         <!-- Main Footer Grid -->
         <div class="footer__grid">
