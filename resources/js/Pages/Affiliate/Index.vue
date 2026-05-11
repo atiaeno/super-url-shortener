@@ -106,7 +106,7 @@ const countryName = (code) => {
         </section>
 
         <!-- How It Works -->
-        <section class="content-section">
+        <section class="content-section section--light">
             <div class="section-container">
                 <header class="section-header">
                     <span class="section-label">The Program</span>
@@ -140,7 +140,7 @@ const countryName = (code) => {
         </section>
 
         <!-- Tiers -->
-        <section class="content-section section--alt">
+        <section class="content-section section--dark">
             <div class="section-container">
                 <header class="section-header">
                     <span class="section-label">Commission</span>
@@ -173,6 +173,129 @@ const countryName = (code) => {
                 </div>
             </div>
         </section>
+        <!-- Stats Bar -->
+        <section class="content-section section--light stats-section">
+            <div class="section-container">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number">50k+</span>
+                        <span class="stat-label">Active Affiliates</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-number">$2.4M</span>
+                        <span class="stat-label">Paid Out to Date</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-number">180+</span>
+                        <span class="stat-label">Countries Supported</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-number">48h</span>
+                        <span class="stat-label">Average Payout Time</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials -->
+        <section class="content-section section--dark testimonials-section">
+            <div class="section-container">
+                <header class="section-header">
+                    <span class="section-label">Social Proof</span>
+                    <h2 class="section-title">What Partners Say</h2>
+                </header>
+
+                <div class="testimonials-grid">
+                    <div class="testimonial-card">
+                        <div class="testimonial-quote">"</div>
+                        <p class="testimonial-text">I've tried a dozen affiliate programs. This one actually pays out on
+                            time, every time. The country-tier system means my US traffic earns significantly more.</p>
+                        <div class="testimonial-author">
+                            <span class="author-name">Marcus T.</span>
+                            <span class="author-meta">Content Creator · 120k monthly visits</span>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-quote">"</div>
+                        <p class="testimonial-text">The dashboard is clean and the analytics are real-time. I can see
+                            exactly what's earning and optimize my link strategy accordingly.</p>
+                        <div class="testimonial-author">
+                            <span class="author-name">Lena K.</span>
+                            <span class="author-meta">Newsletter Writer · 45k subscribers</span>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-quote">"</div>
+                        <p class="testimonial-text">Reached the Gold tier in my second month. The tier system motivates
+                            you to grow — and the rates actually reflect the effort.</p>
+                        <div class="testimonial-author">
+                            <span class="author-name">Ryo M.</span>
+                            <span class="author-meta">Tech Blogger · Japan</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="content-section section--light faq-section">
+            <div class="section-container section-container--narrow">
+                <header class="section-header">
+                    <span class="section-label">Questions</span>
+                    <h2 class="section-title">Frequently Asked</h2>
+                </header>
+
+                <div class="faq-list">
+                    <details class="faq-item">
+                        <summary class="faq-question">
+                            How do I get paid?
+                            <span class="faq-icon">+</span>
+                        </summary>
+                        <p class="faq-answer">Payouts are processed via PayPal once your balance reaches the minimum
+                            threshold. Request a payout from your affiliate dashboard and receive funds within 48 hours.
+                        </p>
+                    </details>
+                    <details class="faq-item">
+                        <summary class="faq-question">
+                            What is the minimum payout threshold?
+                            <span class="faq-icon">+</span>
+                        </summary>
+                        <p class="faq-answer">The minimum payout is $10. Once your earned balance exceeds this, you can
+                            request a withdrawal at any time from your dashboard.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary class="faq-question">
+                            Which countries earn the highest rates?
+                            <span class="faq-icon">+</span>
+                        </summary>
+                        <p class="faq-answer">Tier 1 countries like the US, UK, Canada, Australia, and Western Europe
+                            pay the highest rates. Click the "countries" link in the tier table above to see the full
+                            list per tier.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary class="faq-question">
+                            Can I use multiple accounts?
+                            <span class="faq-icon">+</span>
+                        </summary>
+                        <p class="faq-answer">No. Each user is allowed one affiliate account. Multiple accounts are
+                            detected and will result in a permanent ban and forfeiture of earnings.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary class="faq-question">
+                            How are clicks counted?
+                            <span class="faq-icon">+</span>
+                        </summary>
+                        <p class="faq-answer">Each unique visit to a short link you create counts as one view. Bot
+                            traffic and self-clicks are filtered out automatically. Earnings are updated in real time on
+                            your dashboard.</p>
+                    </details>
+                </div>
+            </div>
+        </section>
+
         <!-- CTA SECTION -->
         <section class="cta-section">
             <div class="cta-backdrop">
@@ -407,6 +530,7 @@ const countryName = (code) => {
 /* ── Content Sections ─────────────────────────── */
 .content-section {
     padding: 100px 24px;
+    background: #0a0a0a;
 }
 
 .section-container {
@@ -414,8 +538,20 @@ const countryName = (code) => {
     margin: 0 auto;
 }
 
-.section--alt {
-    background: #0f0f0f;
+.section--light {
+    background: #fafafa;
+}
+
+.section--light .section-label {
+    color: #e74c3c;
+}
+
+.section--light .section-title {
+    color: #1a1a1a;
+}
+
+.section--dark {
+    background: #1a1a1a;
 }
 
 .section-header {
@@ -451,9 +587,14 @@ const countryName = (code) => {
 .step-card {
     text-align: center;
     padding: 40px 24px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid #222;
+    background: #fff;
+    border: 1px solid #eee;
     border-radius: 4px;
+    transition: box-shadow 0.2s;
+}
+
+.step-card:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 }
 
 .step-num {
@@ -462,7 +603,7 @@ const countryName = (code) => {
     font-size: 48px;
     font-weight: 700;
     color: #e74c3c;
-    opacity: 0.4;
+    opacity: 0.5;
     margin-bottom: 16px;
 }
 
@@ -470,13 +611,13 @@ const countryName = (code) => {
     font-family: 'Oswald', sans-serif;
     font-size: 20px;
     font-weight: 600;
-    color: #fff;
+    color: #1a1a1a;
     margin: 0 0 12px;
 }
 
 .step-desc {
     font-size: 14px;
-    color: #888;
+    color: #666;
     line-height: 1.6;
     margin: 0;
 }
@@ -495,7 +636,7 @@ const countryName = (code) => {
 .tiers-table td {
     padding: 20px 24px;
     text-align: left;
-    border-bottom: 1px solid #222;
+    border-bottom: 1px solid #2a2a2a;
 }
 
 .tiers-table th {
@@ -504,7 +645,7 @@ const countryName = (code) => {
     letter-spacing: 2px;
     text-transform: uppercase;
     color: #666;
-    background: #1a1a1a;
+    background: #111;
 }
 
 .tiers-table td {
@@ -738,6 +879,183 @@ const countryName = (code) => {
     color: #22c55e;
 }
 
+/* ── Narrow Container ─────────────────────────── */
+.section-container--narrow {
+    max-width: 680px;
+}
+
+/* ── Stats Bar ────────────────────────────────── */
+.stats-section {
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 72px 24px;
+}
+
+.stats-grid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 48px;
+    text-align: center;
+}
+
+.stat-number {
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -1px;
+    line-height: 1;
+}
+
+.stat-label {
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #888;
+    margin-top: 8px;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 48px;
+    background: #ddd;
+    flex-shrink: 0;
+}
+
+/* ── Testimonials ─────────────────────────────── */
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.testimonial-card {
+    padding: 36px 32px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    position: relative;
+}
+
+.testimonial-quote {
+    font-family: 'Crimson Pro', serif;
+    font-size: 72px;
+    line-height: 0.6;
+    color: #e74c3c;
+    opacity: 0.4;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.testimonial-text {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #aaa;
+    margin: 0 0 28px;
+}
+
+.testimonial-author {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-top: 20px;
+    border-top: 1px solid #2a2a2a;
+}
+
+.author-name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+.author-meta {
+    font-size: 12px;
+    color: #666;
+    letter-spacing: 0.5px;
+}
+
+/* ── FAQ ──────────────────────────────────────── */
+.faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.faq-item {
+    border-bottom: 1px solid #eee;
+}
+
+.faq-item:last-child {
+    border-bottom: none;
+}
+
+.faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: #1a1a1a;
+    cursor: pointer;
+    list-style: none;
+    transition: background 0.2s;
+    user-select: none;
+}
+
+.faq-question::-webkit-details-marker {
+    display: none;
+}
+
+.faq-question:hover {
+    background: #f9f9f9;
+}
+
+.faq-item[open] .faq-question {
+    color: #e74c3c;
+}
+
+.faq-icon {
+    font-family: 'Oswald', sans-serif;
+    font-size: 22px;
+    font-weight: 300;
+    color: #bbb;
+    transition: transform 0.25s, color 0.2s;
+    flex-shrink: 0;
+}
+
+.faq-item[open] .faq-icon {
+    transform: rotate(45deg);
+    color: #e74c3c;
+}
+
+.faq-answer {
+    padding: 0 28px 24px;
+    font-size: 14px;
+    line-height: 1.75;
+    color: #666;
+    margin: 0;
+    background: #fafafa;
+    border-top: 1px solid #f0f0f0;
+}
+
 @media (max-width: 768px) {
     .steps-grid {
         grid-template-columns: 1fr;
@@ -747,6 +1065,34 @@ const countryName = (code) => {
     .tiers-table td {
         padding: 14px 16px;
         font-size: 12px;
+    }
+
+    .stats-grid {
+        gap: 32px 0;
+    }
+
+    .stat-item {
+        padding: 0 24px;
+    }
+
+    .stat-divider {
+        width: 100%;
+        height: 1px;
+        flex-basis: 100%;
+        display: none;
+    }
+
+    .testimonials-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .faq-question {
+        font-size: 15px;
+        padding: 20px 20px;
+    }
+
+    .faq-answer {
+        padding: 0 20px 20px;
     }
 }
 </style>
