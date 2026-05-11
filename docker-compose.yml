@@ -1,0 +1,92 @@
+# © Atia Hegazy — atiaeno.com
+
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/storage/app
+      - /var/www/html/storage/framework/cache
+      - /var/www/html/storage/framework/sessions
+      - /var/www/html/storage/framework/views
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=shortlink_prod
+      - DB_USERNAME=shortlink_user
+      - DB_PASSWORD=secure_password_here
+      - REDIS_HOST=redis
+      - CACHE_STORE=redis
+      - QUEUE_CONNECTION=redis
+      - SESSION_DRIVER=redis
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - shortlink-network
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password_here
+      - MYSQL_DATABASE=shortlink_prod
+      - MYSQL_USER=shortlink_user
+      - MYSQL_PASSWORD=secure_password_here
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql.cnf:/etc/mysql/conf.d/docker.cnf
+    ports:
+      - "3306:3306"
+    networks:
+      - shortlink-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - shortlink-network
+
+  queue-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_DATABASE=shortlink_prod
+      - DB_USERNAME=shortlink_user
+      - DB_PASSWORD=secure_password_here
+      - REDIS_HOST=redis
+      - CACHE_STORE=redis
+      - QUEUE_CONNECTION=redis
+    volumes:
+      - .:/var/www/html
+    networks:
+      - shortlink-network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  shortlink-network:
+    driver: bridge

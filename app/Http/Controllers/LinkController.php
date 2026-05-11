@@ -9,6 +9,7 @@ use App\Models\Link;
 use App\Models\LinkAnalyticsDaily;
 use App\Models\Setting;
 use App\Services\ShortCodeService;
+use App\Services\UrlValidationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -56,7 +57,14 @@ class LinkController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Links/Create');
+        $domains = \App\Models\AliasDomain::where('is_active', true)
+            ->orderBy('is_default', 'desc')
+            ->orderBy('domain')
+            ->get(['id', 'domain', 'is_default']);
+
+        return Inertia::render('Links/Create', [
+            'domains' => $domains,
+        ]);
     }
 
     /**
@@ -73,8 +81,17 @@ class LinkController extends Controller
             'password' => ['required_if:visibility,private', 'nullable', 'string', 'min:6', 'max:255'],
         ]);
 
-        // Prevent shortening alias domains
+        // Enhanced URL validation and sanitization
         $destinationUrl = $validated['destination_url'];
+
+        // Validate URL for security
+        $validationError = UrlValidationService::getValidationError($destinationUrl);
+        if ($validationError) {
+            return back()->withErrors(['destination_url' => $validationError])->withInput();
+        }
+
+        // Sanitize URL
+        $destinationUrl = UrlValidationService::sanitizeUrl($destinationUrl);
         $parsedUrl = parse_url($destinationUrl);
         $destinationDomain = isset($parsedUrl['host']) ? strtolower($parsedUrl['host']) : null;
 

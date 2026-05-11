@@ -1,0 +1,867 @@
+# © Atia Hegazy — atiaeno.com
+
+openapi: 3.0.3
+info:
+  title: ShortLink API
+  description: |
+    A powerful URL shortener API with analytics, affiliate program, and comprehensive management features.
+    
+    ## Authentication
+    All endpoints (except health check and public info) require Bearer token authentication:
+    ```
+    Authorization: Bearer YOUR_64_CHARACTER_TOKEN
+    ```
+    
+    ## Rate Limiting
+    Dynamic rate limits are enforced per endpoint:
+    - API endpoints: 1000 requests/hour
+    - Token management: 100 requests/hour
+    - Guest shortening: 10 requests/hour
+    
+    ## Base URL
+    Production: https://yourdomain.com/api/v1
+  version: 1.0.0
+  contact:
+    name: API Support
+    url: https://yourdomain.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://yourdomain.com/api/v1
+    description: Production server
+  - url: http://localhost:8000/api/v1
+    description: Development server
+
+paths:
+  /health:
+    get:
+      tags:
+        - System
+      summary: Health check
+      description: Returns system health status including database, cache, and queue connectivity
+      operationId: healthCheck
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: ok
+                timestamp: "2026-05-11T14:30:00Z"
+                version: "1.0.0"
+                environment: production
+                checks:
+                  database: ok
+                  cache: ok
+                  queue: ok
+        '503':
+          description: System is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: error
+                timestamp: "2026-05-11T14:30:00Z"
+                checks:
+                  database: error
+                  cache: ok
+                  queue: ok
+
+  /:
+    get:
+      tags:
+        - System
+      summary: API information
+      description: Returns basic API information and documentation URL
+      operationId: apiInfo
+      responses:
+        '200':
+          description: API information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiInfo'
+              example:
+                name: "ShortLink API"
+                version: "1.0"
+                documentation: "https://yourdomain.com/api-docs"
+
+  /user:
+    get:
+      tags:
+        - User
+      summary: Get user profile
+      description: Returns current authenticated user information
+      operationId: getUserProfile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /links:
+    get:
+      tags:
+        - Links
+      summary: List links
+      description: Returns paginated list of user's links with optional filtering
+      operationId: listLinks
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          description: Items per page (max: 100)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: search
+          in: query
+          description: Search in destination URLs
+          schema:
+            type: string
+        - name: domain_id
+          in: query
+          description: Filter by domain ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of links
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinksListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags:
+        - Links
+      summary: Create link
+      description: Creates a new short link with optional custom settings
+      operationId: createLink
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLinkRequest'
+      responses:
+        '201':
+          description: Link created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /links/{id}:
+    get:
+      tags:
+        - Links
+      summary: Get link
+      description: Returns details of a specific link
+      operationId: getLink
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Link ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Link details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    patch:
+      tags:
+        - Links
+      summary: Update link
+      description: Updates a link (partial update)
+      operationId: updateLink
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Link ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLinkRequest'
+      responses:
+        '200':
+          description: Link updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    delete:
+      tags:
+        - Links
+      summary: Delete link
+      description: Deletes a link permanently
+      operationId: deleteLink
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Link ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Link deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /links/{id}/analytics:
+    get:
+      tags:
+        - Analytics
+      summary: Get link analytics
+      description: Returns comprehensive analytics data for a link
+      operationId: getLinkAnalytics
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Link ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Analytics data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /tokens:
+    get:
+      tags:
+        - Tokens
+      summary: List API tokens
+      description: Returns list of user's API tokens
+      operationId: listTokens
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokensListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags:
+        - Tokens
+      summary: Create API token
+      description: Creates a new API token
+      operationId: createToken
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTokenRequest'
+      responses:
+        '201':
+          description: Token created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /tokens/{id}:
+    delete:
+      tags:
+        - Tokens
+      summary: Revoke API token
+      description: Revokes an API token
+      operationId: revokeToken
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Token ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Token revoked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /domains/active:
+    get:
+      tags:
+        - Public
+      summary: Get active domains
+      description: Returns list of active domains for URL creation
+      operationId: getActiveDomains
+      responses:
+        '200':
+          description: List of active domains
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainsListResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "API token authentication (64-character random string)"
+
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok, error]
+          description: Overall system status
+        timestamp:
+          type: string
+          format: date-time
+          description: Response timestamp
+        version:
+          type: string
+          description: API version
+        environment:
+          type: string
+          description: Application environment
+        checks:
+          type: object
+          properties:
+            database:
+              type: string
+              enum: [ok, error]
+            cache:
+              type: string
+              enum: [ok, error]
+            queue:
+              type: string
+              enum: [ok, error]
+
+    ApiInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "ShortLink API"
+        version:
+          type: string
+          example: "1.0"
+        documentation:
+          type: string
+          format: uri
+          example: "https://yourdomain.com/api-docs"
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+
+    Link:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        short_code:
+          type: string
+          example: "abc123"
+        short_url:
+          type: string
+          format: uri
+          example: "https://yourdomain.com/abc123"
+        destination_url:
+          type: string
+          format: uri
+          example: "https://example.com/very-long-url"
+        custom_alias:
+          type: string
+          nullable: true
+          example: "my-link"
+        clicks_count:
+          type: integer
+          example: 42
+        is_active:
+          type: boolean
+          example: true
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        domain:
+          $ref: '#/components/schemas/Domain'
+
+    Domain:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        domain:
+          type: string
+          example: "yourdomain.com"
+        is_default:
+          type: boolean
+          example: true
+
+    CreateLinkRequest:
+      type: object
+      required:
+        - destination_url
+      properties:
+        destination_url:
+          type: string
+          format: uri
+          maxLength: 2048
+          description: Destination URL to shorten
+          example: "https://example.com/very-long-url"
+        custom_alias:
+          type: string
+          maxLength: 50
+          nullable: true
+          description: Custom short code (must be unique)
+          example: "my-link"
+        domain_id:
+          type: integer
+          nullable: true
+          description: Domain ID for custom domain
+          example: 1
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Link expiration date
+        og_title:
+          type: string
+          maxLength: 255
+          nullable: true
+          description: Custom OG title
+        og_description:
+          type: string
+          maxLength: 500
+          nullable: true
+          description: Custom OG description
+        password:
+          type: string
+          nullable: true
+          description: Password for private links
+        visibility:
+          type: string
+          enum: [public, private]
+          default: public
+          description: Link visibility
+
+    UpdateLinkRequest:
+      type: object
+      properties:
+        destination_url:
+          type: string
+          format: uri
+          maxLength: 2048
+        custom_alias:
+          type: string
+          maxLength: 50
+          nullable: true
+        domain_id:
+          type: integer
+          nullable: true
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        og_title:
+          type: string
+          maxLength: 255
+          nullable: true
+        og_description:
+          type: string
+          maxLength: 500
+          nullable: true
+        is_active:
+          type: boolean
+        visibility:
+          type: string
+          enum: [public, private]
+
+    LinkResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/Link'
+
+    LinksListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        meta:
+          type: object
+          properties:
+            current_page:
+              type: integer
+              example: 1
+            per_page:
+              type: integer
+              example: 20
+            total:
+              type: integer
+              example: 1
+            last_page:
+              type: integer
+              example: 1
+
+    AnalyticsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            link:
+              $ref: '#/components/schemas/Link'
+            total_clicks:
+              type: integer
+              example: 42
+            unique_clicks:
+              type: integer
+              example: 38
+            today_clicks:
+              type: integer
+              example: 5
+            top_countries:
+              type: array
+              items:
+                type: object
+                properties:
+                  country_code:
+                    type: string
+                    example: "US"
+                  country_name:
+                    type: string
+                    example: "United States"
+                  clicks:
+                    type: integer
+                    example: 20
+            top_referrers:
+              type: array
+              items:
+                type: object
+                properties:
+                  domain:
+                    type: string
+                    example: "google.com"
+                  clicks:
+                    type: integer
+                    example: 15
+            devices:
+              type: object
+              properties:
+                desktop:
+                  type: integer
+                  example: 25
+                mobile:
+                  type: integer
+                  example: 15
+                tablet:
+                  type: integer
+                  example: 2
+            browsers:
+              type: object
+              additionalProperties:
+                type: integer
+              example:
+                Chrome: 30
+                Safari: 8
+                Firefox: 4
+            daily_clicks:
+              type: array
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                    example: "2026-05-11"
+                  clicks:
+                    type: integer
+                    example: 5
+
+    CreateTokenRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          description: Token name for identification
+          example: "Production API"
+        expires_days:
+          type: integer
+          minimum: 1
+          maximum: 365
+          description: Token expiration in days
+          example: 365
+
+    Token:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "My API Token"
+        token:
+          type: string
+          example: "V4ndcU18256YmBnnbZKEhWZRwHPqZmzo82hjxe3kDG2u5iPVSkEu0zlAadazp7s2"
+        last_used_at:
+          type: string
+          format: date-time
+          nullable: true
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    TokenResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/Token'
+
+    TokensListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Token'
+
+    DomainInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        domain:
+          type: string
+          example: "yourdomain.com"
+        is_default:
+          type: boolean
+          example: true
+
+    DomainsListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DomainInfo'
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation completed successfully"
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Unauthorized"
+        message:
+          type: string
+          example: "API token is required."
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+  responses:
+    Unauthorized:
+      description: Authentication failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Unauthorized"
+            message: "API token is required."
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Not Found"
+            message: "The requested resource was not found."
+
+    ValidationError:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Validation failed"
+            message: "The given data was invalid."
+            errors:
+              destination_url: ["The destination url field is required."]
+              custom_alias: ["The custom alias has already been taken."]
+
+    RateLimited:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Too Many Requests"
+            message: "Rate limit exceeded. Try again in 15 minutes."
+
+tags:
+  - name: System
+    description: System health and information endpoints
+  - name: User
+    description: User management endpoints
+  - name: Links
+    description: URL shortening and management
+  - name: Analytics
+    description: Link analytics and statistics
+  - name: Tokens
+    description: API token management
+  - name: Public
+    description: Public endpoints (no authentication required)

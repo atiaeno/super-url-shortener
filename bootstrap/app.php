@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
             'api.auth' => \App\Http\Middleware\ApiAuth::class,
+            'throttle.dynamic' => \App\Http\Middleware\DynamicRateLimit::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

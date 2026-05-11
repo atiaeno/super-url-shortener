@@ -25,7 +25,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
         'avatar',
     ];
 
@@ -75,5 +74,22 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function assignRole(string $role): void
+    {
+        $validRoles = ['user', 'admin', 'affiliate'];
+
+        if (!in_array($role, $validRoles)) {
+            throw new \InvalidArgumentException("Invalid role: {$role}");
+        }
+
+        $this->role = $role;
+        $this->save();
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role;
     }
 }

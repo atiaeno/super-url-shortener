@@ -6,6 +6,9 @@ use App\Http\Controllers\Api\AliasDomainController;
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\LinkController;
 use App\Http\Controllers\Api\TokenController;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,10 +24,50 @@ use Illuminate\Support\Facades\Route;
 
 // Health check (no auth required)
 Route::get('/health', function () {
-    return response()->json([
+    $health = [
         'status' => 'ok',
         'timestamp' => now()->toIso8601String(),
-    ]);
+        'version' => '1.0.0',
+        'environment' => app()->environment(),
+        'checks' => [
+            'database' => 'ok',
+            'cache' => 'ok',
+            'queue' => 'ok',
+        ],
+    ];
+
+    // Check database connectivity
+    try {
+        DB::connection()->getPdo();
+        $health['checks']['database'] = 'ok';
+    } catch (\Exception $e) {
+        $health['checks']['database'] = 'error';
+        $health['status'] = 'error';
+    }
+
+    // Check cache connectivity
+    try {
+        Cache::put('health_check', 'ok', 60);
+        Cache::get('health_check') === 'ok' ? $health['checks']['cache'] = 'ok' : $health['checks']['cache'] = 'error';
+    } catch (\Exception $e) {
+        $health['checks']['cache'] = 'error';
+        $health['status'] = 'error';
+    }
+
+    // Check queue connectivity (if Redis)
+    if (config('queue.default') === 'redis') {
+        try {
+            Redis::ping();
+            $health['checks']['queue'] = 'ok';
+        } catch (\Exception $e) {
+            $health['checks']['queue'] = 'error';
+            $health['status'] = 'error';
+        }
+    }
+
+    $statusCode = $health['status'] === 'ok' ? 200 : 503;
+
+    return response()->json($health, $statusCode);
 })->name('api.health');
 
 // Public API info (no auth required)
@@ -40,14 +83,15 @@ Route::get('/', function () {
 Route::get('domains/active', [AliasDomainController::class, 'active'])
     ->name('api.domains.active');
 
-// Authenticated API routes with rate limiting
-Route::middleware(['api.auth', 'throttle:api'])->group(function () {
+// Authenticated API routes with dynamic rate limiting
+Route::middleware(['api.auth', 'throttle.dynamic:api'])->group(function () {
     // Rate limit headers are added automatically
     Route::get('/user', function () {
+        $user = request()->user();
         return response()->json([
-            'id' => auth()->id(),
-            'name' => auth()->user()->name,
-            'email' => auth()->user()->email,
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
         ]);
     })->name('api.user');
 
@@ -85,7 +129,7 @@ Route::middleware(['api.auth', 'throttle:api'])->group(function () {
      * GET    /api/v1/tokens        - List tokens
      * DELETE /api/v1/tokens/{id}   - Revoke token
      */
-    Route::prefix('tokens')->name('api.tokens.')->middleware('throttle:api.tokens')->group(function () {
+    Route::prefix('tokens')->name('api.tokens.')->middleware('throttle.dynamic:api.tokens')->group(function () {
         Route::get('/', [TokenController::class, 'index'])->name('index');
         Route::post('/', [TokenController::class, 'store'])->name('store');
         Route::delete('{token}', [TokenController::class, 'destroy'])->name('destroy');

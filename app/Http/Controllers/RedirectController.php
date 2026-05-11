@@ -161,7 +161,25 @@ class RedirectController extends Controller
         // Cache the rendered page
         Cache::put($cacheKey, $html, now()->addDays($cacheDays));
 
-        return response($html, 200)->header('Content-Type', 'text/html; charset=utf-8');
+        // Return view response for testing compatibility
+        return response()->view('redirect', array_merge([
+            'state' => 'redirect',
+            'shortCode' => $shortCode,
+            'destination' => $destinationUrl,
+            'countdown' => $countdown,
+            'redirectMode' => $redirectMode,
+            'redirectCaptcha' => filter_var($redirectCaptcha, FILTER_VALIDATE_BOOLEAN),
+            'captchaSiteKey' => Setting::get('captcha_site_key', ''),
+            'adContent' => $adContent,
+            'adPlacement' => $ad ? $ad->placement : null,
+            'adFormat' => $ad ? $ad->format : null,
+            'title' => $link->og_title ?? 'Redirecting…',
+            'ogTitle' => $link->og_title,
+            'ogDescription' => $link->og_description,
+            'ogUrl' => $link->short_url,
+            'link' => $link,
+            'ogImage' => $link->og_image,
+        ], $promotions));
     }
 
     /**

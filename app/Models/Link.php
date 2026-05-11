@@ -18,6 +18,7 @@ class Link extends Model
         'domain_id',
         'short_code',
         'destination_url',
+        'destination_url_hash',
         'custom_alias',
         'campaign_tag',
         'og_title',
@@ -48,6 +49,11 @@ class Link extends Model
         parent::boot();
 
         static::saving(function ($link) {
+            // Generate URL hash for duplicate checking
+            if ($link->isDirty('destination_url') && !$link->destination_url_hash) {
+                $link->destination_url_hash = hash('sha256', $link->destination_url);
+            }
+
             if ($link->visibility === 'private' && $link->password) {
                 $link->password = bcrypt($link->password);
             }

@@ -1,55 +1,277 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ShortLink - Documentation</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --primary: #e74c3c; --dark: #1a1a1a; --gray-900: #111; --gray-800: #1f2937; --gray-700: #374151; --gray-600: #4b5563; --gray-500: #6b7280; --gray-400: #9ca3af; --gray-300: #d1d5db; --gray-200: #e5e7eb; --gray-100: #f3f4f6; --gray-50: #f9fafb; --white: #fff; }
-        body { font-family: 'Inter', sans-serif; background: var(--gray-50); color: var(--gray-800); line-height: 1.5; font-size: 14px; }
-        .layout { display: flex; min-height: 100vh; }
-        .sidebar { width: 240px; background: var(--dark); color: var(--white); padding: 20px 0; position: fixed; height: 100vh; overflow-y: auto; }
-        .logo { padding: 0 16px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 16px; }
-        .logo h1 { font-size: 18px; font-weight: 700; }
-        .logo span { color: var(--primary); }
-        .nav-section { padding: 0 12px; margin-bottom: 16px; }
-        .nav-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-500); margin-bottom: 8px; padding: 0 8px; }
-        .nav-link { display: block; padding: 8px 10px; color: var(--gray-300); text-decoration: none; font-size: 13px; border-radius: 3px; transition: all 0.2s; }
-        .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.1); color: var(--white); }
-        .nav-link.active { border-left: 2px solid var(--primary); }
-        .main { flex: 1; margin-left: 240px; padding: 24px 32px; max-width: 720px; }
-        .doc-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--gray-200); }
-        .doc-header h1 { font-size: 28px; font-weight: 700; color: var(--gray-900); margin-bottom: 8px; }
-        .doc-header p { font-size: 14px; color: var(--gray-600); }
-        .section { margin-bottom: 24px; }
-        .section h2 { font-size: 18px; font-weight: 600; color: var(--gray-900); margin-bottom: 12px; border-left: 3px solid var(--primary); padding-left: 10px; }
-        .section h3 { font-size: 14px; font-weight: 600; color: var(--gray-800); margin: 12px 0 8px; }
-        .section p { color: var(--gray-700); margin-bottom: 10px; }
-        .section ul { margin-left: 16px; margin-bottom: 10px; }
-        .section li { margin-bottom: 4px; color: var(--gray-700); }
-        pre { background: var(--gray-900); color: var(--gray-100); padding: 12px 14px; border-radius: 3px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.5; margin: 10px 0; }
-        code { font-family: 'JetBrains Mono', monospace; background: var(--gray-100); padding: 1px 4px; border-radius: 2px; font-size: 12px; color: var(--primary); }
-        pre code { background: none; padding: 0; color: var(--gray-100); }
-        .highlight { color: var(--primary); font-weight: 600; }
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 12px 0; }
-        .card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 3px; padding: 12px; }
-        .card h3 { font-size: 13px; margin-bottom: 4px; }
-        .card p { font-size: 12px; color: var(--gray-600); margin: 0; }
-        .table-wrapper { overflow-x: auto; margin: 12px 0; }
-        table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 3px; overflow: hidden; font-size: 12px; }
-        th, td { padding: 8px 10px; text-align: left; }
-        th { background: var(--gray-800); color: var(--white); font-weight: 500; font-size: 11px; }
-        td { border-bottom: 1px solid var(--gray-100); }
-        tr:last-child td { border: none; }
-        .note { background: #fef9c3; border: 1px solid #eab308; padding: 8px 10px; border-radius: 3px; font-size: 12px; margin: 10px 0; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #e74c3c;
+            --dark: #1a1a1a;
+            --gray-900: #111;
+            --gray-800: #1f2937;
+            --gray-700: #374151;
+            --gray-600: #4b5563;
+            --gray-500: #6b7280;
+            --gray-400: #9ca3af;
+            --gray-300: #d1d5db;
+            --gray-200: #e5e7eb;
+            --gray-100: #f3f4f6;
+            --gray-50: #f9fafb;
+            --white: #fff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-800);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: var(--dark);
+            color: var(--white);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            padding: 0 16px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 16px;
+        }
+
+        .logo h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-section {
+            padding: 0 12px;
+            margin-bottom: 16px;
+        }
+
+        .nav-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray-500);
+            margin-bottom: 8px;
+            padding: 0 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 8px 10px;
+            color: var(--gray-300);
+            text-decoration: none;
+            font-size: 13px;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .nav-link.active {
+            border-left: 2px solid var(--primary);
+        }
+
+        .main {
+            flex: 1;
+            margin-left: 240px;
+            padding: 24px 32px;
+            max-width: 720px;
+        }
+
+        .doc-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .doc-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+        }
+
+        .doc-header p {
+            font-size: 14px;
+            color: var(--gray-600);
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 12px;
+            border-left: 3px solid var(--primary);
+            padding-left: 10px;
+        }
+
+        .section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin: 12px 0 8px;
+        }
+
+        .section p {
+            color: var(--gray-700);
+            margin-bottom: 10px;
+        }
+
+        .section ul {
+            margin-left: 16px;
+            margin-bottom: 10px;
+        }
+
+        .section li {
+            margin-bottom: 4px;
+            color: var(--gray-700);
+        }
+
+        pre {
+            background: var(--gray-900);
+            color: var(--gray-100);
+            padding: 12px 14px;
+            border-radius: 3px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--gray-100);
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-size: 12px;
+            color: var(--primary);
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: var(--gray-100);
+        }
+
+        .highlight {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 12px 0;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 3px;
+            padding: 12px;
+        }
+
+        .card h3 {
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .card p {
+            font-size: 12px;
+            color: var(--gray-600);
+            margin: 0;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            border-radius: 3px;
+            overflow: hidden;
+            font-size: 12px;
+        }
+
+        th,
+        td {
+            padding: 8px 10px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--gray-800);
+            color: var(--white);
+            font-weight: 500;
+            font-size: 11px;
+        }
+
+        td {
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        tr:last-child td {
+            border: none;
+        }
+
+        .note {
+            background: #fef9c3;
+            border: 1px solid #eab308;
+            padding: 8px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin: 10px 0;
+        }
     </style>
 </head>
+
 <body>
     <div class="layout">
         <aside class="sidebar">
-            <div class="logo"><h1>Short<span>Link</span></h1></div>
+            <div class="logo">
+                <h1>Short<span>Link</span></h1>
+            </div>
             <nav class="nav-section">
                 <div class="nav-title">Getting Started</div>
                 <a href="index.html" class="nav-link active">Introduction</a>
@@ -60,6 +282,8 @@
                 <div class="nav-title">Features</div>
                 <a href="features.html" class="nav-link">Core Features</a>
                 <a href="api.html" class="nav-link">API Reference</a>
+                <a href="api-reference.md" class="nav-link">API Documentation</a>
+                <a href="openapi.yaml" class="nav-link">OpenAPI Spec</a>
                 <a href="affiliate.html" class="nav-link">Affiliate Program</a>
             </nav>
             <nav class="nav-section">
@@ -68,49 +292,81 @@
                 <a href="troubleshooting.html" class="nav-link">Troubleshooting</a>
             </nav>
         </aside>
-        
+
         <main class="main">
             <header class="doc-header">
                 <h1>Documentation</h1>
                 <p>Complete guide to install, configure, and deploy ShortLink.</p>
             </header>
-            
+
             <section class="section">
                 <h2>What is ShortLink?</h2>
-                <p>Modern URL shortening platform built with Laravel + Vue.js. Features include link management, analytics, affiliate program, and REST API.</p>
+                <p>Modern URL shortening platform built with Laravel + Vue.js. Features include link management,
+                    analytics, affiliate program, and REST API.</p>
                 <div class="card-grid">
-                    <div class="card"><h3>🚀 Fast</h3><p>Laravel + Redis for lightning-fast redirects.</p></div>
-                    <div class="card"><h3>📊 Analytics</h3><p>Real-time clicks, geo, devices, referrers.</p></div>
-                    <div class="card"><h3>💰 Affiliate</h3><p>Built-in tiered commission system.</p></div>
-                    <div class="card"><h3>🔌 API</h3><p>Full REST API for integration.</p></div>
+                    <div class="card">
+                        <h3>🚀 Fast</h3>
+                        <p>Laravel + Redis for lightning-fast redirects.</p>
+                    </div>
+                    <div class="card">
+                        <h3>📊 Analytics</h3>
+                        <p>Real-time clicks, geo, devices, referrers.</p>
+                    </div>
+                    <div class="card">
+                        <h3>💰 Affiliate</h3>
+                        <p>Built-in tiered commission system.</p>
+                    </div>
+                    <div class="card">
+                        <h3>🔌 API</h3>
+                        <p>Full REST API for integration.</p>
+                    </div>
                 </div>
             </section>
-            
+
             <section class="section">
                 <h2>Quick Start</h2>
                 <ul>
                     <li><span class="highlight">Clone</span> the repository</li>
-                    <li><span class="highlight">Run</span> <code>composer install</code> && <code>npm install</code></li>
+                    <li><span class="highlight">Run</span> <code>composer install</code> && <code>npm install</code>
+                    </li>
                     <li><span class="highlight">Copy</span> <code>.env.example</code> to <code>.env</code></li>
                     <li><span class="highlight">Run</span> <code>php artisan migrate</code></li>
                 </ul>
                 <div class="note">Detailed instructions on the <a href="installation.html">Installation</a> page.</div>
             </section>
-            
+
             <section class="section">
                 <h2>Tech Stack</h2>
                 <div class="table-wrapper">
                     <table>
-                        <tr><th>Component</th><th>Technology</th></tr>
-                        <tr><td>Backend</td><td>Laravel 12.x</td></tr>
-                        <tr><td>Frontend</td><td>Vue.js 3 + Inertia</td></tr>
-                        <tr><td>Styling</td><td>Tailwind CSS</td></tr>
-                        <tr><td>Database</td><td>MySQL/PostgreSQL</td></tr>
-                        <tr><td>Cache/Queue</td><td>Redis</td></tr>
+                        <tr>
+                            <th>Component</th>
+                            <th>Technology</th>
+                        </tr>
+                        <tr>
+                            <td>Backend</td>
+                            <td>Laravel 12.x</td>
+                        </tr>
+                        <tr>
+                            <td>Frontend</td>
+                            <td>Vue.js 3 + Inertia</td>
+                        </tr>
+                        <tr>
+                            <td>Styling</td>
+                            <td>Tailwind CSS</td>
+                        </tr>
+                        <tr>
+                            <td>Database</td>
+                            <td>MySQL/PostgreSQL</td>
+                        </tr>
+                        <tr>
+                            <td>Cache/Queue</td>
+                            <td>Redis</td>
+                        </tr>
                     </table>
                 </div>
             </section>
-            
+
             <section class="section">
                 <h2>Key Features</h2>
                 <ul>
@@ -122,16 +378,26 @@
                     <li><span class="highlight">Admin Panel</span> - Full user/link/payout management</li>
                 </ul>
             </section>
-            
+
             <section class="section">
                 <h2>Next Steps</h2>
                 <div class="card-grid">
-                    <a href="installation.html" class="card" style="text-decoration:none;color:inherit"><h3>📥 Installation</h3><p>Step-by-step install guide.</p></a>
-                    <a href="configuration.html" class="card" style="text-decoration:none;color:inherit"><h3>⚙️ Configuration</h3><p>All settings explained.</p></a>
-                    <a href="api.html" class="card" style="text-decoration:none;color:inherit"><h3>🔌 API Reference</h3><p>REST API docs.</p></a>
+                    <a href="installation.html" class="card" style="text-decoration:none;color:inherit">
+                        <h3>📥 Installation</h3>
+                        <p>Step-by-step install guide.</p>
+                    </a>
+                    <a href="configuration.html" class="card" style="text-decoration:none;color:inherit">
+                        <h3>⚙️ Configuration</h3>
+                        <p>All settings explained.</p>
+                    </a>
+                    <a href="api.html" class="card" style="text-decoration:none;color:inherit">
+                        <h3>🔌 API Reference</h3>
+                        <p>REST API docs.</p>
+                    </a>
                 </div>
             </section>
         </main>
     </div>
 </body>
+
 </html>

@@ -4,9 +4,9 @@
 namespace App\Http\Middleware;
 
 use App\Models\ApiToken;
-use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Closure;
 
 class ApiAuth
 {
@@ -37,23 +37,25 @@ class ApiAuth
             $apiToken->markAsUsed();
         }
 
-        // Set authenticated user
-        auth()->setUser($apiToken->user);
+        // Set authenticated user for the request
+        $request->setUserResolver(fn() => $apiToken->user);
+
+        // Set the user in Laravel's auth system
+        $guard = app('auth')->guard();
+        $guard->setUser($apiToken->user);
+
+        // Also set in the request's user resolver for consistency
+        app('auth')->setUser($apiToken->user);
 
         return $next($request);
     }
 
     private function extractToken(Request $request): ?string
     {
-        // Check Authorization header (Bearer token)
+        // Only check Authorization header (Bearer token)
         $header = $request->header('Authorization');
         if ($header && str_starts_with($header, 'Bearer ')) {
             return substr($header, 7);
-        }
-
-        // Check query parameter (for testing/debugging)
-        if ($request->has('api_key')) {
-            return $request->query('api_key');
         }
 
         return null;
