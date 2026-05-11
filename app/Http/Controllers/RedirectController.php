@@ -90,9 +90,20 @@ class RedirectController extends Controller
                 ->header('Content-Type', 'text/html; charset=utf-8');
         }
 
-        // Queue click logging (async, doesn't block)
-        LogClickJob::dispatch($link->id, $this->getClickData($request));
-        $link->incrementClicks();
+        // Check if page is cached
+        $cacheKey = "redirect:page:{$shortCode}";
+        $cacheDays = (int) Setting::get('redirect_cache_days', 7);
+        $cachedHtml = Cache::get($cacheKey);
+
+        if ($cachedHtml) {
+            // Serve cached page - inject shortCode for tracking
+            $cachedHtml = str_replace(
+                "var shortCode = '';",
+                "var shortCode = '{$shortCode}';",
+                $cachedHtml
+            );
+            return response($cachedHtml, 200)->header('Content-Type', 'text/html; charset=utf-8');
+        }
 
         // Read redirect page settings
         $redirectCountdown = (int) Setting::get('redirect_countdown', 5);
@@ -111,9 +122,10 @@ class RedirectController extends Controller
             $this->markAdSeen($request, $link->id);
         }
 
-        // Always show the redirect page — user sees destination, timer, and optional ad
-        return response()->view('redirect', array_merge([
+        // Render the page
+        $html = view('redirect', array_merge([
             'state' => 'redirect',
+            'shortCode' => $shortCode,
             'destination' => $destinationUrl,
             'countdown' => $countdown,
             'redirectMode' => $redirectMode,
@@ -128,7 +140,12 @@ class RedirectController extends Controller
             'ogUrl' => $link->short_url,
             'link' => $link,
             'ogImage' => $link->og_image,
-        ], $promotions));
+        ], $promotions))->render();
+
+        // Cache the rendered page
+        Cache::put($cacheKey, $html, now()->addDays($cacheDays));
+
+        return response($html, 200)->header('Content-Type', 'text/html; charset=utf-8');
     }
 
     /**

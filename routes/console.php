@@ -26,6 +26,9 @@ Schedule::command('affiliates:daily-sync')->dailyAt('01:00');
 // Aggregate link analytics daily at 03:30
 Schedule::command('analytics:aggregate')->dailyAt('03:30');
 
+// Cleanup old unique IP records daily at 04:00 (keep only today and yesterday)
+Schedule::command('analytics:cleanup-ips')->dailyAt('04:00');
+
 // SEO Indexer: process queue based on interval_minutes setting (default hourly)
 $indexerInterval = \App\Models\Setting::get('indexer_interval_minutes', 60);
 Schedule::command('indexer:run')->everyMinute()->when(function () use ($indexerInterval) {

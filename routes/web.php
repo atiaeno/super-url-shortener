@@ -23,9 +23,11 @@ use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SocialAuthController;
+use App\Http\Controllers\TrackController;
 use App\Models\AffiliateTier;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
 
 // ── Homepage ─────────────────────────────────────────────────────────────────
 Route::get('/', function () {
@@ -221,6 +223,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         Route::get('queue-all', [\App\Http\Controllers\Admin\IndexerController::class, 'queueAll'])->name('queue-all');
     });
 });
+
+// Tracking endpoint (client-side beacon for cached pages)
+Route::post('/track/{shortCode}', [TrackController::class, 'track'])
+    ->where('shortCode', '[a-zA-Z0-9]+')
+    ->name('track');
 
 // Public redirect endpoint (short URLs) — MUST BE LAST
 Route::match(['get', 'post'], '/{shortCode}', RedirectController::class)

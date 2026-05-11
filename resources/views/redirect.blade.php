@@ -238,6 +238,22 @@
     @if ($state === 'redirect')
         <script>
             (function() {
+                // Fire-and-forget tracking beacon (works even when page is cached)
+                var shortCode = '';
+                if (shortCode) {
+                    var trackUrl = '/track/' + shortCode;
+                    var data = new FormData();
+                    if (navigator.sendBeacon) {
+                        navigator.sendBeacon(trackUrl, data);
+                    } else {
+                        fetch(trackUrl, {
+                            method: 'POST',
+                            body: data,
+                            keepalive: true
+                        }).catch(function() {});
+                    }
+                }
+
                 var mode = '{{ $redirectMode ?? 'auto' }}';
                 var needCaptcha = {{ !empty($redirectCaptcha) && !empty($captchaSiteKey) ? 'true' : 'false' }};
                 var captchaPassed = false;

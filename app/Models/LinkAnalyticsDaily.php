@@ -14,6 +14,7 @@ class LinkAnalyticsDaily extends Model
         'link_id',
         'date',
         'total_clicks',
+        'unique_visitors',
         'by_country',
         'by_device',
         'by_browser',
@@ -24,6 +25,7 @@ class LinkAnalyticsDaily extends Model
     protected $casts = [
         'date' => 'date',
         'total_clicks' => 'integer',
+        'unique_visitors' => 'integer',
         'by_country' => 'array',
         'by_device' => 'array',
         'by_browser' => 'array',
@@ -39,18 +41,42 @@ class LinkAnalyticsDaily extends Model
     public static function recordClick(int $linkId, array $data): void
     {
         $date = now()->toDateString();
+        $ipHash = $data['ip_hash'] ?? null;
 
-        $record = self::firstOrCreate(
-            ['link_id' => $linkId, 'date' => $date]
-        );
+        $isNewVisitor = false;
+        if ($ipHash) {
+            $isNewVisitor = self::insertUniqueIp($linkId, $date, $ipHash);
+        }
 
+        $record = self::firstOrCreate(['link_id' => $linkId, 'date' => $date]);
         $record->increment('total_clicks');
 
-        // Increment JSON fields manually
+        if ($isNewVisitor) {
+            $record->increment('unique_visitors');
+        }
+
         foreach (['country_code' => 'by_country', 'device_type' => 'by_device', 'browser' => 'by_browser', 'os' => 'by_os', 'referrer_domain' => 'by_referrer'] as $key => $field) {
             if (!empty($data[$key])) {
                 $record->incrementJson($field, $data[$key]);
             }
+        }
+    }
+
+    /**
+     * Check and record unique IP - returns true if new, false if duplicate
+     */
+    private static function insertUniqueIp(int $linkId, string $date, string $ipHash): bool
+    {
+        try {
+            return \Illuminate\Support\Facades\DB::table('link_analytics_ips')->insertOrIgnore([
+                'link_id' => $linkId,
+                'date' => $date,
+                'ip_hash' => $ipHash,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]) > 0;
+        } catch (\Throwable $e) {
+            return false;
         }
     }
 
