@@ -4,8 +4,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Model;
 
 class Click extends Model
 {
@@ -45,12 +45,12 @@ class Click extends Model
 
     public function scopeFromCountry($query, $countryCode)
     {
-        return $query->where('country_code', $countryCode);
+        return $query->whereRaw('UPPER(country_code) = ?', [strtoupper($countryCode)]);
     }
 
     public function scopeOnDevice($query, $deviceType)
     {
-        return $query->where('device_type', $deviceType);
+        return $query->whereRaw('LOWER(device_type) = ?', [strtolower($deviceType)]);
     }
 
     public function scopeWithReferrer($query, $domain)

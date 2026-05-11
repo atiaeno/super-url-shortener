@@ -32,12 +32,15 @@ class LinkFactory extends Factory
             'auto_suspended_at' => null,
             'ad_id' => null,
             'ad_override' => 'inherit',
+            'visibility' => 'public',
+            'password' => null,
+            'domain_id' => null,
         ];
     }
 
     public function withAlias(string $alias): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'short_code' => $alias,
             'custom_alias' => $alias,
         ]);
@@ -45,21 +48,21 @@ class LinkFactory extends Factory
 
     public function inactive(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'is_active' => false,
         ]);
     }
 
     public function expired(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'expires_at' => now()->subDay(),
         ]);
     }
 
     public function withClicks(int $count): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'clicks_count' => $count,
         ]);
     }

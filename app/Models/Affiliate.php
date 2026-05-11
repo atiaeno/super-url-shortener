@@ -25,9 +25,9 @@ class Affiliate extends Model
     ];
 
     protected $casts = [
-        'total_earnings' => 'decimal:2',
-        'pending_earnings' => 'decimal:2',
-        'paid_earnings' => 'decimal:2',
+        'total_earnings' => 'decimal:4',
+        'pending_earnings' => 'decimal:4',
+        'paid_earnings' => 'decimal:4',
         'total_visits' => 'integer',
         'is_active' => 'boolean',
     ];

@@ -252,7 +252,7 @@ class IndexerService
 
     private function isPublicLink(Link $link): bool
     {
-        return !$link->is_private && !$link->password;
+        return $link->visibility === 'public' && !$link->password;
     }
 
     private function getPublicUrl(Link $link): string

@@ -13,8 +13,8 @@ class AffiliateTierFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->unique()->randomElement(['Bronze', 'Silver', 'Gold', 'Platinum']),
-            'commission_rate' => $this->faker->randomFloat(2, 0.05, 0.30),
+            'name' => $this->faker->randomElement(['Bronze', 'Silver', 'Gold', 'Platinum']) . ' ' . $this->faker->unique()->numberBetween(1, 99999),
+            'commission_rate' => $this->faker->randomFloat(2, 0.05, 0.3),
             'visit_threshold' => $this->faker->numberBetween(100, 5000),
             'view_rate' => $this->faker->randomFloat(4, 0.001, 0.01),
             'view_multiplier' => $this->faker->randomFloat(1, 1, 3),

@@ -88,9 +88,9 @@ class IndexNowService
                 return true;
             }
 
-            throw new \Exception('HTTP ' . $response->status() . ': ' . $response->body());
+            return false;
         } catch (\Exception $e) {
-            throw $e;
+            return false;
         }
     }
 

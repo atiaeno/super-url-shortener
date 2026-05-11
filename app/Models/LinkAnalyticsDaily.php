@@ -3,11 +3,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 
 class LinkAnalyticsDaily extends Model
 {
+    use HasFactory;
+
     protected $table = 'link_analytics_daily';
 
     protected $fillable = [
@@ -23,7 +26,7 @@ class LinkAnalyticsDaily extends Model
     ];
 
     protected $casts = [
-        'date' => 'date',
+        'date' => 'date:Y-m-d',
         'total_clicks' => 'integer',
         'unique_visitors' => 'integer',
         'by_country' => 'array',
@@ -48,7 +51,15 @@ class LinkAnalyticsDaily extends Model
             $isNewVisitor = self::insertUniqueIp($linkId, $date, $ipHash);
         }
 
-        $record = self::firstOrCreate(['link_id' => $linkId, 'date' => $date]);
+        \Illuminate\Support\Facades\DB::table('link_analytics_daily')->insertOrIgnore([
+            'link_id' => $linkId,
+            'date' => $date,
+            'total_clicks' => 0,
+            'unique_visitors' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $record = self::where('link_id', $linkId)->whereDate('date', $date)->first();
         $record->increment('total_clicks');
 
         if ($isNewVisitor) {

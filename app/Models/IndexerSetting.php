@@ -3,11 +3,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
 class IndexerSetting extends Model
 {
+    use HasFactory;
+
     protected $table = 'indexer_settings';
 
     protected $fillable = [

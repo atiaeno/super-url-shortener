@@ -4,11 +4,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 
 class IndexerLog extends Model
 {
+    use HasFactory;
+
     protected $table = 'indexer_logs';
 
     protected $fillable = [
