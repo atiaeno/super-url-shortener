@@ -26,7 +26,7 @@ class LinkController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Link::forUser(Auth::id())->withCount('clicks');
+        $query = Link::forUser(Auth::id())->withCount('clicks')->with('domain');
 
         // Filter by status
         if ($request->filled('status')) {
@@ -66,16 +66,37 @@ class LinkController extends Controller
     {
         $validated = $request->validate([
             'destination_url' => ['required', 'url', 'max:2048'],
+            'domain_id' => ['nullable', 'exists:alias_domains,id'],
             'custom_alias' => ['nullable', 'string', 'min:4', 'max:20', 'alpha_dash', 'unique:links'],
             'campaign_tag' => ['nullable', 'string', 'max:100'],
             'visibility' => ['required', 'in:public,private'],
             'password' => ['required_if:visibility,private', 'nullable', 'string', 'min:6', 'max:255'],
         ]);
 
+        // Prevent shortening alias domains
+        $destinationUrl = $validated['destination_url'];
+        $parsedUrl = parse_url($destinationUrl);
+        $destinationDomain = isset($parsedUrl['host']) ? strtolower($parsedUrl['host']) : null;
+
+        if ($destinationDomain) {
+            $aliasDomains = \App\Models\AliasDomain::where('is_active', true)->pluck('domain')->toArray();
+            $aliasDomains = array_map('strtolower', $aliasDomains);
+
+            if (in_array($destinationDomain, $aliasDomains)) {
+                return back()->withErrors(['destination_url' => 'You cannot shorten alias domains.'])->withInput();
+            }
+
+            // Also check for www variant
+            if (in_array('www.' . $destinationDomain, $aliasDomains)) {
+                return back()->withErrors(['destination_url' => 'You cannot shorten alias domains.'])->withInput();
+            }
+        }
+
         $shortCode = $validated['custom_alias'] ?? $this->shortCodeService->generate();
 
         $link = Link::create([
             'user_id' => Auth::id(),
+            'domain_id' => $validated['domain_id'] ?? null,
             'short_code' => $shortCode,
             'destination_url' => $validated['destination_url'],
             'custom_alias' => $validated['custom_alias'] ?? null,
@@ -90,9 +111,16 @@ class LinkController extends Controller
         // Fetch OG tags asynchronously
         FetchOgTagsJob::dispatch($link->id)->onQueue('default');
 
-        return redirect()
-            ->route('links.index')
-            ->with('success', 'Link created successfully.');
+        // Load domain relationship for short_url accessor
+        $link->load('domain');
+
+        return Inertia::render('Links/Create', [
+            'createdLink' => [
+                'short_url' => $link->short_url,
+                'short_code' => $link->short_code,
+                'destination_url' => $link->destination_url,
+            ],
+        ]);
     }
 
     /**
@@ -101,6 +129,7 @@ class LinkController extends Controller
     public function show(Link $link, Request $request): Response
     {
         $this->authorize('view', $link);
+        $link->load('domain');
 
         $period = $request->query('period', 'all');
 
@@ -170,6 +199,7 @@ class LinkController extends Controller
     public function edit(Link $link): Response
     {
         $this->authorize('update', $link);
+        $link->load('domain');
 
         $data = ['link' => $link];
 

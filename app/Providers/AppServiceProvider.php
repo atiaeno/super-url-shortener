@@ -1,5 +1,5 @@
 <?php
-// Atia Hegazy — atiaeno.com
+// © Atia Hegazy — atiaeno.com
 
 namespace App\Providers;
 
@@ -7,7 +7,9 @@ use App\Models\Setting;
 use App\Observers\SettingObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -24,6 +26,28 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
+     * Check if settings table exists (for tests/migrations)
+     */
+    private function settingsTableExists(): bool
+    {
+        // During testing, table might not exist yet (migrations not run)
+        if (app()->environment('testing')) {
+            try {
+                DB::select('SELECT 1 FROM settings LIMIT 1');
+                return true;
+            } catch (\Exception $e) {
+                return false;
+            }
+        }
+
+        try {
+            return Schema::hasTable('settings');
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
      * Bootstrap any application services.
      */
     public function boot(): void
@@ -33,13 +57,17 @@ class AppServiceProvider extends ServiceProvider
 
         // API rate limiting: configurable from settings
         RateLimiter::for('api', function (Request $request) {
-            $limit = (int) Setting::get('api_rate_limit_per_hour', 100);
+            $limit = $this->settingsTableExists()
+                ? (int) Setting::get('api_rate_limit_per_hour', 100)
+                : 100;
             return Limit::perHour($limit)->by($request->user()?->id ?: $request->ip());
         });
 
         // Token generation limit: configurable from settings
         RateLimiter::for('api.tokens', function (Request $request) {
-            $limit = (int) Setting::get('api_token_rate_limit_per_hour', 10);
+            $limit = $this->settingsTableExists()
+                ? (int) Setting::get('api_token_rate_limit_per_hour', 10)
+                : 10;
             return Limit::perHour($limit)->by($request->user()?->id ?: $request->ip());
         });
 
@@ -47,6 +75,10 @@ class AppServiceProvider extends ServiceProvider
 
         // Share feature settings globally
         Inertia::share('features', function () {
+            if (!$this->settingsTableExists()) {
+                return ['affiliate' => true, 'ads' => true, 'gdpr' => true];
+            }
+
             $settings = Setting::whereIn('key', ['features_affiliate', 'features_ads', 'features_gdpr'])
                 ->pluck('value', 'key')
                 ->toArray();

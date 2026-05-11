@@ -45,6 +45,15 @@ class Setting extends Model
 
     public static function get(string $key, mixed $default = null): mixed
     {
+        // During testing, table might not exist yet
+        if (app()->environment('testing')) {
+            try {
+                \DB::select('SELECT 1 FROM settings LIMIT 1');
+            } catch (\Exception $e) {
+                return $default;
+            }
+        }
+
         $settings = Cache::remember(self::$cacheKey, self::$cacheTTL, function () {
             return self::all()->keyBy('key')->toArray();
         });

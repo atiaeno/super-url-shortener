@@ -47,10 +47,11 @@ watch([activeFilter, searchQuery], () => {
     }, 300);
 });
 
-const copyShortUrl = async (shortCode) => {
-    const url = `${window.location.origin}/${shortCode}`;
+const copyShortUrl = async (link) => {
+    const domain = link.domain ? `https://${link.domain.domain}` : window.location.origin;
+    const url = `${domain}/${link.short_code}`;
     await navigator.clipboard.writeText(url);
-    copiedId.value = shortCode;
+    copiedId.value = link.short_code;
     setTimeout(() => { copiedId.value = null; }, 2000);
 };
 
@@ -137,8 +138,9 @@ const icons = {
         <div v-else class="links-grid">
             <div v-for="link in links.data" :key="link.id" class="link-card">
                 <div class="link-card__header">
-                    <a :href="`/${link.short_code}`" target="_blank" class="short-link">
-                        /{{ link.short_code }}
+                    <a :href="link.domain ? `https://${link.domain.domain}/${link.short_code}` : `/${link.short_code}`"
+                        target="_blank" class="short-link">
+                        <span v-if="link.domain">{{ link.domain.domain }}/</span>{{ link.short_code }}
                         <span class="material-icons">open_in_new</span>
                     </a>
                     <span class="status-badge" :class="link.is_active ? 'active' : 'inactive'">

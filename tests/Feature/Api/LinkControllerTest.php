@@ -3,6 +3,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\AliasDomain;
 use App\Models\ApiToken;
 use App\Models\Click;
 use App\Models\Link;
@@ -139,9 +140,13 @@ class LinkControllerTest extends TestCase
                 'success',
                 'message',
                 'data' => [
+                    'id',
                     'short_code',
                     'short_url',
                     'original_url',
+                    'alias',
+                    'domain_id',
+                    'domain',
                     'clicks',
                     'created_at',
                     'qr_code',
@@ -152,6 +157,77 @@ class LinkControllerTest extends TestCase
             'user_id' => $this->user->id,
             'destination_url' => 'https://example.com/long/path',
         ]);
+    }
+
+    /**
+     * @test
+     */
+    public function can_create_link_with_domain_id(): void
+    {
+        $domain = AliasDomain::factory()->create([
+            'domain' => 'go.example.com',
+            'is_active' => true,
+        ]);
+
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
+            ->postJson('/api/v1/links', [
+                'url' => 'https://example.com',
+                'domain_id' => $domain->id,
+            ]);
+
+        $response
+            ->assertStatus(201)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.domain_id', $domain->id)
+            ->assertJsonPath('data.domain', 'go.example.com');
+
+        $this->assertStringContainsString('go.example.com', $response->json('data.short_url'));
+    }
+
+    /**
+     * @test
+     */
+    public function cannot_create_link_with_inactive_domain(): void
+    {
+        $domain = AliasDomain::factory()->create(['is_active' => false]);
+
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
+            ->postJson('/api/v1/links', [
+                'url' => 'https://example.com',
+                'domain_id' => $domain->id,
+            ]);
+
+        $response
+            ->assertStatus(422)
+            ->assertJsonPath('error', 'Selected domain is not available');
+    }
+
+    /**
+     * @test
+     */
+    public function can_update_link_domain(): void
+    {
+        $link = Link::factory()->create(['user_id' => $this->user->id]);
+        $newDomain = AliasDomain::factory()->create([
+            'domain' => 'custom.example.com',
+            'is_active' => true,
+        ]);
+
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
+            ->patchJson('/api/v1/links/' . $link->id, [
+                'url' => $link->destination_url,
+                'domain_id' => $newDomain->id,
+            ]);
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonPath('data.domain_id', $newDomain->id)
+            ->assertJsonPath('data.domain', 'custom.example.com');
+
+        $this->assertStringContainsString('custom.example.com', $response->json('data.short_url'));
     }
 
     /**
@@ -444,5 +520,51 @@ class LinkControllerTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJsonPath('data.short_url', config('app.url') . '/' . $link->short_code);
+    }
+
+    /**
+     * @test
+     */
+    public function link_response_includes_domain_fields(): void
+    {
+        $domain = AliasDomain::factory()->create([
+            'domain' => 'branded.example.com',
+            'is_active' => true,
+        ]);
+        $link = Link::factory()->create([
+            'user_id' => $this->user->id,
+            'domain_id' => $domain->id,
+        ]);
+
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
+            ->getJson('/api/v1/links/' . $link->id);
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonPath('data.domain_id', $domain->id)
+            ->assertJsonPath('data.domain', 'branded.example.com')
+            ->assertJsonPath('data.short_url', 'https://branded.example.com/' . $link->short_code);
+    }
+
+    /**
+     * @test
+     */
+    public function list_links_includes_domain_info(): void
+    {
+        $domain = AliasDomain::factory()->create(['is_active' => true]);
+        Link::factory()->create([
+            'user_id' => $this->user->id,
+            'domain_id' => $domain->id,
+        ]);
+
+        $response = $this
+            ->withHeader('Authorization', $this->authHeader)
+            ->getJson('/api/v1/links');
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonPath('data.0.domain_id', $domain->id)
+            ->assertJsonPath('data.0.domain', $domain->domain);
     }
 }

@@ -36,8 +36,9 @@ const submit = () => {
             <div class="info-card">
                 <div class="info-row">
                     <span class="info-label">Short Link</span>
-                    <a :href="`/${link.short_code}`" target="_blank" class="info-link">
-                        /{{ link.short_code }}
+                    <a :href="link.domain ? `https://${link.domain.domain}/${link.short_code}` : `/${link.short_code}`"
+                        target="_blank" class="info-link">
+                        <span v-if="link.domain">{{ link.domain.domain }}/</span>{{ link.short_code }}
                         <span class="material-icons">open_in_new</span>
                     </a>
                 </div>

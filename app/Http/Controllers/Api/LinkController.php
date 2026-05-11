@@ -24,6 +24,7 @@ class LinkController extends ApiController
         $perPage = min($request->query('per_page', 20), 100);
 
         $links = Link::forUser(auth()->id())
+            ->with(['domain'])
             ->withCount('clicks')
             ->latest()
             ->paginate($perPage);
@@ -48,6 +49,7 @@ class LinkController extends ApiController
         $validator = Validator::make($request->all(), [
             'url' => ['required', 'url', 'max:2048'],
             'alias' => ['nullable', 'string', 'min:3', 'max:50', 'alpha_dash', 'unique:links,short_code', 'unique:links,custom_alias'],
+            'domain_id' => ['nullable', 'integer', 'exists:alias_domains,id'],
             'campaign_tag' => ['nullable', 'string', 'max:100'],
             'visibility' => ['nullable', 'in:public,private'],
             'password' => ['required_if:visibility,private', 'nullable', 'string', 'min:6', 'max:255'],
@@ -64,8 +66,17 @@ class LinkController extends ApiController
         $validated = $validator->validated();
         $shortCode = $validated['alias'] ?? $this->shortCodeService->generate();
 
+        // Validate domain is active if provided
+        if (!empty($validated['domain_id'])) {
+            $domain = \App\Models\AliasDomain::find($validated['domain_id']);
+            if (!$domain || !$domain->is_active) {
+                return $this->error('Selected domain is not available', 422);
+            }
+        }
+
         $link = Link::create([
             'user_id' => auth()->id(),
+            'domain_id' => $validated['domain_id'] ?? null,
             'short_code' => $shortCode,
             'destination_url' => $validated['url'],
             'custom_alias' => $validated['alias'] ?? null,
@@ -81,6 +92,9 @@ class LinkController extends ApiController
         // Cache the redirect
         Cache::put("redirect:{$link->short_code}", $link->destination_url, now()->addHours(24));
 
+        // Load domain relationship for response
+        $link->load('domain');
+
         return $this->success(
             $this->transformLink($link, true),
             'Link created successfully',
@@ -95,6 +109,7 @@ class LinkController extends ApiController
     public function show(string $id): \Illuminate\Http\JsonResponse
     {
         $link = Link::forUser(auth()->id())
+            ->with(['domain'])
             ->withCount('clicks')
             ->where(function ($q) use ($id) {
                 $q
@@ -131,6 +146,7 @@ class LinkController extends ApiController
         $validator = Validator::make($request->all(), [
             'url' => ['required', 'url', 'max:2048'],
             'alias' => ['nullable', 'string', 'min:3', 'max:50', 'alpha_dash', 'unique:links,short_code,' . $link->id, 'unique:links,custom_alias,' . $link->id],
+            'domain_id' => ['nullable', 'integer', 'exists:alias_domains,id'],
             'campaign_tag' => ['nullable', 'string', 'max:100'],
             'visibility' => ['nullable', 'in:public,private'],
             'password' => ['required_if:visibility,private', 'nullable', 'string', 'min:6', 'max:255'],
@@ -145,6 +161,15 @@ class LinkController extends ApiController
         }
 
         $validated = $validator->validated();
+
+        // Validate domain is active if provided
+        if (!empty($validated['domain_id']) && $validated['domain_id'] !== $link->domain_id) {
+            $domain = \App\Models\AliasDomain::find($validated['domain_id']);
+            if (!$domain || !$domain->is_active) {
+                return $this->error('Selected domain is not available', 422);
+            }
+            $link->domain_id = $validated['domain_id'];
+        }
 
         // Handle alias change
         if (isset($validated['alias']) && $validated['alias'] !== ($link->custom_alias ?? $link->short_code)) {
@@ -169,6 +194,9 @@ class LinkController extends ApiController
 
         // Update cache
         Cache::put("redirect:{$link->short_code}", $link->destination_url, now()->addHours(24));
+
+        // Reload with domain relationship for response
+        $link->load('domain');
 
         return $this->success(
             $this->transformLink($link, true),
@@ -210,10 +238,13 @@ class LinkController extends ApiController
     private function transformLink(Link $link, bool $includeQr = false): array
     {
         $data = [
+            'id' => $link->id,
             'short_code' => $link->short_code,
-            'short_url' => $link->short_url,
+            'short_url' => $this->buildShortUrl($link),
             'original_url' => $link->destination_url,
             'alias' => $link->custom_alias,
+            'domain_id' => $link->domain_id,
+            'domain' => $link->domain?->domain ?? parse_url(config('app.url'), PHP_URL_HOST),
             'campaign_tag' => $link->campaign_tag,
             'is_active' => $link->is_active ?? true,
             'visibility' => $link->visibility,
@@ -231,5 +262,18 @@ class LinkController extends ApiController
         }
 
         return $data;
+    }
+
+    /**
+     * Build full short URL with domain.
+     */
+    private function buildShortUrl(Link $link): string
+    {
+        if ($link->domain) {
+            // Use alias domain (no protocol)
+            return 'https://' . $link->domain->domain . '/' . $link->short_code;
+        }
+        // Use app URL (already has protocol)
+        return rtrim(config('app.url'), '/') . '/' . $link->short_code;
     }
 }

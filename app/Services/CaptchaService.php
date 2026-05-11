@@ -5,14 +5,37 @@ namespace App\Services;
 
 use App\Models\Setting;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Schema;
 
 class CaptchaService
 {
+    /**
+     * Check if settings table exists
+     */
+    private function settingsTableExists(): bool
+    {
+        static $exists = null;
+        if ($exists !== null) {
+            return $exists;
+        }
+
+        try {
+            \DB::select('SELECT 1 FROM settings LIMIT 1');
+            $exists = true;
+        } catch (\Exception $e) {
+            $exists = false;
+        }
+        return $exists;
+    }
+
     /**
      * Returns true if CAPTCHA is enabled in admin settings.
      */
     public function isEnabled(): bool
     {
+        if (!$this->settingsTableExists()) {
+            return false;
+        }
         return filter_var(Setting::get('captcha_enabled', false), FILTER_VALIDATE_BOOLEAN);
     }
 
@@ -21,6 +44,9 @@ class CaptchaService
      */
     public function siteKey(): string
     {
+        if (!$this->settingsTableExists()) {
+            return config('services.recaptcha.site_key', '');
+        }
         return Setting::get('captcha_site_key', config('services.recaptcha.site_key', ''));
     }
 
@@ -36,6 +62,10 @@ class CaptchaService
 
         if (empty($token)) {
             return false;
+        }
+
+        if (!$this->settingsTableExists()) {
+            return true;
         }
 
         $secret = Setting::get('captcha_secret_key');

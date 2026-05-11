@@ -388,6 +388,24 @@
             </section>
 
             <section class="section">
+                <h2>Alias Domains</h2>
+                <p>Configure custom domains for branded short links:</p>
+                <ul>
+                    <li><strong>Admin Panel</strong> - Manage in Admin > Alias Domains</li>
+                    <li><strong>Domain Format</strong> - Must be valid domain (e.g., go.example.com)</li>
+                    <li><strong>Default Domain</strong> - One domain must be set as default</li>
+                    <li><strong>Active Status</strong> - Only active domains available for link creation</li>
+                </ul>
+                <div class="alert alert-info">
+                    Domains are cached for performance. Changes take effect immediately.
+                </div>
+                <h3>API Endpoint</h3>
+                <ul>
+                    <li><code>GET /api/v1/domains/active</code> - List active domains for link creation</li>
+                </ul>
+            </section>
+
+            <section class="section">
                 <h2>Captcha Configuration</h2>
                 <ul>
                     <li><strong>captcha_enabled</strong> - Enable reCAPTCHA</li>

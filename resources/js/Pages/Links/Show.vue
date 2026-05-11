@@ -116,7 +116,7 @@ const toggleEmbed = async () => {
     <AuthenticatedLayout>
         <template #header>
             <div class="header-flex">
-                <span>/{{ link.short_code }}</span>
+                <span>{{ shortUrl }}</span>
                 <button @click="copyUrl" class="copy-btn-sm">{{ copied ? 'Copied!' : 'Copy' }}</button>
             </div>
         </template>

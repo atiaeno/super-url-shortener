@@ -19,7 +19,14 @@ class BulkLinkController extends Controller
      */
     public function index(): Response
     {
-        return Inertia::render('Links/Bulk');
+        $domains = \App\Models\AliasDomain::where('is_active', true)
+            ->orderBy('is_default', 'desc')
+            ->orderBy('domain')
+            ->get(['id', 'domain', 'is_default']);
+
+        return Inertia::render('Links/Bulk', [
+            'domains' => $domains,
+        ]);
     }
 
     /**
@@ -30,10 +37,28 @@ class BulkLinkController extends Controller
         $request->validate([
             'urls' => ['required', 'array', 'min:1', 'max:' . self::MAX_URLS],
             'urls.*' => ['required', 'string', 'max:2048'],
+            'domain_id' => ['nullable', 'integer', 'exists:alias_domains,id'],
+            'campaign_tag' => ['nullable', 'string', 'max:100'],
+            'visibility' => ['nullable', 'in:public,private'],
+            'password' => ['required_if:visibility,private', 'nullable', 'string', 'min:6', 'max:255'],
         ]);
 
         $userId = $request->user()->id;
         $results = [];
+
+        // Bulk options
+        $domainId = $request->domain_id;
+        $campaignTag = $request->campaign_tag;
+        $visibility = $request->visibility ?? 'public';
+        $password = $request->password;
+
+        // Validate domain is active if provided
+        if ($domainId) {
+            $domain = \App\Models\AliasDomain::find($domainId);
+            if (!$domain || !$domain->is_active) {
+                return response()->json(['error' => 'Selected domain is not available'], 422);
+            }
+        }
 
         // Deduplicate URLs first
         $uniqueUrls = array_unique(array_map('trim', $request->urls));
@@ -64,6 +89,7 @@ class BulkLinkController extends Controller
             $existingCode = array_search($url, $existingLinks);
             if ($existingCode !== false) {
                 $link = Link::where('short_code', $existingCode)->first();
+                $link?->load('domain');
                 $results[] = [
                     'original_url' => $url,
                     'short_url' => $link?->short_url,
@@ -81,10 +107,17 @@ class BulkLinkController extends Controller
 
                 $link = Link::create([
                     'user_id' => $userId,
+                    'domain_id' => $domainId,
                     'short_code' => $code,
                     'destination_url' => $url,
+                    'campaign_tag' => $campaignTag,
+                    'visibility' => $visibility,
+                    'password' => $visibility === 'private' ? $password : null,
                     'is_active' => true,
                 ]);
+
+                // Load domain for short_url accessor
+                $link->load('domain');
 
                 $createdLinks[$url] = $code;
 

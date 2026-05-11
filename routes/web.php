@@ -4,6 +4,7 @@
 use App\Http\Controllers\Admin\AdController;
 use App\Http\Controllers\Admin\AdminLinkController;
 use App\Http\Controllers\Admin\AffiliateTierController;
+use App\Http\Controllers\Admin\AliasDomainController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\PayoutController;
@@ -27,7 +28,6 @@ use App\Http\Controllers\TrackController;
 use App\Models\AffiliateTier;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
 
 // ── Homepage ─────────────────────────────────────────────────────────────────
 Route::get('/', function () {
@@ -147,6 +147,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('links', [AdminLinkController::class, 'index'])->name('links.index');
     Route::get('links/{link}/edit', [AdminLinkController::class, 'edit'])->name('links.edit');
     Route::put('links/{link}', [AdminLinkController::class, 'update'])->name('links.update');
+
+    // Alias Domains
+    Route::prefix('alias-domains')->name('alias-domains.')->group(function () {
+        Route::get('/', [AliasDomainController::class, 'index'])->name('index');
+        Route::post('/', [AliasDomainController::class, 'store'])->name('store');
+        Route::put('{aliasDomain}', [AliasDomainController::class, 'update'])->name('update');
+        Route::delete('{aliasDomain}', [AliasDomainController::class, 'destroy'])->name('destroy');
+        Route::post('{aliasDomain}/toggle', [AliasDomainController::class, 'toggleStatus'])->name('toggle');
+        Route::post('{aliasDomain}/default', [AliasDomainController::class, 'setDefault'])->name('default');
+    });
 
     // User Management
     Route::prefix('users')->name('users.')->group(function () {

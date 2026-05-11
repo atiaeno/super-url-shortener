@@ -15,6 +15,7 @@ class Link extends Model
 
     protected $fillable = [
         'user_id',
+        'domain_id',
         'short_code',
         'destination_url',
         'custom_alias',
@@ -61,6 +62,11 @@ class Link extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function domain(): BelongsTo
+    {
+        return $this->belongsTo(AliasDomain::class);
+    }
+
     public function clicks(): HasMany
     {
         return $this->hasMany(Click::class);
@@ -79,7 +85,16 @@ class Link extends Model
     public function getShortUrlAttribute(): string
     {
         $code = $this->custom_alias ?: $this->short_code;
-        return config('app.url') . '/' . $code;
+
+        // Use domain from relationship if available, otherwise default to app.url
+        $domain = $this->domain?->domain ?? config('app.url');
+
+        // Ensure domain has protocol
+        if (!str_starts_with($domain, 'http')) {
+            $domain = 'https://' . $domain;
+        }
+
+        return rtrim($domain, '/') . '/' . $code;
     }
 
     public function scopeActive($query)

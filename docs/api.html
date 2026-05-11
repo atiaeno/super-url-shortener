@@ -308,6 +308,7 @@
                     <pre>{
   "url": "https://example.com",
   "alias": "my-link",        // optional
+  "domain_id": 2,            // optional - from /domains/active
   "visibility": "public",    // public|private
   "password": "secret",      // optional
   "expires_at": "2026-12-31" // optional
@@ -339,7 +340,8 @@
                     <p>Update a link.</p>
                     <pre>{
   "url": "https://new-url.com",
-  "alias": "new-alias"
+  "alias": "new-alias",
+  "domain_id": 1
 }</pre>
                 </div>
 
@@ -432,6 +434,29 @@
                     <p>Request a payout.</p>
                     <pre>{
   "payment_email": "you@example.com"
+}</pre>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Alias Domains API</h2>
+                <p>Get available domains for creating branded short links.</p>
+
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/v1/domains/active</span>
+                    </div>
+                    <p>List active domains for link creation (no auth required).</p>
+                    <pre>{
+  "success": true,
+  "data": {
+    "domains": [
+      { "id": 1, "domain": "short.io", "is_default": true },
+      { "id": 2, "domain": "go.example.com", "is_default": false }
+    ],
+    "default": { "id": 1, "domain": "short.io", "is_default": true }
+  }
 }</pre>
                 </div>
             </section>

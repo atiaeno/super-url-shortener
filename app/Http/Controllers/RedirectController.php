@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\LogClickJob;
 use App\Models\Ad;
+use App\Models\AliasDomain;
 use App\Models\Link;
 use App\Models\Setting;
 use Illuminate\Http\Request;
@@ -19,10 +20,25 @@ class RedirectController extends Controller
      */
     public function __invoke(string $shortCode, Request $request)
     {
-        // Look up the link (including inactive/expired for proper error pages)
-        $link = Link::where('short_code', $shortCode)
-            ->orWhere('custom_alias', $shortCode)
-            ->first();
+        // Get current domain
+        $currentDomain = $request->getHost();
+
+        // Try to find domain in our alias domains
+        $domain = AliasDomain::where('domain', $currentDomain)->active()->first();
+
+        // Look up the link with domain support
+        $query = Link::where('short_code', $shortCode)
+            ->orWhere('custom_alias', $shortCode);
+
+        // If domain exists in our system, filter by domain
+        if ($domain) {
+            $query->where('domain_id', $domain->id);
+        } else {
+            // If domain not found, look for links without domain_id (backward compatibility)
+            $query->whereNull('domain_id');
+        }
+
+        $link = $query->first();
 
         // Get promotions for all states
         $promotions = $this->getPromotions();

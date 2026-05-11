@@ -3,6 +3,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\AliasDomain;
 use App\Models\Setting;
 use App\Services\CaptchaService;
 use Illuminate\Http\Request;
@@ -142,6 +143,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'settings' => $settings,
             'appName' => $settings['app_name'] ?? 'Super Url Shortener',
+            'domains' => AliasDomain::getActiveDomains(),
         ];
     }
 }

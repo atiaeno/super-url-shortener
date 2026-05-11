@@ -282,11 +282,12 @@ const endpoints = [
     { id: 'affiliateTiers', label: 'List Tiers', method: 'GET', path: '/affiliate/tiers', num: 'XII.' },
     { id: 'affiliatePayout', label: 'Request Payout', method: 'POST', path: '/affiliate/payout', num: 'XIII.' },
     { id: 'affiliatePayouts', label: 'Payout History', method: 'GET', path: '/affiliate/payouts', num: 'XIV.' },
+    { id: 'domainsActive', label: 'Active Domains', method: 'GET', path: '/domains/active', num: 'XV.' },
 ];
 
 const endpointDetails = {
     create: {
-        description: 'Create a new shortened URL. Supports optional parameters: alias, campaign_tag, visibility (public/private), password (for private links), expires_at, og_title, og_description, og_image.',
+        description: 'Create a new shortened URL. Supports optional parameters: alias, domain_id (from /domains/active), campaign_tag, visibility (public/private), password (for private links), expires_at, og_title, og_description, og_image.',
         request: `POST ${baseUrl}/links
 Content-Type: application/json
 Authorization: Bearer YOUR_API_KEY
@@ -294,6 +295,7 @@ Authorization: Bearer YOUR_API_KEY
 {
   "url": "https://example.com/very/long/path/to/resource",
   "alias": "my-link",
+  "domain_id": 2,
   "visibility": "private",
   "password": "secret123"
 }`,
@@ -367,23 +369,27 @@ Authorization: Bearer YOUR_API_KEY`,
 }`
     },
     update: {
-        description: 'Update link properties. URL is required, other fields optional.',
+        description: 'Update link properties. URL is required, other fields optional. Supports domain_id to change which domain the link uses.',
         request: `PUT ${baseUrl}/links/abc123
 Content-Type: application/json
 Authorization: Bearer YOUR_API_KEY
 
 {
   "url": "https://new-destination.com/updated-path",
-  "alias": "new-alias"
+  "alias": "new-alias",
+  "domain_id": 2
 }`,
         response: `{
   "success": true,
   "message": "Link updated successfully",
   "data": {
+    "id": 1,
     "short_code": "new-alias",
-    "short_url": "http://localhost:8000/new-alias",
+    "short_url": "https://go.example.com/new-alias",
     "original_url": "https://new-destination.com/updated-path",
-    "alias": "new-alias"
+    "alias": "new-alias",
+    "domain_id": 2,
+    "domain": "go.example.com"
   }
 }`
     },
@@ -598,6 +604,20 @@ Authorization: Bearer YOUR_API_KEY`,
     "total_count": 1
   }
 }`
+    },
+    domainsActive: {
+        description: 'Get active domains for link creation. Public endpoint, no auth required. Use when creating links to show available domain options.',
+        request: `GET ${baseUrl}/domains/active`,
+        response: `{
+  "success": true,
+  "data": {
+    "domains": [
+      { "id": 1, "domain": "short.io", "is_default": true },
+      { "id": 2, "domain": "go.example.com", "is_default": false }
+    ],
+    "default": { "id": 1, "domain": "short.io", "is_default": true }
+  }
+}`
     }
 };
 
@@ -766,7 +786,13 @@ payout = requests.post(
 payouts = requests.get(
     '${baseUrl}/affiliate/payouts',
     headers=headers
-).json()`
+).json()
+
+# --- Domain Examples ---
+
+# List active domains (public - no auth required)
+domains = requests.get('${baseUrl}/domains/active').json()
+print(domains['data']['domains'])
 };
 
 const activeLanguage = ref('curl');

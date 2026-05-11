@@ -2,6 +2,7 @@
 // © Atia Hegazy — atiaeno.com
 
 use App\Http\Controllers\Api\AffiliateController;
+use App\Http\Controllers\Api\AliasDomainController;
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\LinkController;
 use App\Http\Controllers\Api\TokenController;
@@ -34,6 +35,10 @@ Route::get('/', function () {
         'documentation' => url('/api-docs'),
     ]);
 })->name('api.info');
+
+// Public: Active alias domains (no auth required)
+Route::get('domains/active', [AliasDomainController::class, 'active'])
+    ->name('api.domains.active');
 
 // Authenticated API routes with rate limiting
 Route::middleware(['api.auth', 'throttle:api'])->group(function () {

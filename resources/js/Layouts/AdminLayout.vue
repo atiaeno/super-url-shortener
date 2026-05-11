@@ -22,9 +22,14 @@ const toggleMobileSidebar = () => { mobileSidebarOpen.value = !mobileSidebarOpen
         <div class="main-content" :class="{ 'main-content--expanded': sidebarCollapsed }">
             <header class="topbar">
                 <button class="topbar__menu-btn" @click="toggleMobileSidebar">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+                    <svg v-if="!mobileSidebarOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" class="icon">
                         <line x1="4" y1="8" x2="20" y2="8" />
                         <line x1="4" y1="16" x2="20" y2="16" />
+                    </svg>
+                    <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
                     </svg>
                 </button>
                 <div class="topbar__title">
