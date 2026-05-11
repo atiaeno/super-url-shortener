@@ -10,6 +10,10 @@ const seoTitle = computed(() => page.props.settings?.seo_api_docs_title || 'API 
 const seoDescription = computed(() => page.props.settings?.seo_api_docs_description || '');
 
 const activeEndpoint = ref('create');
+
+// Get rate limits from settings
+const apiRateLimit = computed(() => page.props.settings?.api_rate_limit_per_hour || 100);
+const tokenRateLimit = computed(() => page.props.settings?.api_token_rate_limit_per_hour || 10);
 const copyFeedback = ref({});
 const expandedSections = ref({ 'links': true });
 
@@ -454,7 +458,7 @@ Authorization: Bearer YOUR_API_KEY`,
 }`
     },
     tokensCreate: {
-        description: 'Create a new API token. The token is only shown once - store it securely! Rate limited to 10 per hour.',
+        description: `Create a new API token. The token is only shown once - store it securely! Rate limited to ${tokenRateLimit.value} per hour.`,
         request: `POST ${baseUrl}/tokens
 Content-Type: application/json
 Authorization: Bearer YOUR_API_KEY
@@ -836,12 +840,12 @@ const copyCode = async (text, key) => {
                     </div>
                     <div class="limit-row">
                         <span class="limit-plan">All API endpoints</span>
-                        <span>100</span>
+                        <span>{{ apiRateLimit }}</span>
                         <span>Per user</span>
                     </div>
                     <div class="limit-row">
                         <span class="limit-plan">Token generation</span>
-                        <span>10</span>
+                        <span>{{ tokenRateLimit }}</span>
                         <span>Per user</span>
                     </div>
                 </div>

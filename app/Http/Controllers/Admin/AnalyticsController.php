@@ -207,7 +207,7 @@ class AnalyticsController extends Controller
         // Recent clicks - need individual rows
         $recentClicks = Click::where('link_id', $id)
             ->orderBy('created_at', 'desc')
-            ->limit(50)
+            ->limit(20)
             ->get()
             ->map(fn($i) => ['id' => $i->id, 'country_code' => $i->country_code, 'device_type' => $i->device_type, 'browser' => $i->browser, 'referrer' => $i->referrer, 'created_at' => $i->created_at]);
 

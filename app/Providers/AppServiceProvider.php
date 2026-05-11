@@ -4,6 +4,7 @@
 namespace App\Providers;
 
 use App\Models\Setting;
+use App\Observers\SettingObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -27,14 +28,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // API rate limiting: 100 requests per hour for authenticated users
+        // Register Setting observer
+        Setting::observe(SettingObserver::class);
+
+        // API rate limiting: configurable from settings
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perHour(100)->by($request->user()?->id ?: $request->ip());
+            $limit = (int) Setting::get('api_rate_limit_per_hour', 100);
+            return Limit::perHour($limit)->by($request->user()?->id ?: $request->ip());
         });
 
-        // Stricter limit for token generation
+        // Token generation limit: configurable from settings
         RateLimiter::for('api.tokens', function (Request $request) {
-            return Limit::perHour(10)->by($request->user()?->id ?: $request->ip());
+            $limit = (int) Setting::get('api_token_rate_limit_per_hour', 10);
+            return Limit::perHour($limit)->by($request->user()?->id ?: $request->ip());
         });
 
         Vite::prefetch(concurrency: 3);

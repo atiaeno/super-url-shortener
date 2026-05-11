@@ -64,6 +64,8 @@ const form = useForm({
     redirect_captcha: props.settings.redirect_captcha === 'true',
     affiliate_min_payout: parseFloat(props.settings.affiliate_min_payout) || 50,
     affiliate_payout_methods: props.settings.affiliate_payout_methods || 'PayPal',
+    api_rate_limit_per_hour: parseInt(props.settings.api_rate_limit_per_hour) || 100,
+    api_token_rate_limit_per_hour: parseInt(props.settings.api_token_rate_limit_per_hour) || 10,
 });
 
 const cacheForm = useForm({ type: 'all' });
@@ -73,6 +75,10 @@ const submit = () => {
     form.post(route('admin.settings.update'), {
         preserveScroll: true,
         forceFormData: true,
+        onSuccess: () => {
+            // Force page reload to get fresh settings data
+            window.location.reload();
+        }
     });
 };
 
@@ -544,6 +550,23 @@ const icons = {
                                         <label class="field__label">Analytics Cache TTL (seconds)</label>
                                         <input v-model="form.cache_ttl_analytics" type="number" min="60"
                                             class="field__input" />
+                                    </div>
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <div class="field-grid">
+                                    <div class="field">
+                                        <label class="field__label">API Rate Limit (requests/hour)</label>
+                                        <input v-model="form.api_rate_limit_per_hour" type="number" min="1" max="10000"
+                                            class="field__input" />
+                                        <p class="field__hint">Maximum API requests per hour per user/IP.</p>
+                                    </div>
+                                    <div class="field">
+                                        <label class="field__label">Token Generation Limit (requests/hour)</label>
+                                        <input v-model="form.api_token_rate_limit_per_hour" type="number" min="1"
+                                            max="1000" class="field__input" />
+                                        <p class="field__hint">Token generation requests per hour per user/IP.</p>
                                     </div>
                                 </div>
 

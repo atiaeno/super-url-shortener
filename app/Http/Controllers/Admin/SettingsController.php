@@ -65,6 +65,8 @@ class SettingsController extends Controller
         'redirect_captcha',
         'affiliate_min_payout',
         'affiliate_payout_methods',
+        'api_rate_limit_per_hour',
+        'api_token_rate_limit_per_hour',
     ];
 
     public function index(): Response
@@ -117,6 +119,8 @@ class SettingsController extends Controller
             'redirect_captcha' => 'false',
             'affiliate_min_payout' => '50',
             'affiliate_payout_methods' => 'PayPal,Bank Transfer,Crypto',
+            'api_rate_limit_per_hour' => '100',
+            'api_token_rate_limit_per_hour' => '10',
         ];
 
         $settings = array_merge($defaults, $settings);
@@ -146,6 +150,8 @@ class SettingsController extends Controller
             'donation_button_id',
             'robots_txt',
             'sitemap_enabled',
+            'api_rate_limit_per_hour',
+            'api_token_rate_limit_per_hour',
         ];
 
         $settings = Setting::whereIn('key', $brandingKeys)
@@ -166,6 +172,8 @@ class SettingsController extends Controller
             'donation_button_id' => '',
             'robots_txt' => "User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /dashboard/\nSitemap: /sitemap.xml",
             'sitemap_enabled' => 'true',
+            'api_rate_limit_per_hour' => '100',
+            'api_token_rate_limit_per_hour' => '10',
         ];
 
         return array_merge($defaults, $settings);
@@ -226,6 +234,8 @@ class SettingsController extends Controller
             'redirect_captcha' => 'boolean',
             'affiliate_min_payout' => 'nullable|numeric|min:1',
             'affiliate_payout_methods' => 'nullable|string|max:255',
+            'api_rate_limit_per_hour' => 'nullable|integer|min:1|max:10000',
+            'api_token_rate_limit_per_hour' => 'nullable|integer|min:1|max:1000',
         ]);
 
         // Handle file uploads
@@ -276,42 +286,42 @@ class SettingsController extends Controller
             'seo_contact_description' => $validated['seo_contact_description'] ?? '',
             'seo_api_docs_title' => $validated['seo_api_docs_title'] ?? '',
             'seo_api_docs_description' => $validated['seo_api_docs_description'] ?? '',
-            'donation_enabled' => $request->has('donation_enabled') ? 'true' : 'false',
+            'donation_enabled' => $request->boolean('donation_enabled') ? 'true' : 'false',
             'donation_button_id' => $validated['donation_button_id'] ?? '',
-            'features_affiliate' => $request->has('features_affiliate') ? 'true' : 'false',
-            'features_ads' => $request->has('features_ads') ? 'true' : 'false',
-            'features_gdpr' => $request->has('features_gdpr') ? 'true' : 'false',
+            'features_affiliate' => $request->boolean('features_affiliate') ? 'true' : 'false',
+            'features_ads' => $request->boolean('features_ads') ? 'true' : 'false',
+            'features_gdpr' => $request->boolean('features_gdpr') ? 'true' : 'false',
             'cache_ttl_redirect' => $validated['cache_ttl_redirect'] ?? 86400,
             'cache_ttl_analytics' => $validated['cache_ttl_analytics'] ?? 3600,
-            'maintenance_mode' => $request->has('maintenance_mode') ? 'true' : 'false',
+            'maintenance_mode' => $request->boolean('maintenance_mode') ? 'true' : 'false',
             'maintenance_message' => $validated['maintenance_message'] ?? '',
-            'captcha_enabled' => $request->has('captcha_enabled') ? 'true' : 'false',
+            'captcha_enabled' => $request->boolean('captcha_enabled') ? 'true' : 'false',
             'captcha_site_key' => $validated['captcha_site_key'] ?? '',
             'captcha_secret_key' => $validated['captcha_secret_key'] ?? '',
-            'safe_browsing_enabled' => $request->has('safe_browsing_enabled') ? 'true' : 'false',
+            'safe_browsing_enabled' => $request->boolean('safe_browsing_enabled') ? 'true' : 'false',
             'safe_browsing_api_key' => $validated['safe_browsing_api_key'] ?? '',
             'auto_suspend_threshold' => $validated['auto_suspend_threshold'] ?? 3,
             'robots_txt' => $validated['robots_txt'] ?? '',
-            'sitemap_enabled' => $request->has('sitemap_enabled') ? 'true' : 'false',
+            'sitemap_enabled' => $request->boolean('sitemap_enabled') ? 'true' : 'false',
             'redirect_countdown' => $validated['redirect_countdown'] ?? 5,
             'redirect_mode' => $validated['redirect_mode'] ?? 'auto',
-            'redirect_captcha' => $request->has('redirect_captcha') ? 'true' : 'false',
+            'redirect_captcha' => $request->boolean('redirect_captcha') ? 'true' : 'false',
             'affiliate_min_payout' => $validated['affiliate_min_payout'] ?? 50,
             'affiliate_payout_methods' => $validated['affiliate_payout_methods'] ?? 'PayPal,Bank Transfer,Crypto',
+            'api_rate_limit_per_hour' => $validated['api_rate_limit_per_hour'] ?? 100,
+            'api_token_rate_limit_per_hour' => $validated['api_token_rate_limit_per_hour'] ?? 10,
         ];
 
         foreach ($settingsToSave as $key => $value) {
             Setting::set($key, $value);
+
+            // Write to robots.txt file if robots_txt setting is updated
+            if ($key === 'robots_txt') {
+                file_put_contents(public_path('robots.txt'), $value);
+            }
         }
 
-        // Update maintenance mode
-        if ($validated['maintenance_mode'] ?? false) {
-            Artisan::call('down', [
-                '--message' => $validated['maintenance_message'] ?? 'Maintenance mode',
-            ]);
-        } else {
-            Artisan::call('up');
-        }
+        // Maintenance mode is handled by custom middleware
 
         return redirect()->back()->with('success', 'Settings updated successfully.');
     }

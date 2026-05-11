@@ -82,6 +82,8 @@ class HandleInertiaRequests extends Middleware
             'seo_contact_description',
             'seo_api_docs_title',
             'seo_api_docs_description',
+            'api_rate_limit_per_hour',
+            'api_token_rate_limit_per_hour',
         ];
 
         $settings = Setting::whereIn('key', $brandingKeys)
@@ -120,6 +122,8 @@ class HandleInertiaRequests extends Middleware
             'seo_contact_description' => '',
             'seo_api_docs_title' => '',
             'seo_api_docs_description' => '',
+            'api_rate_limit_per_hour' => '100',
+            'api_token_rate_limit_per_hour' => '10',
         ];
 
         $settings = array_merge($defaults, $settings);
