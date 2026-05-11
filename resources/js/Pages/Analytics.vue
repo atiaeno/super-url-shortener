@@ -1,8 +1,26 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { Head, router } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
+
+const refreshing = ref(false);
+const lastUpdated = ref(new Date());
+
+const refresh = () => {
+    refreshing.value = true;
+    router.reload({
+        preserveScroll: true,
+        onFinish: () => {
+            refreshing.value = false;
+            lastUpdated.value = new Date();
+        },
+    });
+};
+
+const formatTime = (date) => {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+};
 
 const props = defineProps({
     stats: { type: Object, required: true },
@@ -84,6 +102,19 @@ const statCards = computed(() => [
 
         <div class="page-content">
 
+            <!-- Refresh Bar -->
+            <div class="refresh-bar">
+                <span class="refresh-time">Updated {{ formatTime(lastUpdated) }}</span>
+                <button class="refresh-btn" :class="{ 'refresh-btn--spinning': refreshing }" @click="refresh"
+                    :disabled="refreshing">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="refresh-icon">
+                        <polyline points="23 4 23 10 17 10" />
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                    </svg>
+                    {{ refreshing ? 'Refreshing...' : 'Refresh' }}
+                </button>
+            </div>
+
             <!-- Stats Row -->
             <div class="stats-row">
                 <div v-for="stat in statCards" :key="stat.label" class="stat-box">
@@ -129,7 +160,7 @@ const statCards = computed(() => [
                             <div v-for="row in devices" :key="row.device_type" class="data-row">
                                 <span class="data-label">{{ deviceIcon(row.device_type) }} {{
                                     capitalize(row.device_type)
-                                    }}</span>
+                                }}</span>
                                 <span class="data-value">{{ row.total }}</span>
                             </div>
                         </div>
@@ -164,7 +195,7 @@ const statCards = computed(() => [
                         <div v-else class="data-list">
                             <div v-for="row in browsers" :key="row.browser" class="data-row">
                                 <span class="data-label">{{ browserIcon(row.browser) }} {{ capitalize(row.browser)
-                                }}</span>
+                                    }}</span>
                                 <span class="data-value">{{ row.total }}</span>
                             </div>
                         </div>
@@ -202,7 +233,7 @@ const statCards = computed(() => [
                             <div v-for="row in referrers" :key="row.referrer_domain" class="data-row">
                                 <span class="data-label">{{ row.referrer_domain ? capitalize(row.referrer_domain) :
                                     'Direct'
-                                }}</span>
+                                    }}</span>
                                 <span class="data-value">{{ row.total }}</span>
                             </div>
                         </div>
@@ -233,6 +264,70 @@ const statCards = computed(() => [
     max-width: 1000px;
     margin: 0 auto;
     padding: 24px;
+}
+
+/* Refresh Bar */
+.refresh-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.refresh-time {
+    font-family: var(--font-display);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+}
+
+.refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.refresh-btn:hover {
+    border-color: var(--red);
+    color: var(--red);
+}
+
+.refresh-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.refresh-icon {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.3s;
+}
+
+.refresh-btn--spinning .refresh-icon {
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Stats Row */
@@ -408,10 +503,10 @@ const statCards = computed(() => [
     padding-bottom: 0;
 }
 
-.data-label  {
+.data-label {
     font-size: 12px;
     color: var(--ink);
-     
+
     font-family: 'DM Sans';
 }
 

@@ -29,6 +29,7 @@ const icons = {
     save: `<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>`,
     link: `<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>`,
     user: `<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`,
+    analytics: `<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>`,
 };
 </script>
 
@@ -53,11 +54,13 @@ const icons = {
                     <p class="page-header__sub">Modify link details for user <strong>{{ user.name }}</strong></p>
                 </div>
                 <div class="header-actions">
-                    <Link :href="route('admin.links.analytics', link.id)" class="btn-secondary">
+                    <Link :href="route('admin.links.analytics', link.id)" class="header-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            v-html="icons.analytics" />
                         View Analytics
                     </Link>
                     <Link :href="user.id ? route('admin.users.show', user.id) : route('admin.links.index')"
-                        class="back-btn">
+                        class="header-btn">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                             v-html="icons.arrow" />
                         {{ user.id ? 'Back to User' : 'Back to Links' }}
@@ -109,7 +112,7 @@ const icons = {
                                 <input v-model="form.destination_url" type="url" class="field__input" required />
                                 <span v-if="form.errors.destination_url" class="field__error">{{
                                     form.errors.destination_url
-                                    }}</span>
+                                }}</span>
                             </div>
 
                             <div class="field">
@@ -119,7 +122,7 @@ const icons = {
                                     <option value="private">Private (password protected)</option>
                                 </select>
                                 <span v-if="form.errors.visibility" class="field__error">{{ form.errors.visibility
-                                    }}</span>
+                                }}</span>
                             </div>
 
                             <div v-if="form.visibility === 'private'" class="field">
@@ -129,20 +132,11 @@ const icons = {
                                 <span v-if="form.errors.password" class="field__error">{{ form.errors.password }}</span>
                             </div>
 
-                            <div class="field field--full">
+                            <div class="field">
                                 <label class="field__label">OG Title</label>
                                 <input v-model="form.og_title" type="text" class="field__input"
                                     placeholder="Social share title" />
                                 <span v-if="form.errors.og_title" class="field__error">{{ form.errors.og_title }}</span>
-                            </div>
-
-                            <div class="field field--full">
-                                <label class="field__label">OG Description</label>
-                                <textarea v-model="form.og_description" class="field__input field__input--textarea"
-                                    rows="3" placeholder="Social share description"></textarea>
-                                <span v-if="form.errors.og_description" class="field__error">{{
-                                    form.errors.og_description
-                                    }}</span>
                             </div>
 
                             <div class="field">
@@ -153,7 +147,7 @@ const icons = {
                                     <option value="force">Force specific ad</option>
                                 </select>
                                 <span v-if="form.errors.ad_override" class="field__error">{{ form.errors.ad_override
-                                    }}</span>
+                                }}</span>
                             </div>
 
                             <div v-if="form.ad_override === 'force'" class="field">
@@ -163,6 +157,15 @@ const icons = {
                                     <option v-for="ad in ads" :key="ad.id" :value="ad.id">{{ ad.title }}</option>
                                 </select>
                                 <span v-if="form.errors.ad_id" class="field__error">{{ form.errors.ad_id }}</span>
+                            </div>
+
+                            <div class="field field--full">
+                                <label class="field__label">OG Description</label>
+                                <textarea v-model="form.og_description" class="field__input field__input--textarea"
+                                    rows="2" placeholder="Social share description"></textarea>
+                                <span v-if="form.errors.og_description" class="field__error">{{
+                                    form.errors.og_description
+                                }}</span>
                             </div>
                         </div>
 
@@ -201,14 +204,14 @@ const icons = {
                                 </Link>
                                 <span class="other-link__url" :title="otherLink.destination_url">{{
                                     otherLink.destination_url
-                                }}</span>
+                                    }}</span>
                             </div>
                         </div>
                         <div class="other-link__stats">
                             <span class="other-link__clicks">{{ otherLink.clicks_count?.toLocaleString() ?? 0 }}
                                 clicks</span>
                             <span class="other-link__date">{{ new Date(otherLink.created_at).toLocaleDateString()
-                            }}</span>
+                                }}</span>
                         </div>
                     </div>
                 </div>
@@ -224,8 +227,8 @@ const icons = {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 24px;
-    margin-bottom: 20px;
+    gap: 20px;
+    margin-bottom: 16px;
 }
 
 .page-header__marker {
@@ -289,30 +292,30 @@ const icons = {
 .section-rule {
     height: 1px;
     background: linear-gradient(90deg, var(--red) 60px, var(--border) 60px);
-    margin-bottom: 28px;
+    margin-bottom: 20px;
 }
 
 /* ── Info Section ─────────────────────────── */
 .info-section {
-    margin-bottom: 24px;
+    margin-bottom: 16px;
 }
 
 .info-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 20px;
+    padding: 14px;
 }
 
 .link-preview {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
 }
 
 .link-preview__icon {
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -324,8 +327,8 @@ const icons = {
 }
 
 .link-preview__icon svg {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
 }
 
 .link-preview__details {
@@ -358,7 +361,7 @@ const icons = {
 
 .link-preview__stats {
     display: flex;
-    gap: 24px;
+    gap: 16px;
 }
 
 .preview-stat {
@@ -393,27 +396,33 @@ const icons = {
 
 /* ── Form Section ────────────────────────── */
 .form-section {
-    margin-bottom: 32px;
+    margin-bottom: 20px;
 }
 
 .form-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 32px;
+    padding: 20px;
 }
 
 .form-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-    margin-bottom: 32px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 1024px) {
+    .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 .field {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 
 .field--full {
@@ -434,13 +443,13 @@ const icons = {
 
 .field__input {
     width: 100%;
-    padding: 12px 16px;
+    padding: 10px 12px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: var(--surface);
     color: var(--ink);
     font-family: var(--font-body);
-    font-size: 15px;
+    font-size: 14px;
     transition: var(--transition);
 }
 
@@ -451,7 +460,7 @@ const icons = {
 
 .field__input--textarea {
     resize: vertical;
-    min-height: 80px;
+    min-height: 60px;
 }
 
 .field__error {
@@ -464,19 +473,19 @@ const icons = {
 .form-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 12px;
-    padding-top: 24px;
+    gap: 10px;
+    padding-top: 16px;
     border-top: 1px solid var(--border);
 }
 
 .btn-ghost {
-    padding: 12px 24px;
+    padding: 8px 16px;
     background: transparent;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     color: var(--ink);
     font-family: var(--font-display);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
     text-transform: uppercase;
     cursor: pointer;
@@ -491,14 +500,14 @@ const icons = {
 .btn-primary {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
+    gap: 6px;
+    padding: 8px 16px;
     background: var(--red);
     border: 1px solid var(--red);
     border-radius: var(--radius);
     color: var(--surface);
     font-family: var(--font-display);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
     text-transform: uppercase;
     cursor: pointer;
@@ -511,8 +520,8 @@ const icons = {
 }
 
 .btn-primary svg {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
 }
 
 .btn-primary:disabled {
@@ -522,15 +531,15 @@ const icons = {
 
 /* ── Other Links Section ───────────────── */
 .other-links-section {
-    margin-bottom: 32px;
+    margin-bottom: 20px;
 }
 
 .section-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
     border-bottom: 1px solid var(--border);
 }
 
@@ -565,8 +574,8 @@ const icons = {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    padding: 12px 16px;
+    gap: 12px;
+    padding: 8px 12px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -586,8 +595,8 @@ const icons = {
 }
 
 .other-link__icon {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -606,8 +615,8 @@ const icons = {
 }
 
 .other-link__icon svg {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
 }
 
 .other-link__details {
@@ -710,25 +719,36 @@ const icons = {
 
 .header-actions {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
 }
 
-.btn-secondary {
+.header-btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    background: #fff;
-    border: 1px solid #e8e5e0;
-    border-radius: 4px;
-    color: #333;
+    gap: 6px;
+    padding: 7px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
     text-decoration: none;
-    font-size: 13px;
     cursor: pointer;
+    transition: var(--transition);
 }
 
-.btn-secondary:hover {
-    background: #f5f3ef;
+.header-btn:hover {
+    background: var(--surface-2);
+    border-color: var(--red);
+    color: var(--red);
+}
+
+.header-btn svg {
+    width: 13px;
+    height: 13px;
 }
 </style>

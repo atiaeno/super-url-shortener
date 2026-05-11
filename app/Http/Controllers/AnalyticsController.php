@@ -31,9 +31,9 @@ class AnalyticsController extends Controller
         $monthAgo = now()->subDays(30)->toDateString();
         $yearAgo = now()->subDays(365)->toDateString();
 
-        $clicksToday = $summaries->where('date', $today)->sum('total_clicks');
-        $clicksWeek = $summaries->where('date', '>=', $weekAgo)->sum('total_clicks');
-        $clicksMonth = $summaries->where('date', '>=', $monthAgo)->sum('total_clicks');
+        $clicksToday = $summaries->filter(fn($r) => $r->date->toDateString() === $today)->sum('total_clicks');
+        $clicksWeek = $summaries->filter(fn($r) => $r->date->toDateString() >= $weekAgo)->sum('total_clicks');
+        $clicksMonth = $summaries->filter(fn($r) => $r->date->toDateString() >= $monthAgo)->sum('total_clicks');
         $clicksYear = $summaries->sum('total_clicks');
 
         // Aggregate JSON fields efficiently using SQL
@@ -49,15 +49,17 @@ class AnalyticsController extends Controller
         $countries = $byCountry->map(fn($total, $code) => ['country_code' => $code, 'total' => $total, 'flag' => $this->countryFlag($code)])->sortByDesc('total')->take(10)->values();
         $referrers = $byReferrer->map(fn($total, $name) => ['referrer_domain' => $name, 'total' => $total])->sortByDesc('total')->take(10)->values();
 
-        // Clicks over time (last 30 days)
-        $clicksData = $summaries->where('date', '>=', $monthAgo)->keyBy(fn($r) => $r->date->toDateString());
+        // Clicks over time (last 30 days) - group by date and sum across all links
+        $clicksData = $summaries
+            ->where('date', '>=', $monthAgo)
+            ->groupBy(fn($r) => $r->date->toDateString())
+            ->map(fn($group) => $group->sum('total_clicks'));
         $clicksOverTime = [];
         for ($i = 29; $i >= 0; $i--) {
             $date = now()->subDays($i)->toDateString();
-            $found = $clicksData->get($date);
             $clicksOverTime[] = [
                 'date' => now()->subDays($i)->format('M d'),
-                'clicks' => $found ? (int) $found->total_clicks : 0,
+                'clicks' => (int) ($clicksData->get($date) ?? 0),
             ];
         }
 

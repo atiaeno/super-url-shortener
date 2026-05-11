@@ -103,7 +103,7 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
             </div>
 
             <!-- Two Columns -->
-            <div class="charts-grid">
+            <div class="charts-grid two-col">
                 <div class="chart-card">
                     <div class="chart-card__header">
                         <span class="chart-card__marker">Distribution</span>
@@ -225,7 +225,6 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
 * {
     font-family: var(--font-admin);
     font-size: 13px;
-    color: var(--ink);
 }
 
 .analytics-page {
@@ -311,9 +310,6 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
     overflow: hidden;
     margin-bottom: 28px;
 }
@@ -363,6 +359,7 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
 
 .charts-grid.two-col {
     grid-template-columns: repeat(2, 1fr);
+    margin-top: 20px;
 }
 
 .charts-grid.three-col {
@@ -401,41 +398,49 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
     align-items: flex-end;
     gap: 2px;
     height: 120px;
-    background: var(--surface-2);
-    border-radius: var(--radius);
-    padding: 4px;
+    background: transparent;
+    border-bottom: 2px solid var(--border);
+    padding: 0;
 }
 
 .bar-chart__bar {
     flex: 1;
     background: var(--red);
-    border-radius: 2px;
+    border-radius: 2px 2px 0 0;
     min-height: 4px;
+    transition: height 0.3s, opacity 0.2s;
+}
+
+.bar-chart__bar:hover {
+    opacity: 0.8;
 }
 
 .bar-chart-v {
     display: flex;
     align-items: flex-end;
-    gap: 3px;
-    height: 120px;
+    gap: 2px;
+    height: 110px;
+ 
+    border-radius: var(--radius);
+    padding: 4px 4px 0;
+    overflow: visible;
+    margin-bottom: 24px;
 }
 
 .bar-v {
     flex: 1;
-    background: #3498db;
+    background: var(--red);
     border-radius: 2px 2px 0 0;
     min-height: 4px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
+    transition: height 0.3s, opacity 0.2s;
+}
+
+.bar-v:hover {
+    opacity: 0.8;
 }
 
 .bar-v-label {
-    font-family: var(--font-display);
-    font-size: 8px;
-    color: var(--muted);
-    transform: rotate(-45deg);
-    margin-bottom: 4px;
+    display: none;
 }
 
 .country-list,
@@ -457,17 +462,28 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
 }
 
 .country-flag {
-    width: 24px;
+    width: 20px;
+    text-align: center;
 }
 
-.country-name,
-.device-name,
-.browser-name {
-    width: 70px;
+.country-name {
+    width: 50px;
     font-family: var(--font-display);
     font-size: 11px;
     font-weight: 500;
     color: var(--ink);
+}
+
+.device-name,
+.browser-name {
+    width: 80px;
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .referrer-name {
@@ -479,9 +495,17 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
     max-width: 100px;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.country-bar-wrap,
+.country-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: var(--surface-2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
 .device-bar-wrap,
 .browser-bar-wrap,
 .referrer-bar-wrap {
@@ -492,16 +516,17 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
     overflow: hidden;
 }
 
-.country-bar,
+.country-bar {
+    height: 100%;
+    background: var(--red);
+    border-radius: 4px;
+}
+
 .device-bar,
 .browser-bar,
 .referrer-bar {
     height: 100%;
     border-radius: 5px;
-}
-
-.country-bar {
-    background: var(--red);
 }
 
 .device-bar {
@@ -532,16 +557,18 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 20px;
     margin-top: 16px;
+    overflow: hidden;
 }
 
 .table-card__header {
+    padding: 20px 20px 0;
     margin-bottom: 16px;
 }
 
 .data-table {
     width: 100%;
+    display: table;
     border-collapse: collapse;
 }
 
@@ -552,14 +579,19 @@ const getHeight = (val, arr) => Math.max((val / getMax(arr, 'clicks')) * 100, 5)
     text-transform: uppercase;
     color: var(--muted);
     text-align: left;
-    padding: 8px 12px;
+    padding: 10px 16px;
     background: var(--surface-2);
     border-bottom: 1px solid var(--border);
 }
 
 .data-table td {
-    padding: 10px 12px;
+    padding: 10px 16px;
     border-bottom: 1px solid var(--border);
     font-size: 12px;
+    color: var(--ink);
+}
+
+.data-table tr:hover td {
+    background: var(--surface-2);
 }
 </style>
