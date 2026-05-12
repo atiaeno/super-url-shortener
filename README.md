@@ -68,16 +68,23 @@
 ## 🏗️ Technical Architecture
 
 <div align="center">
-<img src="screenshots/shortLink_digram.png" alt="System Architecture" width="85%"> <br/>
-<em>High-Availability Architecture</em>
-</div>
-<br/>
 
-<p align="center">
-<img src="screenshots/Affalites_digram.png" alt="Affiliate Commission Flow" width="80%">
-<br>
-<em>Tier-based commission system with country-specific rate overrides</em>
-</p>
+<table>
+<tr>
+  <td width="50%" align="center" valign="top">
+    <img src="screenshots/shortLink_digram.png" alt="System Architecture" width="100%" style="object-fit: cover;">
+    <br>
+    <em>High-Availability Architecture</em>
+  </td>
+  <td width="50%" align="center" valign="top">
+    <img src="screenshots/Affalites_digram.png" alt="Affiliate Commission Flow" width="100%" style="object-fit: cover;">
+    <br>
+    <em>Tier-based commission system with country-specific rate overrides</em>
+  </td>
+</tr>
+</table>
+
+</div>
 
 ### High-Availability Architecture
 
