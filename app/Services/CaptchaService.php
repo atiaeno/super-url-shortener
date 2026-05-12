@@ -3,7 +3,9 @@
 
 namespace App\Services;
 
+ 
 use App\Models\Setting;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
 
@@ -20,7 +22,7 @@ class CaptchaService
         }
 
         try {
-            \DB::select('SELECT 1 FROM settings LIMIT 1');
+            DB::select('SELECT 1 FROM settings LIMIT 1');
             $exists = true;
         } catch (\Exception $e) {
             $exists = false;

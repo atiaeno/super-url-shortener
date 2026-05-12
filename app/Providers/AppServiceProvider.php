@@ -5,10 +5,8 @@ namespace App\Providers;
 
 use App\Models\Setting;
 use App\Observers\SettingObserver;
-use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Vite;
@@ -55,22 +53,7 @@ class AppServiceProvider extends ServiceProvider
         // Register Setting observer
         Setting::observe(SettingObserver::class);
 
-        // API rate limiting: configurable from settings
-        RateLimiter::for('api', function (Request $request) {
-            $limit = $this->settingsTableExists()
-                ? (int) Setting::get('api_rate_limit_per_hour', 100)
-                : 100;
-            return Limit::perHour($limit)->by($request->user()?->id ?: $request->ip());
-        });
-
-        // Token generation limit: configurable from settings
-        RateLimiter::for('api.tokens', function (Request $request) {
-            $limit = $this->settingsTableExists()
-                ? (int) Setting::get('api_token_rate_limit_per_hour', 10)
-                : 10;
-            return Limit::perHour($limit)->by($request->user()?->id ?: $request->ip());
-        });
-
+     
         Vite::prefetch(concurrency: 3);
 
         // Share feature settings globally
