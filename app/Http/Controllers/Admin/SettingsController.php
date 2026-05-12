@@ -73,6 +73,7 @@ class SettingsController extends Controller
         'captcha_redirect',
         'affiliate_min_payout',
         'affiliate_payout_methods',
+        'referral_commission_rate',
         'api_rate_limit_per_hour',
         'api_token_rate_limit_per_hour',
     ];
@@ -135,6 +136,7 @@ class SettingsController extends Controller
             'captcha_redirect' => 'true',
             'affiliate_min_payout' => '50',
             'affiliate_payout_methods' => 'PayPal,Bank Transfer,Crypto',
+            'referral_commission_rate' => '1.5',
             'api_rate_limit_per_hour' => '100',
             'api_token_rate_limit_per_hour' => '10',
         ];
@@ -258,6 +260,7 @@ class SettingsController extends Controller
             'captcha_redirect' => 'boolean',
             'affiliate_min_payout' => 'nullable|numeric|min:1',
             'affiliate_payout_methods' => 'nullable|string|max:255',
+            'referral_commission_rate' => 'nullable|numeric|min:0.5|max:2',
             'api_rate_limit_per_hour' => 'nullable|integer|min:1|max:10000',
             'api_token_rate_limit_per_hour' => 'nullable|integer|min:1|max:1000',
         ]);
@@ -340,6 +343,7 @@ class SettingsController extends Controller
             'captcha_redirect' => $request->boolean('captcha_redirect') ? 'true' : 'false',
             'affiliate_min_payout' => $validated['affiliate_min_payout'] ?? 50,
             'affiliate_payout_methods' => $validated['affiliate_payout_methods'] ?? 'PayPal,Bank Transfer,Crypto',
+            'referral_commission_rate' => $validated['referral_commission_rate'] ?? 1.5,
             'api_rate_limit_per_hour' => $validated['api_rate_limit_per_hour'] ?? 100,
             'api_token_rate_limit_per_hour' => $validated['api_token_rate_limit_per_hour'] ?? 10,
         ];

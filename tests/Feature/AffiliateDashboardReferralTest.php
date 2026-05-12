@@ -1,0 +1,295 @@
+<?php
+// © Atia Hegazy — atiaeno.com
+
+namespace Tests\Feature;
+
+use App\Models\Affiliate;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class AffiliateDashboardReferralTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected $referrerAffiliate;
+    protected $referralAffiliate;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        // Create test users and affiliates
+        $referrerUser = User::factory()->create();
+        $referralUser = User::factory()->create();
+        
+        $this->referrerAffiliate = Affiliate::factory()->create([
+            'user_id' => $referrerUser->id,
+            'referral_code' => 'REFERRER123',
+            'total_earnings' => 100.00,
+            'pending_earnings' => 30.00,
+            'paid_earnings' => 70.00,
+            'referral_earnings' => 25.00,
+            'referral_pending_earnings' => 15.00,
+            'referral_paid_earnings' => 10.00,
+            'total_visits' => 1000,
+            'is_active' => true,
+        ]);
+        
+        $this->referralAffiliate = Affiliate::factory()->create([
+            'user_id' => $referralUser->id,
+            'referral_code' => 'REFERRAL456',
+            'total_earnings' => 80.00,
+            'pending_earnings' => 20.00,
+            'paid_earnings' => 60.00,
+            'referral_earnings' => 0.00,
+            'referral_pending_earnings' => 0.00,
+            'referral_paid_earnings' => 0.00,
+            'total_visits' => 500,
+            'is_active' => true,
+        ]);
+        
+        // Link referral to referrer
+        $referralUser->update([
+            'referred_by_affiliate_id' => $this->referrerAffiliate->id
+        ]);
+    }
+
+    /** @test */
+    public function it_displays_referral_earnings_on_dashboard()
+    {
+        $this->actingAs($this->referrerAffiliate->user);
+        
+        $response = $this->get('/affiliate/dashboard');
+        
+        $response->assertStatus(200);
+        $response->assertViewIs('affiliate.dashboard');
+        
+        // Check that referral earnings are passed to the view
+        $affiliate = $response->viewData('affiliate');
+        $this->assertNotNull($affiliate);
+        $this->assertEquals(25.00, $affiliate->referral_earnings);
+        $this->assertEquals(15.00, $affiliate->referral_pending_earnings);
+        $this->assertEquals(10.00, $affiliate->referral_paid_earnings);
+    }
+
+    /** @test */
+    public function it_displays_referred_users_count()
+    {
+        $this->actingAs($this->referrerAffiliate->user);
+        
+        $response = $this->get('/affiliate/dashboard');
+        
+        $response->assertStatus(200);
+        
+        $affiliate = $response->viewData('affiliate');
+        $this->assertNotNull($affiliate);
+        
+        // Test the method used in the dashboard
+        $referredCount = $affiliate->getReferredAffiliatesCount();
+        $this->assertEquals(1, $referredCount);
+    }
+
+    /** @test */
+    public function it_displays_total_earnings_including_referrals()
+    {
+        $this->actingAs($this->referrerAffiliate->user);
+        
+        $response = $this->get('/affiliate/dashboard');
+        
+        $response->assertStatus(200);
+        
+        $affiliate = $response->viewData('affiliate');
+        $this->assertNotNull($affiliate);
+        
+        // Test total earnings calculation
+        $totalEarnings = $affiliate->getTotalEarningsIncludingReferrals();
+        $this->assertEquals(125.00, $totalEarnings); // 100.00 direct + 25.00 referral
+    }
+
+    /** @test */
+    public function it_displays_total_pending_including_referrals()
+    {
+        $this->actingAs($this->referrerAffiliate->user);
+        
+        $response = $this->get('/affiliate/dashboard');
+        
+        $response->assertStatus(200);
+        
+        $affiliate = $response->viewData('affiliate');
+        $this->assertNotNull($affiliate);
+        
+        // Test total pending calculation
+        $totalPending = $affiliate->getTotalPendingEarningsIncludingReferrals();
+        $this->assertEquals(45.00, $totalPending); // 30.00 direct + 15.00 referral
+    }
+
+    /** @test */
+    public function it_shows_referral_code_in_dashboard()
+    {
+        $this->actingAs($this->referrerAffiliate->user);
+        
+        $response = $this->get('/affiliate/dashboard');
+        
+        $response->assertStatus(200);
+        
+        $affiliate = $response->viewData('affiliate');
+        $this->assertNotNull($affiliate);
+        $this->assertEquals('REFERRER123', $affiliate->referral_code);
+    }
+
+    /** @test */
+    public function it_handles_affiliate_without_referrals()
+    {
+        $this->actingAs($this->referralAffiliate->user);
+        
+        $response = $this->get('/affiliate/dashboard');
+        
+        $response->assertStatus(200);
+        
+        $affiliate = $response->viewData('affiliate');
+        $this->assertNotNull($affiliate);
+        
+        // Should have zero referral stats
+        $this->assertEquals(0.00, $affiliate->referral_earnings);
+        $this->assertEquals(0.00, $affiliate->referral_pending_earnings);
+        $this->assertEquals(0.00, $affiliate->referral_paid_earnings);
+        
+        $referredCount = $affiliate->getReferredAffiliatesCount();
+        $this->assertEquals(0, $referredCount);
+    }
+
+    /** @test */
+    public function it_requires_authentication_for_dashboard()
+    {
+        $response = $this->get('/affiliate/dashboard');
+        
+        $response->assertRedirect('/login');
+    }
+
+    /** @test */
+    public function it_requires_affiliate_account_for_dashboard()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        
+        $response = $this->get('/affiliate/dashboard');
+        
+        $response->assertRedirect('/affiliate/enroll');
+    }
+
+    /** @test */
+    public function it_displays_payout_eligibility_with_referrals()
+    {
+        $this->actingAs($this->referrerAffiliate->user);
+        
+        $response = $this->get('/affiliate/dashboard');
+        
+        $response->assertStatus(200);
+        
+        $affiliate = $response->viewData('affiliate');
+        $this->assertNotNull($affiliate);
+        
+        // Test payout eligibility with minimum of 40
+        $canPayout = $affiliate->canRequestPayoutWithReferrals(40.00);
+        $this->assertTrue($canPayout);
+        
+        // Test payout eligibility with minimum of 50
+        $cannotPayout = $affiliate->canRequestPayoutWithReferrals(50.00);
+        $this->assertFalse($cannotPayout);
+    }
+
+    /** @test */
+    public function it_displays_multiple_referred_users()
+    {
+        // Create additional referred users
+        $additionalUser1 = User::factory()->create();
+        $additionalUser2 = User::factory()->create();
+        
+        $additionalAffiliate1 = Affiliate::factory()->create([
+            'user_id' => $additionalUser1->id,
+            'referral_code' => 'ADDITIONAL1',
+            'is_active' => true,
+        ]);
+        
+        $additionalAffiliate2 = Affiliate::factory()->create([
+            'user_id' => $additionalUser2->id,
+            'referral_code' => 'ADDITIONAL2',
+            'is_active' => true,
+        ]);
+        
+        $additionalUser1->update([
+            'referred_by_affiliate_id' => $this->referrerAffiliate->id
+        ]);
+        
+        $additionalUser2->update([
+            'referred_by_affiliate_id' => $this->referrerAffiliate->id
+        ]);
+        
+        $this->actingAs($this->referrerAffiliate->user);
+        
+        $response = $this->get('/affiliate/dashboard');
+        
+        $response->assertStatus(200);
+        
+        $affiliate = $response->viewData('affiliate');
+        $referredCount = $affiliate->getReferredAffiliatesCount();
+        $this->assertEquals(3, $referredCount); // Original + 2 additional
+    }
+
+    /** @test */
+    public function it_only_counts_active_referred_affiliates()
+    {
+        // Create inactive referred affiliate
+        $inactiveUser = User::factory()->create();
+        $inactiveAffiliate = Affiliate::factory()->create([
+            'user_id' => $inactiveUser->id,
+            'referral_code' => 'INACTIVE',
+            'is_active' => false,
+        ]);
+        
+        $inactiveUser->update([
+            'referred_by_affiliate_id' => $this->referrerAffiliate->id
+        ]);
+        
+        $this->actingAs($this->referrerAffiliate->user);
+        
+        $response = $this->get('/affiliate/dashboard');
+        
+        $response->assertStatus(200);
+        
+        $affiliate = $response->viewData('affiliate');
+        $referredCount = $affiliate->getReferredAffiliatesCount();
+        $this->assertEquals(1, $referredCount); // Only the active one
+    }
+
+    /** @test */
+    public function it_passes_payout_methods_to_dashboard()
+    {
+        $this->actingAs($this->referrerAffiliate->user);
+        
+        $response = $this->get('/affiliate/dashboard');
+        
+        $response->assertStatus(200);
+        
+        // Check that payout methods are available
+        $payoutMethods = $response->viewData('payoutMethods');
+        $this->assertNotNull($payoutMethods);
+        $this->assertIsArray($payoutMethods);
+    }
+
+    /** @test */
+    public function it_passes_minimum_payout_to_dashboard()
+    {
+        $this->actingAs($this->referrerAffiliate->user);
+        
+        $response = $this->get('/affiliate/dashboard');
+        
+        $response->assertStatus(200);
+        
+        // Check that minimum payout is available
+        $minPayout = $response->viewData('minPayout');
+        $this->assertNotNull($minPayout);
+        $this->assertIsNumeric($minPayout);
+    }
+}

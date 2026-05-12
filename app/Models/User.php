@@ -6,6 +6,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -26,6 +27,7 @@ class User extends Authenticatable
         'email',
         'password',
         'avatar',
+        'referred_by_affiliate_id',
     ];
 
     /**
@@ -59,6 +61,16 @@ class User extends Authenticatable
     public function affiliate(): HasOne
     {
         return $this->hasOne(Affiliate::class);
+    }
+
+    public function referredBy(): BelongsTo
+    {
+        return $this->belongsTo(Affiliate::class, 'referred_by_affiliate_id');
+    }
+
+    public function referredUsers(): HasMany
+    {
+        return $this->hasMany(User::class, 'referred_by_affiliate_id');
     }
 
     public function socialAccounts(): HasMany

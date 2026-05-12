@@ -4,6 +4,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Affiliate;
 use App\Models\Setting;
 use App\Models\User;
 use App\Rules\NotDisposableEmail;
@@ -13,7 +14,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -48,7 +50,8 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class, new NotDisposableEmail],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', PasswordRule::defaults()],
+            'referral_code' => ['nullable', 'string', 'max:50'],
             'recaptcha_token' => ['nullable', 'string'],
         ]);
 
@@ -60,10 +63,30 @@ class RegisteredUserController extends Controller
             ]);
         }
 
+        // Validate and process referral code if provided
+        $referredByAffiliateId = null;
+        $referralCode = $request->input('referral_code');
+
+        if ($referralCode) {
+            $referralCode = strtoupper(trim($referralCode));
+            $referringAffiliate = Affiliate::where('referral_code', $referralCode)
+                ->where('is_active', true)
+                ->first();
+
+            if (!$referringAffiliate) {
+                throw ValidationException::withMessages([
+                    'referral_code' => 'Invalid referral code.',
+                ]);
+            }
+
+            $referredByAffiliateId = $referringAffiliate->id;
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'referred_by_affiliate_id' => $referredByAffiliateId,
         ]);
 
         event(new Registered($user));

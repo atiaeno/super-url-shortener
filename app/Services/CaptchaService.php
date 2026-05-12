@@ -38,7 +38,12 @@ class CaptchaService
      */
     public function isEnabled(): bool
     {
-        return $this->getProvider() !== self::PROVIDER_DISABLED;
+        if (!$this->settingsTableExists()) {
+            return false;
+        }
+
+        $globalEnabled = filter_var(Setting::get('captcha_enabled', 'false'), FILTER_VALIDATE_BOOLEAN);
+        return $globalEnabled && $this->getProvider() !== self::PROVIDER_DISABLED;
     }
 
     /**

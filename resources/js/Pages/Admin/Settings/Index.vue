@@ -71,6 +71,7 @@ const form = useForm({
     redirect_mode: props.settings.redirect_mode,
     affiliate_min_payout: parseFloat(props.settings.affiliate_min_payout) || 50,
     affiliate_payout_methods: props.settings.affiliate_payout_methods || 'PayPal',
+    referral_commission_rate: parseFloat(props.settings.referral_commission_rate) || 1.5,
     api_rate_limit_per_hour: parseInt(props.settings.api_rate_limit_per_hour) || 100,
     api_token_rate_limit_per_hour: parseInt(props.settings.api_token_rate_limit_per_hour) || 10,
 });
@@ -424,6 +425,14 @@ const icons = {
                                             class="field__input" />
                                         <p class="field__hint">Minimum amount required before affiliates can request
                                             payout.</p>
+                                    </div>
+                                    <div class="field">
+                                        <label class="field__label">Referral Commission Rate (%)</label>
+                                        <input v-model="form.referral_commission_rate" type="number" min="0.5" max="2"
+                                            step="0.1" class="field__input" />
+                                        <p class="field__hint">Commission percentage referrers earn from their
+                                            referrals'
+                                            earnings (0.5% - 2%).</p>
                                     </div>
                                 </div>
                             </div>

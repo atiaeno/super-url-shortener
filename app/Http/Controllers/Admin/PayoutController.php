@@ -111,7 +111,10 @@ class PayoutController extends Controller
         ]);
 
         $affiliate = $payout->affiliate;
-        $affiliate->decrement('pending_earnings', $payout->amount);
+
+        // Since we now deduct both pending_earnings and referral_pending_earnings
+        // when payout is requested, we just need to increment paid_earnings
+        // Note: We don't track referral_paid_earnings separately in the payout amount
         $affiliate->increment('paid_earnings', $payout->amount);
 
         $this->logAudit($payout, $oldStatus, Payout::STATUS_PAID, $request->note);

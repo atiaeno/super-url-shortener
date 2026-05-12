@@ -17,35 +17,39 @@ class SettingSeeder extends Seeder
             ['key' => 'footer_text', 'value' => '© ' . date('Y') . ' ' . config('app.name', 'URL Shortener') . '. All rights reserved.', 'group' => 'branding'],
             ['key' => 'meta_description', 'value' => 'Professional URL shortener with analytics and tracking.', 'group' => 'branding'],
             ['key' => 'meta_keywords', 'value' => 'url shortener, link shortener, analytics, qr code', 'group' => 'branding'],
-            
             // SEO and robots
             ['key' => 'sitemap_enabled', 'value' => 'true', 'group' => 'branding'],
             ['key' => 'robots_txt', 'value' => "User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /dashboard/\nDisallow: /api/\nSitemap: /sitemap.xml", 'group' => 'branding'],
-            
             // Essential features
             ['key' => 'features_affiliate', 'value' => 'false', 'group' => 'features'],
             ['key' => 'features_ads', 'value' => 'false', 'group' => 'features'],
             ['key' => 'features_gdpr', 'value' => 'true', 'group' => 'features'],
             ['key' => 'auto_suspend_threshold', 'value' => '5', 'group' => 'features'],
-            
             // Cache settings (optimized for production)
             ['key' => 'cache_ttl_redirect', 'value' => '86400', 'group' => 'cache'],
             ['key' => 'cache_ttl_analytics', 'value' => '3600', 'group' => 'cache'],
-            
             // Security settings (disabled by default for production)
             ['key' => 'captcha_enabled', 'value' => 'false', 'group' => 'security'],
-            ['key' => 'redirect_captcha', 'value' => 'false', 'group' => 'security'],
+            ['key' => 'captcha_register', 'value' => 'false', 'group' => 'security'],
+            ['key' => 'captcha_login', 'value' => 'false', 'group' => 'security'],
+            ['key' => 'captcha_forgot_password', 'value' => 'false', 'group' => 'security'],
+            ['key' => 'captcha_redirect', 'value' => 'false', 'group' => 'security'],
+            ['key' => 'captcha_provider', 'value' => 'recaptcha', 'group' => 'security'],
+            ['key' => 'captcha_site_key', 'value' => '', 'group' => 'security'],
+            ['key' => 'captcha_secret_key', 'value' => '', 'group' => 'security'],
+            ['key' => 'turnstile_site_key', 'value' => '', 'group' => 'security'],
+            ['key' => 'turnstile_secret_key', 'value' => '', 'group' => 'security'],
             ['key' => 'safe_browsing_enabled', 'value' => 'false', 'group' => 'security'],
             ['key' => 'maintenance_mode', 'value' => 'false', 'group' => 'security'],
             ['key' => 'maintenance_message', 'value' => 'System maintenance in progress. Please check back soon.', 'group' => 'security'],
-            
             // Rate limiting (production defaults)
             ['key' => 'api_rate_limit_per_hour', 'value' => '1000', 'group' => 'api'],
             ['key' => 'api_token_rate_limit_per_hour', 'value' => '100', 'group' => 'api'],
-            
             // Redirect settings
             ['key' => 'redirect_countdown', 'value' => '3', 'group' => 'redirect'],
             ['key' => 'redirect_mode', 'value' => 'auto', 'group' => 'redirect'],
+            // Referral system settings
+            ['key' => 'referral_commission_rate', 'value' => '1.5', 'group' => 'referral'],
         ];
 
         foreach ($settings as $setting) {
@@ -54,7 +58,8 @@ class SettingSeeder extends Seeder
 
         $this->command->info('✅ Production settings seeded successfully');
         $this->command->info('   - Rate limits: API 1000/hour, Tokens 100/hour');
-        $this->command->info('   - Security: Captcha disabled, maintenance mode off');
+        $this->command->info('   - Security: All CAPTCHA disabled, maintenance mode off');
         $this->command->info('   - Features: Affiliate/ads disabled, GDPR enabled');
+        $this->command->info('   - Referral: Commission rate set to 1.5%');
     }
 }

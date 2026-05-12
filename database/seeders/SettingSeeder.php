@@ -53,13 +53,21 @@ class SettingSeeder extends Seeder
             ['key' => 'cache_ttl_redirect', 'value' => '86400', 'group' => 'cache'],
             ['key' => 'cache_ttl_analytics', 'value' => '3600', 'group' => 'cache'],
             // Security
-            ['key' => 'captcha_enabled', 'value' => 'true', 'group' => 'security'],
+            ['key' => 'captcha_enabled', 'value' => 'false', 'group' => 'security'],
+            ['key' => 'captcha_register', 'value' => 'false', 'group' => 'security'],
+            ['key' => 'captcha_login', 'value' => 'false', 'group' => 'security'],
+            ['key' => 'captcha_forgot_password', 'value' => 'false', 'group' => 'security'],
+            ['key' => 'captcha_redirect', 'value' => 'false', 'group' => 'security'],
+            ['key' => 'captcha_provider', 'value' => 'recaptcha', 'group' => 'security'],
             ['key' => 'captcha_site_key', 'value' => '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI', 'group' => 'security'],
             ['key' => 'captcha_secret_key', 'value' => '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI', 'group' => 'security'],
-            ['key' => 'redirect_captcha', 'value' => 'true', 'group' => 'security'],
+            ['key' => 'turnstile_site_key', 'value' => '', 'group' => 'security'],
+            ['key' => 'turnstile_secret_key', 'value' => '', 'group' => 'security'],
             ['key' => 'safe_browsing_enabled', 'value' => 'false', 'group' => 'security'],
             ['key' => 'maintenance_mode', 'value' => 'false', 'group' => 'security'],
             ['key' => 'maintenance_message', 'value' => 'We are performing scheduled maintenance. Please check back soon.', 'group' => 'security'],
+            // Referral System
+            ['key' => 'referral_commission_rate', 'value' => '1.5', 'group' => 'referral'],
         ];
 
         foreach ($settings as $setting) {

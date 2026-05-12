@@ -20,6 +20,9 @@ class Affiliate extends Model
         'total_earnings',
         'pending_earnings',
         'paid_earnings',
+        'referral_earnings',
+        'referral_pending_earnings',
+        'referral_paid_earnings',
         'total_visits',
         'is_active',
     ];
@@ -28,6 +31,9 @@ class Affiliate extends Model
         'total_earnings' => 'decimal:4',
         'pending_earnings' => 'decimal:4',
         'paid_earnings' => 'decimal:4',
+        'referral_earnings' => 'decimal:4',
+        'referral_pending_earnings' => 'decimal:4',
+        'referral_paid_earnings' => 'decimal:4',
         'total_visits' => 'integer',
         'is_active' => 'boolean',
     ];
@@ -45,6 +51,21 @@ class Affiliate extends Model
     public function payouts(): HasMany
     {
         return $this->hasMany(Payout::class);
+    }
+
+    public function referredUsers(): HasMany
+    {
+        return $this->hasMany(User::class, 'referred_by_affiliate_id');
+    }
+
+    public function referralCommissionsAsReferrer(): HasMany
+    {
+        return $this->hasMany(ReferralCommission::class, 'referrer_affiliate_id');
+    }
+
+    public function referralCommissionsAsReferral(): HasMany
+    {
+        return $this->hasMany(ReferralCommission::class, 'referral_affiliate_id');
     }
 
     /**
@@ -76,5 +97,43 @@ class Affiliate extends Model
         } while (static::where('referral_code', $code)->exists());
 
         return $code;
+    }
+
+    /**
+     * Get total earnings including referral earnings.
+     */
+    public function getTotalEarningsIncludingReferrals(): float
+    {
+        return (float) $this->total_earnings + (float) $this->referral_earnings;
+    }
+
+    /**
+     * Get total pending earnings including referral pending earnings.
+     */
+    public function getTotalPendingEarningsIncludingReferrals(): float
+    {
+        return (float) $this->pending_earnings + (float) $this->referral_pending_earnings;
+    }
+
+    /**
+     * Determine if affiliate can request a payout including referral earnings.
+     */
+    public function canRequestPayoutWithReferrals(float $minimum = 50.0): bool
+    {
+        return $this->getTotalPendingEarningsIncludingReferrals() >= $minimum;
+    }
+
+    /**
+     * Get count of active referred users who have affiliate accounts.
+     */
+    public function getReferredAffiliatesCount(): int
+    {
+        return $this
+            ->referredUsers()
+            ->whereHas('affiliate')
+            ->whereHas('affiliate', function ($query) {
+                $query->where('is_active', true);
+            })
+            ->count();
     }
 }

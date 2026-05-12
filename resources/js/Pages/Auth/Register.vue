@@ -28,6 +28,7 @@ const form = useForm({
     email: '',
     password: '',
     password_confirmation: '',
+    referral_code: '',
     recaptcha_token: '',
 });
 
@@ -75,6 +76,18 @@ const submit = () => {
                         autocomplete="username" placeholder="correspondent@domain.com" />
                 </div>
                 <InputError class="field-error" :message="form.errors.email" />
+            </div>
+
+            <!-- Referral Code Field -->
+            <div class="form-field">
+                <InputLabel for="referral_code" value="Referral Code (Optional)" class="field-label" />
+                <div class="input-wrap">
+                    <span class="input-icon">&#128214;</span>
+                    <TextInput id="referral_code" type="text" class="auth-input" v-model="form.referral_code"
+                        autocomplete="off" placeholder="Enter referral code (optional)" />
+                </div>
+                <p class="field-hint">If you were referred by someone, enter their code here</p>
+                <InputError class="field-error" :message="form.errors.referral_code" />
             </div>
 
             <!-- Password Field -->

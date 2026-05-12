@@ -109,17 +109,21 @@ class AffiliateController extends Controller
             'payment_email' => ['required', 'string', 'max:255'],
         ]);
 
+        // Calculate total payout amount including referral earnings
+        $totalPendingEarnings = $affiliate->getTotalPendingEarningsIncludingReferrals();
+
         Payout::create([
             'affiliate_id' => $affiliate->id,
-            'amount' => $affiliate->pending_earnings,
+            'amount' => $totalPendingEarnings,
             'status' => Payout::STATUS_PENDING,
             'payment_method' => $validated['payment_method'],
             'payment_email' => $validated['payment_email'],
         ]);
 
-        // Deduct from pending_earnings
+        // Deduct from both pending earnings
         $affiliate->update([
             'pending_earnings' => 0,
+            'referral_pending_earnings' => 0,
         ]);
 
         return back()->with('success', 'Payout request submitted. We will review it shortly.');

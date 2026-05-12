@@ -89,15 +89,16 @@ const statusClass = (status) => ({
                 <div class="stat-row">
                     <div class="mini-stat">
                         <span class="mini-stat__val">${{ parseFloat(affiliate.total_earnings).toFixed(2) }}</span>
-                        <span class="mini-stat__label">Total Earned</span>
+                        <span class="mini-stat__label">Direct Earnings</span>
                     </div>
                     <div class="mini-stat">
-                        <span class="mini-stat__val">${{ parseFloat(affiliate.pending_earnings).toFixed(2) }}</span>
-                        <span class="mini-stat__label">Pending</span>
+                        <span class="mini-stat__val">${{ parseFloat(affiliate.referral_earnings).toFixed(2) }}</span>
+                        <span class="mini-stat__label">Referral Earnings</span>
                     </div>
                     <div class="mini-stat">
-                        <span class="mini-stat__val">${{ parseFloat(affiliate.paid_earnings).toFixed(2) }}</span>
-                        <span class="mini-stat__label">Paid Out</span>
+                        <span class="mini-stat__val">${{
+                            parseFloat(affiliate.getTotalPendingEarningsIncludingReferrals()).toFixed(2) }}</span>
+                        <span class="mini-stat__label">Total Pending</span>
                     </div>
                     <div class="mini-stat">
                         <span class="mini-stat__val">{{ affiliate.total_visits.toLocaleString() }}</span>
@@ -144,7 +145,7 @@ const statusClass = (status) => ({
                         <div v-if="!canPayout" class="payout-locked">
                             <p>Minimum payout is <strong>${{ minPayout }}</strong>.</p>
                             <p>You currently have <strong>${{ parseFloat(affiliate.pending_earnings).toFixed(2)
-                            }}</strong> pending.</p>
+                                    }}</strong> pending.</p>
                             <div class="payout-progress-track">
                                 <div class="payout-progress-fill"
                                     :style="{ width: Math.min(100, Math.round((parseFloat(affiliate.pending_earnings) / minPayout) * 100)) + '%' }" />
@@ -212,7 +213,37 @@ const statusClass = (status) => ({
                     </div>
                 </div>
 
+                <!-- Referral Section -->
+                <div class="card mt">
+                    <h3 class="card-title">Referral Program</h3>
+                    <div class="referral-stats">
+                        <div class="referral-stat">
+                            <span class="referral-stat__val">{{ affiliate.getReferredAffiliatesCount() }}</span>
+                            <span class="referral-stat__label">Referred Users</span>
+                        </div>
+                        <div class="referral-stat">
+                            <span class="referral-stat__val">${{ parseFloat(affiliate.referral_earnings).toFixed(2)
+                            }}</span>
+                            <span class="referral-stat__label">Total Referral Earnings</span>
+                        </div>
+                        <div class="referral-stat">
+                            <span class="referral-stat__val">${{
+                                parseFloat(affiliate.referral_pending_earnings).toFixed(2) }}</span>
+                            <span class="referral-stat__label">Pending Referral Earnings</span>
+                        </div>
+                    </div>
 
+                    <div class="referral-info">
+                        <h4 class="referral-info__title">How Referrals Work</h4>
+                        <ul class="referral-info__list">
+                            <li>Share your referral code with friends and colleagues</li>
+                            <li>When they sign up and earn from their links, you get a commission</li>
+                            <li>Commission rate: {{ (parseFloat(affiliate.referral_commission_rate) || 1.5) }}% of their
+                                earnings</li>
+                            <li>Referral commissions last for the lifetime of their account</li>
+                        </ul>
+                    </div>
+                </div>
 
             </template>
         </div>
@@ -1112,6 +1143,72 @@ const statusClass = (status) => ({
     .status-badge {
         padding: 4px 8px;
         font-size: 10px;
+    }
+}
+
+/* Referral Section Styles */
+.referral-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.referral-stat {
+    text-align: center;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.referral-stat__val {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+}
+
+.referral-stat__label {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.referral-info {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: var(--radius);
+}
+
+.referral-info__title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 12px 0;
+}
+
+.referral-info__list {
+    margin: 0;
+    padding: 0 0 0 20px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.referral-info__list li {
+    margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+    .referral-stats {
+        grid-template-columns: 1fr;
     }
 }
 </style>
