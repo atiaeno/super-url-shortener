@@ -420,7 +420,7 @@ php artisan test --parallel --recreate-databases
 ```bash
 # Clone repository
 git clone https://github.com/atiaeno/shortlink-pro.git
-cd url-shortener
+cd shortlink-pro
 
 # Install dependencies
 composer install --no-dev --optimize-autoloader
@@ -548,7 +548,7 @@ php artisan about --only=environment
 ## 📁 Project Structure
 
 ```
-url-shortener/
+shortlink-pro/
 ├── app/
 │   ├── Console/Commands/       # Artisan commands (cleanup, reports)
 │   ├── Http/
