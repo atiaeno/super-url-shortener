@@ -14,6 +14,7 @@ use App\Models\LinkAnalyticsDaily;
 use App\Models\Setting;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class LogClickJob implements ShouldQueue
@@ -27,13 +28,35 @@ class LogClickJob implements ShouldQueue
 
     public function handle(): void
     {
-        Click::create([
-            'link_id' => $this->linkId,
-            ...$this->clickData,
-        ]);
+        // Get analytics counting mode from settings
+        $countMode = Setting::get('analytics_count_mode') ?? 'unique';
+        $shouldCount = true;
 
-        // Record to analytics summary table
-        LinkAnalyticsDaily::recordClick($this->linkId, $this->clickData);
+        // If unique mode, check for existing click from same IP hash in last 24 hours
+        if ($countMode === 'unique') {
+            $ipHash = $this->clickData['ip_hash'] ?? null;
+            $existingClick = null;
+
+            if ($ipHash) {
+                $existingClick = Click::where('link_id', $this->linkId)
+                    ->where('ip_hash', $ipHash)
+                    ->where('created_at', '>=', now()->subHours(24))
+                    ->first();
+            }
+
+            $shouldCount = !$existingClick;
+        }
+
+        // Create click record if should count
+        if ($shouldCount) {
+            Click::create([
+                'link_id' => $this->linkId,
+                ...$this->clickData,
+            ]);
+
+            // Record to analytics summary table
+            LinkAnalyticsDaily::recordClick($this->linkId, $this->clickData);
+        }
 
         // Skip affiliate processing if feature is disabled
         $affiliateEnabled = (Setting::where('key', 'features_affiliate')->value('value') ?? 'true') === 'true';

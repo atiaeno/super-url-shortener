@@ -49,6 +49,7 @@ const form = useForm({
     features_gdpr: props.settings.features_gdpr === 'true',
     cache_ttl_redirect: parseInt(props.settings.cache_ttl_redirect),
     cache_ttl_analytics: parseInt(props.settings.cache_ttl_analytics),
+    analytics_count_mode: props.settings.analytics_count_mode || 'unique',
     maintenance_mode: props.settings.maintenance_mode === 'true',
     maintenance_message: props.settings.maintenance_message,
     captcha_enabled: props.settings.captcha_enabled === 'true',
@@ -83,10 +84,6 @@ const submit = () => {
     form.post(route('admin.settings.update'), {
         preserveScroll: true,
         forceFormData: true,
-        onSuccess: () => {
-            // Force page reload to get fresh settings data
-            window.location.reload();
-        }
     });
 };
 
@@ -655,7 +652,20 @@ const icons = {
                                     </div>
                                 </div>
 
-                                <div class="divider"></div>
+                                <div class="field">
+                                    <label class="field__label"> Click Counting Mode (<span
+                                            style="color: #dc2626;">Note:
+                                            Affiliate
+                                            visits always count as unique per IP per day regardless of this
+                                            setting</span>)</label>
+                                    <select v-model="form.analytics_count_mode" class="field__select">
+                                        <option value="unique">Count Unique Only (24h per IP)</option>
+                                        <option value="all">Count All Clicks</option>
+                                    </select>
+                                    <small class="field__help">Choose how clicks are counted: unique visitors per IP
+                                        within 24
+                                        hours, or every single click.</small>
+                                </div>
 
                                 <div class="field-grid">
                                     <div class="field">

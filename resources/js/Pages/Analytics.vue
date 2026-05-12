@@ -260,11 +260,7 @@ const statCards = computed(() => [
     --radius: 4px;
 }
 
-.page-content {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 24px;
-}
+ 
 
 /* Refresh Bar */
 .refresh-bar {

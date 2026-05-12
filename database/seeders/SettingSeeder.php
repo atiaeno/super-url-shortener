@@ -66,6 +66,8 @@ class SettingSeeder extends Seeder
             ['key' => 'safe_browsing_enabled', 'value' => 'false', 'group' => 'security'],
             ['key' => 'maintenance_mode', 'value' => 'false', 'group' => 'security'],
             ['key' => 'maintenance_message', 'value' => 'We are performing scheduled maintenance. Please check back soon.', 'group' => 'security'],
+            // Analytics
+            ['key' => 'analytics_count_mode', 'value' => 'unique', 'group' => 'analytics'],
             // Referral System
             ['key' => 'referral_commission_rate', 'value' => '1.5', 'group' => 'referral'],
         ];

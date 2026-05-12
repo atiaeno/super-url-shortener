@@ -50,6 +50,7 @@ class SettingsController extends Controller
         'features_gdpr',
         'cache_ttl_redirect',
         'cache_ttl_analytics',
+        'analytics_count_mode',
         'maintenance_mode',
         'maintenance_message',
         'captcha_enabled',

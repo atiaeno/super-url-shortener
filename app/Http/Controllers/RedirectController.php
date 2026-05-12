@@ -181,6 +181,9 @@ class RedirectController extends Controller
         $html = view('redirect', $viewData)->render();
         Cache::put($cacheKey, $html, now()->addDays($cacheDays));
 
+        // Dispatch click tracking for first-time visits
+        LogClickJob::dispatch($link->id, $this->getClickData($request))->onQueue('default');
+
         // Return a view response so tests can use assertViewHas()
         return response()->view('redirect', $viewData);
     }

@@ -36,11 +36,33 @@ class TrackController extends Controller
         // Get click data from request
         $clickData = $this->getClickData($request);
 
-        // Queue click logging (async)
-        LogClickJob::dispatch($link->id, $clickData);
+        // Get analytics counting mode from settings
+        $countMode = \App\Models\Setting::get('analytics_count_mode') ?? 'unique';
+        $shouldCount = true;
 
-        // Increment clicks count
-        $link->incrementClicks();
+        // If unique mode, check for existing click from same IP hash in last 24 hours
+        if ($countMode === 'unique') {
+            $ipHash = $clickData['ip_hash'] ?? null;
+            $existingClick = null;
+
+            if ($ipHash) {
+                $existingClick = \App\Models\Click::where('link_id', $link->id)
+                    ->where('ip_hash', $ipHash)
+                    ->where('created_at', '>=', now()->subHours(24))
+                    ->first();
+            }
+
+            $shouldCount = !$existingClick;
+        }
+
+        // Only queue click logging and increment count if should count
+        if ($shouldCount) {
+            // Queue click logging (async)
+            LogClickJob::dispatch($link->id, $clickData);
+
+            // Increment clicks count
+            $link->incrementClicks();
+        }
 
         return response()->noContent();
     }

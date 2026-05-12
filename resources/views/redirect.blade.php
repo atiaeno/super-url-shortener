@@ -247,8 +247,8 @@
     @if ($state === 'redirect')
         <script>
             (function() {
-                // Fire-and-forget tracking beacon (works even when page is cached)
-                var shortCode = '';
+                 
+                var shortCode = '{{ $shortCode }}';
                 if (shortCode) {
                     var trackUrl = '/track/' + shortCode;
                     var data = new FormData();
