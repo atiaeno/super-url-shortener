@@ -175,17 +175,17 @@ GROUP BY link_id, DATE(created_at);
 <table>
 <tr>
 <td width="33%" valign="top">
-<img src="screenshots/Dashboard.png" width="100%" height="280" style="object-fit: cover;">
+<img src="screenshots/Dashboard.png" width="100%" height="150" style="object-fit: cover;">
 <br><b>Dashboard</b><br>
 <small>Overview with click stats, recent links, quick actions</small>
 </td>
 <td width="33%" valign="top">
-<img src="screenshots/Create-Link.png" width="100%" height="280" style="object-fit: cover;">
+<img src="screenshots/Create-Link.png" width="100%" height="150" style="object-fit: cover;">
 <br><b>Create Link</b><br>
 <small>Custom aliases, password protection, expiration dates</small>
 </td>
 <td width="33%" valign="top">
-<img src="screenshots/My-Links.png" width="100%" height="280" style="object-fit: cover;">
+<img src="screenshots/My-Links.png" width="100%" height="150" style="object-fit: cover;">
 <br><b>Link Management</b><br>
 <small>Search, filter, bulk operations, export to CSV</small>
 </td>
