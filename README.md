@@ -593,7 +593,7 @@ url-shortener/
 
 <img src="screenshots/cta.png" alt="Get Started" width="100%">
 
-**[View Live Demo](https://shortlink.pro)** • **[API Docs](https://docs.shortlink.pro)** • **[Report Issue](https://github.com/atiahegazy/url-shortener/issues)**
+**[View Live Demo](https://shortlink.pro)** • **[API Docs](https://docs.shortlink.pro)** • **[Report Issue](https://github.com/atiaeno/shortlink-pro/issues)**
 
 ---
 
