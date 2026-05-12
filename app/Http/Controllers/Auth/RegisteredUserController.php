@@ -65,7 +65,9 @@ class RegisteredUserController extends Controller
 
         // Validate and process referral code if provided
         $referredByAffiliateId = null;
-        $referralCode = $request->input('referral_code');
+        $referralCode = $request->input('referral_code')
+            ?: $request->input('ref')
+            ?: session('referral_code');
 
         if ($referralCode) {
             $referralCode = strtoupper(trim($referralCode));
@@ -92,6 +94,9 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         Auth::login($user);
+
+        // Clear referral code from session after successful registration
+        session()->forget('referral_code');
 
         return redirect(route('dashboard', absolute: false));
     }

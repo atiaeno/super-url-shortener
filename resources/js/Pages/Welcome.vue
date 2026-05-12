@@ -62,6 +62,15 @@ const props = defineProps({
 
 const url = ref('');
 const result = ref(null);
+
+// Get referral code from URL parameter
+const referralCode = new URLSearchParams(window.location.search).get('ref');
+
+// Function to create register URL with referral code
+const getRegisterUrl = () => {
+    const registerRoute = route('register');
+    return referralCode ? `${registerRoute}?ref=${referralCode}` : registerRoute;
+};
 const error = ref(null);
 const loading = ref(false);
 const copied = ref(false);
@@ -157,7 +166,7 @@ const scrollToSection = (id) => {
                     </form>
 
                     <p v-if="!$page.props.auth?.user" class="hero-footnote">
-                        <Link :href="route('register')" class="accent-link">Create an account</Link>
+                        <Link :href="getRegisterUrl()" class="accent-link">Create an account</Link>
                         for saved links & advanced analytics
                     </p>
 
@@ -342,7 +351,7 @@ const scrollToSection = (id) => {
                     <div class="cap-meta">Free Forever</div>
                     <h3>Get Started Now</h3>
                     <p>No credit card required. Essential tools accessible to all, without compromise.</p>
-                    <Link :href="route('register')" class="cap-link">Create Account →</Link>
+                    <Link :href="getRegisterUrl()" class="cap-link">Create Account →</Link>
                 </div>
             </div>
         </section>
@@ -440,7 +449,7 @@ const scrollToSection = (id) => {
 
                 <div class="cta-actions">
                     <template v-if="!$page.props.auth?.user">
-                        <Link :href="route('register')" class="cta-btn cta-btn--primary">
+                        <Link :href="getRegisterUrl()" class="cta-btn cta-btn--primary">
                             Create Free Account
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M5 12h14M12 5l7 7-7 7" />

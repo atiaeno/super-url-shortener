@@ -27,6 +27,14 @@ const canPayout = computed(() =>
     props.affiliate && parseFloat(props.affiliate.pending_earnings) >= props.minPayout
 );
 
+const totalPendingEarningsIncludingReferrals = computed(() =>
+    props.affiliate ? parseFloat(props.affiliate.pending_earnings) + parseFloat(props.affiliate.referral_pending_earnings) : 0
+);
+
+const referredAffiliatesCount = computed(() =>
+    props.affiliate ? (props.affiliate.referred_users?.length || 0) : 0
+);
+
 const shortUrl = (code) => `${window.location.origin}/?ref=${code}`;
 
 const tierCountries = (tierId) => {
@@ -89,15 +97,14 @@ const statusClass = (status) => ({
                 <div class="stat-row">
                     <div class="mini-stat">
                         <span class="mini-stat__val">${{ parseFloat(affiliate.total_earnings).toFixed(2) }}</span>
-                        <span class="mini-stat__label">Direct Earnings</span>
+                        <span class="mini-stat__label">Total Earnings</span>
                     </div>
                     <div class="mini-stat">
                         <span class="mini-stat__val">${{ parseFloat(affiliate.referral_earnings).toFixed(2) }}</span>
                         <span class="mini-stat__label">Referral Earnings</span>
                     </div>
                     <div class="mini-stat">
-                        <span class="mini-stat__val">${{
-                            parseFloat(affiliate.getTotalPendingEarningsIncludingReferrals()).toFixed(2) }}</span>
+                        <span class="mini-stat__val">{{ totalPendingEarningsIncludingReferrals.toFixed(2) }}</span>
                         <span class="mini-stat__label">Total Pending</span>
                     </div>
                     <div class="mini-stat">
@@ -135,6 +142,13 @@ const statusClass = (status) => ({
                                 <code class="referral-box__code">{{ affiliate.referral_code }}</code>
                                 <button @click="copyRef(affiliate.referral_code)" class="btn-ghost-sm">Copy</button>
                             </div>
+                            <div class="referral-box__row">
+                                <span class="referral-box__label">Referral link:</span>
+                                <a :href="shortUrl(affiliate.referral_code)" target="_blank" class="referral-link">{{
+                                    shortUrl(affiliate.referral_code) }}</a>
+                                <button @click="copyRef(shortUrl(affiliate.referral_code))" class="btn-ghost-sm">Copy
+                                    Link</button>
+                            </div>
                         </div>
                     </div>
 
@@ -158,7 +172,8 @@ const statusClass = (status) => ({
                                 <label class="field__label">Payment Method</label>
                                 <select v-model="payoutForm.payment_method" class="field__input" required>
                                     <option value="" disabled>Select payment method</option>
-                                    <option v-for="method in payoutMethods" :key="method" :value="method">{{ method }}
+                                    <option v-for="method in payoutMethods" :key="method" :value="method">{{ method
+                                        }}
                                     </option>
                                 </select>
                             </div>
@@ -218,12 +233,12 @@ const statusClass = (status) => ({
                     <h3 class="card-title">Referral Program</h3>
                     <div class="referral-stats">
                         <div class="referral-stat">
-                            <span class="referral-stat__val">{{ affiliate.getReferredAffiliatesCount() }}</span>
+                            <span class="referral-stat__val">{{ referredAffiliatesCount }}</span>
                             <span class="referral-stat__label">Referred Users</span>
                         </div>
                         <div class="referral-stat">
                             <span class="referral-stat__val">${{ parseFloat(affiliate.referral_earnings).toFixed(2)
-                            }}</span>
+                                }}</span>
                             <span class="referral-stat__label">Total Referral Earnings</span>
                         </div>
                         <div class="referral-stat">
@@ -238,7 +253,8 @@ const statusClass = (status) => ({
                         <ul class="referral-info__list">
                             <li>Share your referral code with friends and colleagues</li>
                             <li>When they sign up and earn from their links, you get a commission</li>
-                            <li>Commission rate: {{ (parseFloat(affiliate.referral_commission_rate) || 1.5) }}% of their
+                            <li>Commission rate: {{ (parseFloat(affiliate.referral_commission_rate) || 1.5) }}% of
+                                their
                                 earnings</li>
                             <li>Referral commissions last for the lifetime of their account</li>
                         </ul>
@@ -574,6 +590,20 @@ const statusClass = (status) => ({
     font-weight: 700;
     color: var(--red);
     letter-spacing: 0;
+}
+
+.referral-link {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--red);
+    text-decoration: none;
+    word-break: break-all;
+    flex: 1;
+}
+
+.referral-link:hover {
+    text-decoration: underline;
+    color: #c00;
 }
 
 /* ── Payout form ─────────────────────────────── */
