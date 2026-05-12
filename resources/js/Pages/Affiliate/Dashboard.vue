@@ -144,7 +144,7 @@ const statusClass = (status) => ({
                         <div v-if="!canPayout" class="payout-locked">
                             <p>Minimum payout is <strong>${{ minPayout }}</strong>.</p>
                             <p>You currently have <strong>${{ parseFloat(affiliate.pending_earnings).toFixed(2)
-                                    }}</strong> pending.</p>
+                            }}</strong> pending.</p>
                             <div class="payout-progress-track">
                                 <div class="payout-progress-fill"
                                     :style="{ width: Math.min(100, Math.round((parseFloat(affiliate.pending_earnings) / minPayout) * 100)) + '%' }" />
@@ -221,10 +221,11 @@ const statusClass = (status) => ({
 <!-- ... -->
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Oswald:wght@300;400;500;600;700&display=swap');
 
 :root {
     --font-display: 'Oswald', sans-serif;
+    --font-body: 'DM Sans', sans-serif !important;
     --red: #e74c3c;
     --ink: #000000;
     --muted: #333333;
@@ -531,7 +532,7 @@ const statusClass = (status) => ({
 }
 
 .referral-box__code {
-    font-family: monospace;
+    font-family: var(--font-body);
     font-size: 15px;
     font-weight: 700;
     color: var(--red);
@@ -756,6 +757,8 @@ const statusClass = (status) => ({
     display: flex;
     flex-direction: column;
     gap: 6px;
+    font-family:'DM Sans';
+    font-size:10px ;
 }
 
 .how-to-use__title {
@@ -769,8 +772,8 @@ const statusClass = (status) => ({
 }
 
 .how-to-use__step {
-    font-size: 14px;
-    color: #444;
+    font-size: 13px;
+    color: #060606;
     margin: 0;
 }
 
@@ -787,7 +790,7 @@ const statusClass = (status) => ({
     border-radius: 3px;
     font-size: 11px;
     color: var(--ink);
-    font-family: monospace;
+    font-family: var(--font-body);
 }
 
 .earned-cell {

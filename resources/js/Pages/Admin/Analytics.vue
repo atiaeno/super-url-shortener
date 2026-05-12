@@ -911,6 +911,7 @@ const getMiniBarPx = (count, data) => getBarPx(count, data, 76);
 }
 
 .data-table {
+    display: table;
     width: 100%;
     border-collapse: collapse;
 }

@@ -107,9 +107,7 @@ const formatDate = (dateStr) => {
                         <span class="status-item__label">Account Status</span>
                         <span class="status-item__value"
                             :class="user.ban_type === 'none' ? 'status--active' : (user.ban_type === 'soft' ? 'status--soft' : 'status--hard')">
-                            {{ user.ban_type === 'none' ? 'Active' : (user.ban_type === 'soft' ? 'Soft Banned' : 'Hard
-                            Banned')
-                            }}
+                            {{ user.ban_type === 'none' ? 'Active' : (user.ban_type === 'soft' ? 'Soft Banned' : 'Hard Banned') }}
                         </span>
                     </div>
                     <div class="status-item">
@@ -417,3 +415,4 @@ const formatDate = (dateStr) => {
     }
 }
 </style>
+

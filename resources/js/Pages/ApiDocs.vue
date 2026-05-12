@@ -793,6 +793,8 @@ payouts = requests.get(
 # List active domains (public - no auth required)
 domains = requests.get('${baseUrl}/domains/active').json()
 print(domains['data']['domains'])
+`,
+
 };
 
 const activeLanguage = ref('curl');

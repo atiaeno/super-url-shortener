@@ -1,10 +1,12 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 
 <p align="center">
-  <h1 align="center">ShortLink PRO</h1>
-  <h3 align="center">Enterprise-Grade URL Shortener SaaS Platform</h3>
-  <p align="center">Advanced URL shortening with affiliate monetization, real-time analytics, REST API, and comprehensive admin panel</p>
+  <img src="screenshots/cover.jpeg" alt="ShortLink PRO" width="100%">
 </p>
+
+<h1 align="center">ShortLink PRO</h1>
+<h3 align="center">Enterprise-Grade URL Shortener SaaS Platform</h3>
+<p align="center">Advanced URL shortening with affiliate monetization, real-time analytics, REST API, and comprehensive admin panel</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Laravel-12.x-red?style=flat-square&logo=laravel" alt="Laravel 12">
@@ -20,15 +22,35 @@
 
 ## 🖼️ Project Overview
 
-| Dashboard | Analytics | Affiliate Program |
-|-----------|-----------|-------------------|
-| ![Dashboard](https://placehold.co/400x250/1a1a1a/e74c3c?text=Link+Dashboard) | ![Analytics](https://placehold.co/400x250/1a1a1a/e74c3c?text=Real-time+Analytics) | ![Affiliate](https://placehold.co/400x250/1a1a1a/e74c3c?text=Affiliate+System) |
-| **Link Management** | **QR Codes** | **Admin Panel** |
-| ![Links](https://placehold.co/400x250/1a1a1a/e74c3c?text=Link+Management) | ![QR](https://placehold.co/400x250/1a1a1a/e74c3c?text=QR+Generator) | ![Admin](https://placehold.co/400x250/1a1a1a/e74c3c?text=Admin+Panel) |
+<p align="center">
+  <img src="screenshots/homepage.png" alt="Homepage" width="100%">
+</p>
+
+### User Dashboard & Features
+
+| User Dashboard | Create Link | My Links |
+|:-------------:|:-----------:|:--------:|
+| ![Dashboard](screenshots/Dashboard.png) | ![Create Link](screenshots/Create-Link.png) | ![My Links](screenshots/My-Links.png) |
+
+### Analytics & Insights
+
+| Analytics Overview | Per-Link Analytics | Bulk Create |
+|:----------------:|:------------------:|:-----------:|
+| ![Analytics](screenshots/Analytics.png) | ![Per Link](screenshots/AnalyticsPerLink.png) | ![Bulk](screenshots/Bulk-Create-Links.png) |
+
+### Affiliate System
+
+| Affiliate Program | Affiliate Dashboard | Admin Analytics |
+|:-----------------:|:-------------------:|:---------------:|
+| ![Affiliate Program](screenshots/Affiliate-Program.png) | ![Affiliate Dashboard](screenshots/Affiliate-Dashboard.png) | ![Admin Analytics](screenshots/Analytics-Admin.png) |
 
 ---
 
 ## 🏗️ Architecture Overview
+
+<p align="center">
+  <img src="screenshots/shortLink_digram.png" alt="Architecture Diagram" width="80%">
+</p>
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -84,23 +106,10 @@
 | **Daily Aggregation** | Optimized daily summary tables |
 
 ### 💰 Affiliate Monetization System
-```
-┌─────────────────────────────────────────────────────────────┐
-│                  Affiliate Commission Flow                   │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  Visitor clicks affiliate link → Track visit by country    │
-│         ↓                                                   │
-│  Tier-based commission rate applied                        │
-│         ↓                                                   │
-│  Country-specific rate override (if configured)            │
-│         ↓                                                   │
-│  Earnings calculated & stored in AffiliateStat table       │
-│         ↓                                                   │
-│  User requests payout → Admin approves → Payment processed │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
+
+<p align="center">
+  <img src="screenshots/Affalites_digram.png" alt="Affiliate Commission Flow" width="80%">
+</p>
 - **Tiered Commissions** - Bronze, Silver, Gold tiers with thresholds
 - **Country-Specific Rates** - Custom rates per geographic region
 - **Payout Management** - PayPal integration with audit logs
@@ -157,6 +166,63 @@ GET /api/v1/links/{id}/analytics?period=week
 - **Input Validation** - URL sanitization & security checks
 - **CSRF/XSS Protection** - Built-in Laravel security
 - **Audit Logging** - Full activity tracking
+
+---
+
+## 👤 User Authentication & Profile
+
+| Login | Profile Settings | Terms of Service |
+|:-----:|:----------------:|:----------------:|
+| ![Login](screenshots/login.png) | ![Profile](screenshots/Profile-Settings.png) | ![Terms](screenshots/Terms-of-Service.png) |
+
+---
+
+## 🎛️ Admin Panel
+
+Comprehensive admin dashboard for complete platform management.
+
+### Admin Dashboard & Link Management
+
+| Admin Dashboard | All Links | Link Details |
+|:---------------:|:---------:|:------------:|
+| ![Admin Dashboard](screenshots/Admin-Dashboard.png) | ![All Links](screenshots/Admin-All-Links-.png) | ![Link Details](screenshots/Admin-Link.png) |
+
+### Monetization & Advertising
+
+| Affiliate Tiers | Payout Management | Advertising |
+|:---------------:|:-----------------:|:-----------:|
+| ![Affiliate Tiers](screenshots/Admin-Affiliate-Tiers.png) | ![Payout](screenshots/Admin-Payout-Management-.png) | ![Advertising](screenshots/Admin-Advertising-Management.png) |
+
+### System Management
+
+| Report Queue | SEO Indexer | Settings |
+|:------------:|:-----------:|:--------:|
+| ![Reports](screenshots/Admin-Report-Queue.png) | ![SEO](screenshots/Admin-SEO-Indexer.png) | ![Settings](screenshots/Admin-Settings.png) |
+
+---
+
+## 🔌 REST API & Documentation
+
+<p align="center">
+  <img src="screenshots/API-Documentation.png" alt="API Documentation" width="80%">
+</p>
+
+```bash
+# Authentication
+curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+  https://api.shortlink.pro/api/v1/links
+
+# Create Link
+POST /api/v1/links
+{
+  "url": "https://example.com",
+  "alias": "my-custom-code",
+  "domain_id": 1
+}
+
+# Get Analytics
+GET /api/v1/links/{id}/analytics?period=week
+```
 
 ---
 
@@ -407,6 +473,12 @@ composer run test
 ## 📄 License
 
 MIT License - See [LICENSE](LICENSE) for details.
+
+---
+
+<p align="center">
+  <img src="screenshots/cta.png" alt="Start using ShortLink PRO today" width="100%">
+</p>
 
 ---
 

@@ -1021,7 +1021,7 @@ const getCountryBarWidth = (count) => {
 }
 
 .data-table {
-    display: flex;
+    display: table;
     flex-direction: column;
     gap: 8px;
     width: 100%;

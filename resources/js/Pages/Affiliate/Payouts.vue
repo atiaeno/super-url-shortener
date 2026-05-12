@@ -5,7 +5,7 @@ import { Head, Link } from '@inertiajs/vue3';
 
 const props = defineProps({
     affiliate: { type: Object, required: true },
-    payouts:   { type: Object, required: true },
+    payouts: { type: Object, required: true },
 });
 
 const statusLabel = { pending: 'Pending', approved: 'Approved', rejected: 'Rejected', paid: 'Paid' };
@@ -16,6 +16,7 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
 </script>
 
 <template>
+
     <Head title="Payout History" />
 
     <AuthenticatedLayout>
@@ -224,10 +225,25 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
     font-size: 14px;
 }
 
-.badge--warn   { color: #F59E0B; background: rgba(245,158,11,0.1); }
-.badge--info   { color: #22D3EE; background: rgba(34,211,238,0.1); }
-.badge--green  { color: #22C55E; background: rgba(34,197,94,0.1); }
-.badge--red    { color: #EF4444; background: rgba(239,68,68,0.1); }
+.badge--warn {
+    color: #F59E0B;
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.badge--info {
+    color: #22D3EE;
+    background: rgba(34, 211, 238, 0.1);
+}
+
+.badge--green {
+    color: #22C55E;
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.badge--red {
+    color: #EF4444;
+    background: rgba(239, 68, 68, 0.1);
+}
 
 .pagination {
     display: flex;
