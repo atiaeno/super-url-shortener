@@ -112,7 +112,7 @@ const statusText = (token) => {
                         <div class="field">
                             <label class="field__label">Token Name</label>
                             <input v-model="tokenForm.name" type="text" class="field__input"
-                                placeholder="e.g., Production API" maxlength="255" />
+                                placeholder="e.g., Production API" maxlength="255" required />
                         </div>
                         <div class="field field--sm">
                             <label class="field__label">Expires (days)</label>
@@ -186,10 +186,12 @@ const statusText = (token) => {
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap');
 
 :root {
     --font-display: 'Oswald', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
     --red: #e74c3c;
     --red-dark: #c0392b;
     --green: #27ae60;
@@ -204,6 +206,9 @@ const statusText = (token) => {
     max-width: 800px;
     margin: 0 auto;
     padding: 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
 }
 
 .material-icons {
@@ -227,11 +232,13 @@ const statusText = (token) => {
     font-weight: 600;
     margin: 0 0 8px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0;
 }
 
 .intro-text {
-    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     color: #aaa;
     margin: 0 0 16px;
     line-height: 1.6;
@@ -247,11 +254,11 @@ const statusText = (token) => {
     font-size: 12px;
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 8px 16px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    letter-spacing: 0;
     border-radius: var(--radius);
-    transition: all 0.2s;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 8px 16px;
+    transition: all 200ms;
 }
 
 .link-btn:hover {
@@ -277,7 +284,7 @@ const statusText = (token) => {
     font-size: 14px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0;
     color: var(--ink);
     margin: 0 0 16px;
 }
@@ -305,18 +312,21 @@ const statusText = (token) => {
 }
 
 .field__label {
+    font-family: 'DM Sans', sans-serif;
     font-size: 12px;
     font-weight: 500;
     color: var(--ink);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
 }
 
 .field__input {
     padding: 10px 14px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     outline: none;
     transition: border-color 0.2s;
 }
@@ -340,7 +350,23 @@ const statusText = (token) => {
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    align-self: flex-start;
+}
+
+.btn-create {
+    padding: 12px 24px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0;
     cursor: pointer;
     transition: opacity 0.2s;
     align-self: flex-start;
@@ -392,11 +418,13 @@ const statusText = (token) => {
     font-weight: 600;
     color: var(--ink);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
 }
 
 .token-meta {
+    font-family: 'DM Sans', sans-serif;
     font-size: 12px;
+    letter-spacing: 0;
     color: var(--muted);
 }
 
@@ -444,7 +472,7 @@ const statusText = (token) => {
     font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
     padding: 4px 10px;
     border-radius: 2px;
 }
@@ -465,7 +493,9 @@ const statusText = (token) => {
 }
 
 .last-used {
-    font-size: 11px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     color: var(--muted);
 }
 
@@ -507,14 +537,18 @@ const statusText = (token) => {
 }
 
 .empty-state p {
+    font-family: 'DM Sans', sans-serif;
     margin: 0;
     color: var(--muted);
-    font-size: 14px;
+    font-size: 12px;
+    letter-spacing: 0;
 }
 
 .empty-hint {
+    font-family: 'DM Sans', sans-serif;
     margin-top: 4px !important;
     font-size: 12px !important;
+    letter-spacing: 0 !important;
 }
 
 /* Modal */
@@ -558,7 +592,7 @@ const statusText = (token) => {
     font-weight: 600;
     margin: 0;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0;
 }
 
 .modal-body {
@@ -566,9 +600,10 @@ const statusText = (token) => {
 }
 
 .modal-label {
-    font-size: 11px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
     color: var(--muted);
     margin: 0 0 4px;
 }
@@ -639,7 +674,9 @@ const statusText = (token) => {
 }
 
 .warning-box p {
-    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     color: #92400e;
     margin: 0;
 }
@@ -677,7 +714,7 @@ const statusText = (token) => {
     font-size: 16px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0;
     margin: 0;
     flex: 1;
 }
@@ -697,7 +734,9 @@ const statusText = (token) => {
 }
 
 .token-banner-name {
-    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     color: #aaa;
     margin: 0 0 8px;
 }
@@ -735,7 +774,9 @@ const statusText = (token) => {
 }
 
 .token-banner-warning {
+    font-family: 'DM Sans', sans-serif;
     font-size: 12px;
+    letter-spacing: 0;
     color: #f59e0b;
     margin: 0;
 }

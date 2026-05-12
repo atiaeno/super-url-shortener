@@ -136,7 +136,13 @@ class RedirectController extends Controller
         // Get CAPTCHA provider and site key
         $captcha = app(\App\Services\CaptchaService::class);
         $captchaProvider = $captcha->getProviderType();
-        $captchaSiteKey = $captcha->siteKey();
+
+        // Simplified logic: Show CAPTCHA only if global CAPTCHA is enabled AND redirect page checkbox is checked
+        $globalCaptchaEnabled = $captcha->isEnabled();
+        $redirectCaptchaEnabled = Setting::get('captcha_redirect', false);
+        $showCaptcha = $globalCaptchaEnabled && $redirectCaptchaEnabled;
+
+        $captchaSiteKey = $showCaptcha ? $captcha->siteKey() : '';
 
         // Check for ad to display on the redirect page
         $ad = $this->getAdForLink($link, $request);
@@ -157,7 +163,7 @@ class RedirectController extends Controller
             'destination' => $destinationUrl,
             'countdown' => $countdown,
             'redirectMode' => $redirectMode,
-            'redirectCaptcha' => filter_var($redirectCaptcha, FILTER_VALIDATE_BOOLEAN),
+            'redirectCaptcha' => filter_var($redirectCaptchaEnabled, FILTER_VALIDATE_BOOLEAN),
             'captchaSiteKey' => $captchaSiteKey,
             'captchaProvider' => $captchaProvider,
             'adContent' => $adContent,

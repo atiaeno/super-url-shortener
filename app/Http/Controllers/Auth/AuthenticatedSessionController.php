@@ -22,10 +22,15 @@ class AuthenticatedSessionController extends Controller
     {
         $captcha = app(\App\Services\CaptchaService::class);
 
+        // Simplified logic: Show CAPTCHA only if global CAPTCHA is enabled AND login page checkbox is checked
+        $globalCaptchaEnabled = $captcha->isEnabled();
+        $loginCaptchaEnabled = Setting::get('captcha_login', false);
+        $showCaptcha = $globalCaptchaEnabled && $loginCaptchaEnabled;
+
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
-            'recaptchaSiteKey' => $captcha->siteKey(),
+            'recaptchaSiteKey' => $showCaptcha ? $captcha->siteKey() : '',
             'captchaProvider' => $captcha->getProviderType(),
         ]);
     }

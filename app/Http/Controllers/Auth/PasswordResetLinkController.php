@@ -20,9 +20,14 @@ class PasswordResetLinkController extends Controller
     {
         $captcha = app(\App\Services\CaptchaService::class);
 
+        // Simplified logic: Show CAPTCHA only if global CAPTCHA is enabled AND forgot password page checkbox is checked
+        $globalCaptchaEnabled = $captcha->isEnabled();
+        $forgotPasswordCaptchaEnabled = Setting::get('captcha_forgot_password', false);
+        $showCaptcha = $globalCaptchaEnabled && $forgotPasswordCaptchaEnabled;
+
         return Inertia::render('Auth/ForgotPassword', [
             'status' => session('status'),
-            'recaptchaSiteKey' => $captcha->siteKey(),
+            'recaptchaSiteKey' => $showCaptcha ? $captcha->siteKey() : '',
             'captchaProvider' => $captcha->getProviderType(),
         ]);
     }

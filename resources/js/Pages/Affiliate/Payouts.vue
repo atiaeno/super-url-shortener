@@ -80,10 +80,15 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
 .page-content {
     max-width: 1100px;
     margin: 0 auto;
     padding: 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
 }
 
 .page-header {
@@ -99,7 +104,9 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
     border: 1px solid var(--border);
     border-radius: 8px;
     color: #444;
-    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     text-decoration: none;
     transition: all 200ms;
 }
@@ -128,13 +135,17 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
 }
 
 .empty p {
-    font-size: 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     color: #444;
     margin: 0;
 }
 
 .empty-hint {
-    font-size: 13px !important;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px !important;
+    letter-spacing: 0 !important;
     color: #888 !important;
     margin-top: 8px !important;
 }
@@ -154,18 +165,21 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
 .payout-table th {
     text-align: left;
     padding: 14px 20px;
+    font-family: 'DM Sans', sans-serif;
     font-size: 12px;
     font-weight: 600;
     color: #666;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
     background: #fafafa;
     border-bottom: 1px solid var(--border);
 }
 
 .payout-table td {
     padding: 16px 20px;
-    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     color: #333;
     border-bottom: 1px solid var(--border);
 }
@@ -179,8 +193,10 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
 }
 
 .cell-date {
+    font-family: 'DM Sans', sans-serif;
     color: #666;
-    font-size: 13px;
+    font-size: 12px;
+    letter-spacing: 0;
 }
 
 .cell-amount {
@@ -203,8 +219,10 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
 }
 
 .cell-note {
+    font-family: 'DM Sans', sans-serif;
     color: #888;
-    font-size: 13px;
+    font-size: 12px;
+    letter-spacing: 0;
     max-width: 150px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -217,8 +235,10 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
     gap: 6px;
     padding: 5px 12px;
     border-radius: 20px;
+    font-family: 'DM Sans', sans-serif;
     font-size: 12px;
     font-weight: 600;
+    letter-spacing: 0;
 }
 
 .badge .material-icons {
@@ -257,7 +277,9 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     color: #444;
     text-decoration: none;
     padding: 8px 16px;
@@ -276,7 +298,9 @@ const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'shor
 }
 
 .page-info {
-    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     color: #666;
 }
 

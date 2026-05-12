@@ -43,6 +43,21 @@ const hasClicksData = computed(() => {
 
 const charts = computed(() => props.charts || { clicks_over_time: [], top_countries: [] });
 
+// Mock data for new charts
+const mockDeviceData = [
+    { type: 'Desktop', icon: '🖥️', count: 1245, percentage: 65 },
+    { type: 'Mobile', icon: '📱', count: 567, percentage: 30 },
+    { type: 'Tablet', icon: '📱', count: 98, percentage: 5 }
+];
+
+const mockActivityData = [
+    { type: 'link', text: 'New link created: "summer-sale"', time: '2 min ago' },
+    { type: 'click', text: '50 clicks on "promo-2024"', time: '15 min ago' },
+    { type: 'link', text: 'Link "blog-post" updated', time: '1 hour ago' },
+    { type: 'click', text: '25 clicks on "product-launch"', time: '2 hours ago' },
+    { type: 'link', text: 'New link created: "newsletter"', time: '3 hours ago' }
+];
+
 const statItems = computed(() => [
     {
         id: 'links',
@@ -223,6 +238,108 @@ const icons = {
                                 </div>
                                 <div v-if="!charts.top_countries?.length" class="chart-placeholder">
                                     <span>No data yet</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Additional Charts Section -->
+            <section class="charts-section">
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-card__header">
+                            <span class="chart-card__marker">VII.</span>
+                            <span class="chart-card__title">Device Types</span>
+                        </div>
+                        <div class="chart-card__body">
+                            <div class="pie-chart-container">
+                                <svg class="pie-chart" viewBox="0 0 200 200">
+                                    <!-- Desktop slice -->
+                                    <path d="M 100 100 L 100 20 A 80 80 0 0 1 164 36 Z" fill="#e74c3c" />
+                                    <!-- Mobile slice -->
+                                    <path d="M 100 100 L 164 36 A 80 80 0 0 1 164 164 Z" fill="#3498db" />
+                                    <!-- Tablet slice -->
+                                    <path d="M 100 100 L 164 164 A 80 80 0 0 1 100 20 Z" fill="#2ecc71" />
+                                    <!-- Center circle -->
+                                    <circle cx="100" cy="100" r="40" fill="white" />
+                                    <!-- Center text -->
+                                    <text x="100" y="105" text-anchor="middle" font-family="DM Sans" font-size="14"
+                                        font-weight="600" fill="#1a1a1a">1,910</text>
+                                    <text x="100" y="120" text-anchor="middle" font-family="DM Sans" font-size="10"
+                                        fill="#666">Total</text>
+                                </svg>
+                                <div class="pie-legend">
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background: #e74c3c"></div>
+                                        <span class="legend-text">Desktop (65%)</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background: #3498db"></div>
+                                        <span class="legend-text">Mobile (30%)</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-color" style="background: #2ecc71"></div>
+                                        <span class="legend-text">Tablet (5%)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-card__header">
+                            <span class="chart-card__marker">VIII.</span>
+                            <span class="chart-card__title">Recent Activity</span>
+                        </div>
+                        <div class="chart-card__body">
+                            <div class="line-chart-container">
+                                <svg class="line-chart" viewBox="0 0 300 120">
+                                    <!-- Grid lines -->
+                                    <line x1="20" y1="20" x2="280" y2="20" stroke="#e5e5e5" stroke-width="1" />
+                                    <line x1="20" y1="40" x2="280" y2="40" stroke="#e5e5e5" stroke-width="1" />
+                                    <line x1="20" y1="60" x2="280" y2="60" stroke="#e5e5e5" stroke-width="1" />
+                                    <line x1="20" y1="80" x2="280" y2="80" stroke="#e5e5e5" stroke-width="1" />
+                                    <line x1="20" y1="100" x2="280" y2="100" stroke="#e5e5e5" stroke-width="1" />
+
+                                    <!-- Activity line -->
+                                    <polyline points="20,90 60,70 100,75 140,40 180,50 220,30 260,45" fill="none"
+                                        stroke="#e74c3c" stroke-width="2" />
+
+                                    <!-- Data points -->
+                                    <circle cx="20" cy="90" r="3" fill="#e74c3c" />
+                                    <circle cx="60" cy="70" r="3" fill="#e74c3c" />
+                                    <circle cx="100" cy="75" r="3" fill="#e74c3c" />
+                                    <circle cx="140" cy="40" r="3" fill="#e74c3c" />
+                                    <circle cx="180" cy="50" r="3" fill="#e74c3c" />
+                                    <circle cx="220" cy="30" r="3" fill="#e74c3c" />
+                                    <circle cx="260" cy="45" r="3" fill="#e74c3c" />
+
+                                    <!-- X-axis labels -->
+                                    <text x="20" y="115" text-anchor="middle" font-family="DM Sans" font-size="8"
+                                        fill="#666">Mon</text>
+                                    <text x="60" y="115" text-anchor="middle" font-family="DM Sans" font-size="8"
+                                        fill="#666">Tue</text>
+                                    <text x="100" y="115" text-anchor="middle" font-family="DM Sans" font-size="8"
+                                        fill="#666">Wed</text>
+                                    <text x="140" y="115" text-anchor="middle" font-family="DM Sans" font-size="8"
+                                        fill="#666">Thu</text>
+                                    <text x="180" y="115" text-anchor="middle" font-family="DM Sans" font-size="8"
+                                        fill="#666">Fri</text>
+                                    <text x="220" y="115" text-anchor="middle" font-family="DM Sans" font-size="8"
+                                        fill="#666">Sat</text>
+                                    <text x="260" y="115" text-anchor="middle" font-family="DM Sans" font-size="8"
+                                        fill="#666">Sun</text>
+                                </svg>
+                                <div class="chart-info">
+                                    <div class="info-item">
+                                        <span class="info-label">Peak:</span>
+                                        <span class="info-value">245 clicks</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Average:</span>
+                                        <span class="info-value">127 clicks</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -643,10 +760,10 @@ const icons = {
 .chart-card__body {
     flex: 1;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: center;
     min-height: 100px;
-    padding-bottom: 10px;
+    padding: 10px;
 }
 
 .chart-placeholder {
@@ -735,6 +852,85 @@ const icons = {
     color: var(--muted);
     font-family: var(--font-display);
     margin-top: 4px;
+}
+
+/* Pie Chart */
+.pie-chart-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    height: 100%;
+}
+
+.pie-chart {
+    width: 120px;
+    height: 120px;
+}
+
+.pie-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+.legend-text {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    color: var(--ink);
+}
+
+/* Line Chart */
+.line-chart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    height: 100%;
+}
+
+.line-chart {
+    width: 100%;
+    height: 120px;
+}
+
+.chart-info {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.info-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    color: var(--muted);
+}
+
+.info-value {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
 }
 
 /* Country List */

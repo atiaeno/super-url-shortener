@@ -238,6 +238,9 @@ const statusClass = (status) => ({
     max-width: 1000px;
     margin: 0 auto;
     padding: 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     width: 100%;
     overflow-x: hidden;
 }
@@ -276,7 +279,9 @@ const statusClass = (status) => ({
 }
 
 .enroll-desc {
-    font-size: 17px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     color: #444;
     line-height: 1.6;
     margin: 0;
@@ -311,7 +316,7 @@ const statusClass = (status) => ({
     font-size: 16px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0;
     color: #333;
 }
 
@@ -323,10 +328,11 @@ const statusClass = (status) => ({
 }
 
 .tier-label {
-    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
     color: #555;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
 }
 
 .enroll-action {
@@ -338,7 +344,7 @@ const statusClass = (status) => ({
     font-size: 18px;
     font-family: var(--font-display);
     font-weight: 600;
-    letter-spacing: 1px;
+    letter-spacing: 0;
 }
 
 .btn-large .material-icons,
@@ -373,9 +379,9 @@ const statusClass = (status) => ({
     background: var(--red);
     color: #fff;
     font-family: var(--font-display);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
     border-radius: var(--radius);
     border: none;
     cursor: pointer;
@@ -414,14 +420,14 @@ const statusClass = (status) => ({
     font-size: 26px;
     font-weight: 700;
     color: #1a1a1a;
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
 }
 
 .mini-stat__label {
-    font-size: 13px;
+    font-size: 12px;
     color: #555;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0;
 }
 
 /* ── Grid & Cards ────────────────────────────── */
@@ -449,7 +455,7 @@ const statusClass = (status) => ({
     font-weight: 600;
     color: #1a1a1a;
     text-transform: uppercase;
-    letter-spacing: 0.07em;
+    letter-spacing: 0;
     margin-bottom: 18px;
 }
 
@@ -468,7 +474,7 @@ const statusClass = (status) => ({
 }
 
 .tier-badge__rate {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--muted);
 }
 
@@ -522,7 +528,7 @@ const statusClass = (status) => ({
     font-size: 11px;
     color: var(--muted);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0;
 }
 
 .referral-box__row {
@@ -536,7 +542,7 @@ const statusClass = (status) => ({
     font-size: 15px;
     font-weight: 700;
     color: var(--red);
-    letter-spacing: 0.05em;
+    letter-spacing: 0;
 }
 
 /* ── Payout form ─────────────────────────────── */
@@ -547,7 +553,7 @@ const statusClass = (status) => ({
 }
 
 .payout-locked p {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--muted);
 }
 
@@ -587,7 +593,7 @@ const statusClass = (status) => ({
 }
 
 .field__label {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--ink);
 }
@@ -642,7 +648,7 @@ const statusClass = (status) => ({
 }
 
 .rate-chip__val {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--red);
     font-weight: 700;
 }
@@ -669,7 +675,7 @@ const statusClass = (status) => ({
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0;
     color: var(--muted);
     background: var(--surface);
 }
@@ -700,7 +706,7 @@ const statusClass = (status) => ({
     font-size: 9px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
     background: var(--red);
     color: #fff;
     padding: 2px 6px;
@@ -733,7 +739,7 @@ const statusClass = (status) => ({
 .tier-stat__label {
     font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
     color: var(--muted);
 }
 
@@ -757,8 +763,8 @@ const statusClass = (status) => ({
     display: flex;
     flex-direction: column;
     gap: 6px;
-    font-family:'DM Sans';
-    font-size:10px ;
+    font-family: 'DM Sans';
+    font-size: 10px;
 }
 
 .how-to-use__title {
@@ -766,13 +772,13 @@ const statusClass = (status) => ({
     font-size: 14px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
     color: #1a1a1a;
     margin: 0;
 }
 
 .how-to-use__step {
-    font-size: 13px;
+    font-size: 12px;
     color: #060606;
     margin: 0;
 }
@@ -803,7 +809,7 @@ const statusClass = (status) => ({
     text-align: center;
     padding: 24px;
     color: var(--muted);
-    font-size: 13px;
+    font-size: 12px;
     font-style: italic;
 }
 
@@ -829,7 +835,7 @@ const statusClass = (status) => ({
 }
 
 .earning-list li {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--muted);
     line-height: 1.5;
 }
@@ -869,11 +875,11 @@ const statusClass = (status) => ({
 
 .earning-tier-name {
     font-family: var(--font-display);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--red);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
 }
 
 .earning-tier-countries {
@@ -891,7 +897,7 @@ const statusClass = (status) => ({
 }
 
 .earning-note {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--muted);
     background: #fafafa;
     padding: 12px 16px;
@@ -941,7 +947,7 @@ const statusClass = (status) => ({
 }
 
 .link-muted {
-    font-size: 13px;
+    font-size: 12px;
     color: #52525B;
     text-decoration: none;
 }
@@ -1028,7 +1034,7 @@ const statusClass = (status) => ({
     }
 
     .how-to-use__step {
-        font-size: 13px;
+        font-size: 12px;
     }
 
     .referral-box {
@@ -1049,7 +1055,7 @@ const statusClass = (status) => ({
     }
 
     .field__label {
-        font-size: 13px;
+        font-size: 12px;
     }
 
     .field__input {

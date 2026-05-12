@@ -129,14 +129,14 @@ const tabs = [
                                 <input v-model="profileForm.name" type="text" required autocomplete="name"
                                     class="field__input" placeholder="Your name" />
                                 <span v-if="profileForm.errors.name" class="field__error">{{ profileForm.errors.name
-                                }}</span>
+                                    }}</span>
                             </div>
                             <div class="field">
                                 <label class="field__label">Email Address</label>
                                 <input v-model="profileForm.email" type="email" required autocomplete="username"
                                     class="field__input" placeholder="your@email.com" />
                                 <span v-if="profileForm.errors.email" class="field__error">{{ profileForm.errors.email
-                                }}</span>
+                                    }}</span>
                             </div>
                             <div v-if="mustVerifyEmail && user.email_verified_at === null" class="verify-notice">
                                 <p>Your email address is unverified.</p>
@@ -295,7 +295,7 @@ const tabs = [
                         <input v-model="deleteForm.password" type="password" class="field__input"
                             placeholder="Enter password" @keyup.enter="confirmDelete" />
                         <span v-if="deleteForm.errors.password" class="field__error">{{ deleteForm.errors.password
-                            }}</span>
+                        }}</span>
                     </div>
                     <div class="modal-actions">
                         <button @click="showDeleteModal = false; deleteForm.reset();" class="btn-ghost">Cancel</button>
@@ -310,10 +310,15 @@ const tabs = [
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
 .page-content {
     max-width: 700px;
     margin: 0 auto;
     padding: 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -337,8 +342,10 @@ const tabs = [
     background: transparent;
     border: none;
     border-radius: 8px;
-    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
     font-weight: 500;
+    letter-spacing: 0;
     color: #666;
     cursor: pointer;
     transition: all 0.2s;
@@ -400,7 +407,7 @@ const tabs = [
     color: #1a1a1a;
     margin: 0;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
 }
 
 .card-body {
@@ -428,8 +435,10 @@ const tabs = [
 }
 
 .field__label {
-    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
     font-weight: 500;
+    letter-spacing: 0;
     color: #333;
 }
 
@@ -437,7 +446,9 @@ const tabs = [
     padding: 10px 14px;
     border: 1px solid var(--border);
     border-radius: 8px;
-    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     color: #1a1a1a;
     background: #fff;
     transition: border-color 200ms;
@@ -449,13 +460,17 @@ const tabs = [
 }
 
 .field__hint {
+    font-family: 'DM Sans', sans-serif;
     font-size: 12px;
+    letter-spacing: 0;
     color: #888;
     margin-top: 8px;
 }
 
 .field__error {
+    font-family: 'DM Sans', sans-serif;
     font-size: 12px;
+    letter-spacing: 0;
     color: #dc2626;
 }
 
@@ -472,8 +487,10 @@ const tabs = [
     color: #fff;
     border: none;
     border-radius: 8px;
-    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
     font-weight: 500;
+    letter-spacing: 0;
     cursor: pointer;
     transition: opacity 200ms;
 }
@@ -485,12 +502,14 @@ const tabs = [
 
 .btn-secondary {
     padding: 10px 20px;
-    background: #fff;
+    background: transparent;
     color: #333;
     border: 1px solid var(--border);
     border-radius: 8px;
-    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
     font-weight: 500;
+    letter-spacing: 0;
     cursor: pointer;
     transition: all 200ms;
 }
@@ -500,7 +519,9 @@ const tabs = [
 }
 
 .api-desc {
-    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     color: #666;
     margin: 0 0 16px;
     line-height: 1.5;
@@ -512,7 +533,9 @@ const tabs = [
     color: #666;
     border: 1px solid var(--border);
     border-radius: 8px;
-    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     cursor: pointer;
 }
 
@@ -527,18 +550,24 @@ const tabs = [
     color: #fff;
     border: none;
     border-radius: 8px;
-    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
     font-weight: 500;
+    letter-spacing: 0;
     cursor: pointer;
 }
 
 .btn-sm {
     padding: 6px 14px;
-    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
 }
 
 .success-msg {
-    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     color: #16a34a;
 }
 
@@ -546,12 +575,15 @@ const tabs = [
     padding: 12px;
     background: #fef3c7;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 12px;
+    letter-spacing: 0;
 }
 
 .verify-notice p {
     margin: 0 0 8px 0;
     color: #92400e;
+    font-size: 12px;
+    letter-spacing: 0;
 }
 
 .verify-notice a {
@@ -597,8 +629,10 @@ const tabs = [
 }
 
 .provider-label {
-    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
     font-weight: 500;
+    letter-spacing: 0;
     color: #333;
 }
 
@@ -611,8 +645,10 @@ const tabs = [
 .status-badge {
     padding: 4px 10px;
     border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
     font-size: 12px;
     font-weight: 500;
+    letter-spacing: 0;
 }
 
 .status-badge.connected {
@@ -626,7 +662,9 @@ const tabs = [
 }
 
 .danger-text {
-    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     color: #666;
     margin: 0 0 16px 0;
 }
@@ -660,7 +698,9 @@ const tabs = [
 }
 
 .modal-desc {
-    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
     color: #666;
     margin: 0 0 20px 0;
 }

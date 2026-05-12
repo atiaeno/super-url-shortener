@@ -57,6 +57,11 @@ const form = useForm({
     captcha_secret_key: props.settings.captcha_secret_key,
     turnstile_site_key: props.settings.turnstile_site_key,
     turnstile_secret_key: props.settings.turnstile_secret_key,
+    // Per-page CAPTCHA settings
+    captcha_login: props.settings.captcha_login === 'true',
+    captcha_register: props.settings.captcha_register === 'true',
+    captcha_forgot_password: props.settings.captcha_forgot_password === 'true',
+    captcha_redirect: props.settings.captcha_redirect === 'true',
     safe_browsing_enabled: props.settings.safe_browsing_enabled === 'true',
     safe_browsing_api_key: props.settings.safe_browsing_api_key,
     auto_suspend_threshold: parseInt(props.settings.auto_suspend_threshold),
@@ -64,7 +69,6 @@ const form = useForm({
     sitemap_enabled: props.settings.sitemap_enabled === 'true',
     redirect_countdown: parseInt(props.settings.redirect_countdown),
     redirect_mode: props.settings.redirect_mode,
-    redirect_captcha: props.settings.redirect_captcha === 'true',
     affiliate_min_payout: parseFloat(props.settings.affiliate_min_payout) || 50,
     affiliate_payout_methods: props.settings.affiliate_payout_methods || 'PayPal',
     api_rate_limit_per_hour: parseInt(props.settings.api_rate_limit_per_hour) || 100,
@@ -402,6 +406,26 @@ const icons = {
                                         <p class="feature-card__desc">{{ feat.desc }}</p>
                                     </div>
                                 </div>
+
+                                <div class="divider"></div>
+
+                                <div v-if="form.features_affiliate" class="field-grid" style="padding-left:28px">
+                                    <div class="field">
+                                        <label class="field__label">Affiliate Payout Methods</label>
+                                        <input v-model="form.affiliate_payout_methods" type="text" class="field__input"
+                                            placeholder="PayPal,Bank Transfer,Crypto" />
+                                        <p class="field__hint">Comma-separated list of available payout methods for
+                                            affiliates.
+                                        </p>
+                                    </div>
+                                    <div class="field">
+                                        <label class="field__label">Minimum Payout ($)</label>
+                                        <input v-model="form.affiliate_min_payout" type="number" min="1" step="0.01"
+                                            class="field__input" />
+                                        <p class="field__hint">Minimum amount required before affiliates can request
+                                            payout.</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -475,20 +499,6 @@ const icons = {
                                         </label>
                                     </div>
                                 </div>
-
-                                <div class="divider"></div>
-
-                                <div class="feature-card">
-                                    <input v-model="form.redirect_captcha" type="checkbox" id="redirect_captcha"
-                                        class="toggle-check" />
-                                    <div>
-                                        <label for="redirect_captcha" class="feature-card__title">Require
-                                            CAPTCHA</label>
-                                        <p class="feature-card__desc">Show a CAPTCHA challenge on the redirect page
-                                            before
-                                            allowing access. Helps prevent bots.</p>
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
@@ -543,6 +553,57 @@ const icons = {
                                             <label class="field__label">Turnstile Secret Key</label>
                                             <input v-model="form.turnstile_secret_key" type="password"
                                                 class="field__input" placeholder="0x4AAAAAAABkMYinuC2iX" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Per-Page CAPTCHA Settings -->
+                                <div class="divider"></div>
+                                <div style="padding-left:28px">
+                                    <h4
+                                        style="margin: 20px 0 15px 0; color: #64748b; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Per-Page CAPTCHA Control</h4>
+                                    <p style="margin-bottom: 15px; color: #64748b; font-size: 13px;">Select which pages
+                                        should
+                                        show CAPTCHA verification:</p>
+
+                                    <div class="feature-card" style="margin-bottom: 12px;">
+                                        <input v-model="form.captcha_login" type="checkbox" id="captcha_login"
+                                            class="toggle-check" />
+                                        <div>
+                                            <label for="captcha_login" class="feature-card__title">Login Page</label>
+                                            <p class="feature-card__desc">Show CAPTCHA on user login form</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="feature-card" style="margin-bottom: 12px;">
+                                        <input v-model="form.captcha_register" type="checkbox" id="captcha_register"
+                                            class="toggle-check" />
+                                        <div>
+                                            <label for="captcha_register" class="feature-card__title">Registration
+                                                Page</label>
+                                            <p class="feature-card__desc">Show CAPTCHA on user registration form</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="feature-card" style="margin-bottom: 12px;">
+                                        <input v-model="form.captcha_forgot_password" type="checkbox"
+                                            id="captcha_forgot_password" class="toggle-check" />
+                                        <div>
+                                            <label for="captcha_forgot_password" class="feature-card__title">Forgot
+                                                Password</label>
+                                            <p class="feature-card__desc">Show CAPTCHA on password reset request form
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="feature-card" style="margin-bottom: 12px;">
+                                        <input v-model="form.captcha_redirect" type="checkbox" id="captcha_redirect"
+                                            class="toggle-check" />
+                                        <div>
+                                            <label for="captcha_redirect" class="feature-card__title">URL Redirect
+                                                Pages</label>
+                                            <p class="feature-card__desc">Show CAPTCHA on short URL redirect pages</p>
                                         </div>
                                     </div>
                                 </div>

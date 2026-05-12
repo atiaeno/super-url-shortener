@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\CaptchaService;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,9 +22,12 @@ class NewPasswordController extends Controller
      */
     public function create(Request $request): Response
     {
+        $captcha = app(\App\Services\CaptchaService::class);
+
         return Inertia::render('Auth/ResetPassword', [
             'email' => $request->email,
             'token' => $request->route('token'),
+            'recaptchaSiteKey' => $captcha->isEnabled() ? $captcha->siteKey() : '',
         ]);
     }
 
