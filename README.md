@@ -411,6 +411,37 @@ php artisan test --parallel --recreate-databases
 | **Queue** | OG tag fetching | Job queued, tag extracted, stored |
 | **API** | Rate limiting | 429 returned after threshold |
 | **Auth** | OAuth flow | Provider callback creates/updates user |
+| **CAPTCHA** | Multi-provider switching | Seamless transition between reCAPTCHA/Turnstile |
+
+---
+
+## 🛡️ Dual CAPTCHA Protection
+
+### Multi-Provider CAPTCHA System
+
+The platform supports both Google reCAPTCHA and Cloudflare Turnstile for maximum flexibility and reliability.
+
+| Provider | Monthly Limit | Setup Complexity | Use Case |
+|---------|--------------|------------------|---------|
+| **Google reCAPTCHA** | 10,000/month (free tier) | Simple | Traditional choice, widely trusted |
+| **Cloudflare Turnstile** | Unlimited (free tier) | Moderate | Modern, no monthly limits, better UX |
+
+
+
+### Implementation Details
+
+- **Auth Pages**: Login, Register, ForgotPassword use `CaptchaWrapper` component
+- **Redirect Page**: Supports both providers with conditional loading
+- **Backend Service**: `CaptchaService` handles verification for both providers
+- **Seamless Switching**: Change provider via admin dropdown, no code changes needed
+
+
+
+**Benefits:**
+- ✅ **No monthly limits** - Switch to Turnstile when approaching reCAPTCHA limits
+- ✅ **Admin-friendly** - Easy provider switching via dropdown
+- ✅ **Complete coverage** - All CAPTCHA instances support both providers
+- ✅ **Backward compatible** - Existing reCAPTCHA setup continues to work
 
 ---
 
