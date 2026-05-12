@@ -22,6 +22,8 @@ class Payout extends Model
         'amount',
         'status',
         'paypal_email',
+        'payment_method',
+        'payment_email',
         'admin_note',
         'processed_by',
         'processed_at',

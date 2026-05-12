@@ -28,12 +28,12 @@ class Affiliate extends Model
     ];
 
     protected $casts = [
-        'total_earnings' => 'decimal:4',
-        'pending_earnings' => 'decimal:4',
-        'paid_earnings' => 'decimal:4',
-        'referral_earnings' => 'decimal:4',
-        'referral_pending_earnings' => 'decimal:4',
-        'referral_paid_earnings' => 'decimal:4',
+        'total_earnings' => 'float',
+        'pending_earnings' => 'float',
+        'paid_earnings' => 'float',
+        'referral_earnings' => 'float',
+        'referral_pending_earnings' => 'float',
+        'referral_paid_earnings' => 'float',
         'total_visits' => 'integer',
         'is_active' => 'boolean',
     ];
@@ -66,6 +66,11 @@ class Affiliate extends Model
     public function referralCommissionsAsReferral(): HasMany
     {
         return $this->hasMany(ReferralCommission::class, 'referral_affiliate_id');
+    }
+
+    public function affiliateVisits(): HasMany
+    {
+        return $this->hasMany(AffiliateVisit::class);
     }
 
     /**

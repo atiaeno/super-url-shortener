@@ -19,10 +19,12 @@ class DynamicRateLimitTest extends TestCase
         parent::setUp();
 
         $this->user = User::factory()->create();
-        $this->token = ApiToken::factory()->create([
+        $tokenString = 'test-token-' . uniqid();
+        ApiToken::factory()->create([
             'user_id' => $this->user->id,
-            'token' => 'test-token-' . uniqid(),
+            'token' => $tokenString,
         ]);
+        $this->token = $tokenString;
     }
 
     /**

@@ -271,25 +271,11 @@ class RedirectControllerTest extends TestCase
      */
     public function it_respects_redirect_settings()
     {
-        Setting::factory()->create([
-            'key' => 'redirect_countdown',
-            'value' => '15',
-        ]);
-
-        Setting::factory()->create([
-            'key' => 'redirect_mode',
-            'value' => 'manual',
-        ]);
-
-        Setting::factory()->create([
-            'key' => 'redirect_captcha',
-            'value' => 'true',
-        ]);
-
-        Setting::factory()->create([
-            'key' => 'captcha_site_key',
-            'value' => 'test-site-key',
-        ]);
+        Setting::set('redirect_countdown', '15');
+        Setting::set('redirect_mode', 'manual');
+        Setting::set('captcha_enabled', 'true');
+        Setting::set('captcha_redirect', 'true');
+        Setting::set('captcha_site_key', 'test-site-key');
 
         $link = Link::factory()->create([
             'user_id' => $this->user->id,

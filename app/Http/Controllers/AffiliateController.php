@@ -96,7 +96,7 @@ class AffiliateController extends Controller
 
         $minPayout = (float) Setting::get('affiliate_min_payout', 50);
 
-        if (!$affiliate->canRequestPayout($minPayout)) {
+        if (!$affiliate->canRequestPayoutWithReferrals($minPayout)) {
             return back()->with('error', "Minimum payout is \${$minPayout}.");
         }
 

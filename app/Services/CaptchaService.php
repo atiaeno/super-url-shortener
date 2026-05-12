@@ -138,7 +138,21 @@ class CaptchaService
                     ]
                 );
 
+            // Fail open on HTTP errors (500, etc.)
+            if ($response->failed()) {
+                \Illuminate\Support\Facades\Log::warning('reCAPTCHA HTTP error', [
+                    'status' => $response->status()
+                ]);
+                return true;
+            }
+
             $result = $response->json();
+
+            // Fail open on malformed JSON responses
+            if ($result === null) {
+                \Illuminate\Support\Facades\Log::warning('reCAPTCHA malformed response');
+                return true;
+            }
 
             return (bool) ($result['success'] ?? false);
         } catch (\Throwable $e) {

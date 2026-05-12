@@ -21,9 +21,9 @@ class ReferralCommission extends Model
     ];
 
     protected $casts = [
-        'referral_earnings' => 'decimal:4',
-        'commission_amount' => 'decimal:4',
-        'commission_rate' => 'decimal:2',
+        'referral_earnings' => 'float',
+        'commission_amount' => 'float',
+        'commission_rate' => 'float',
         'commission_date' => 'date',
     ];
 

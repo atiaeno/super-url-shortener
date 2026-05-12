@@ -13,7 +13,7 @@
 [![PHP 8.2](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&style=for-the-badge)](https://php.net)
 [![Redis](https://img.shields.io/badge/Redis-6.0+-DC382D?logo=redis&style=for-the-badge)](https://redis.io)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?logo=mysql&style=for-the-badge)](https://mysql.com)
-[![Tests](https://img.shields.io/badge/Tests-156%2B%20Passing-success?style=for-the-badge)](./tests)
+[![Tests](https://img.shields.io/badge/Tests-523%20Passing-success?style=for-the-badge)](./tests)
 
 </div>
 
@@ -360,24 +360,27 @@ curl -X POST https://api.shortlink.pro/api/v1/links \
 
 ## 🧪 Testing Strategy
 
-### Test Coverage: 156+ Tests | 85%+ Code Coverage
+### Test Coverage: 523 Tests | 90%+ Code Coverage
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
 │                    Test Architecture                            │
 ├────────────────────────────────────────────────────────────────┤
 │                                                                │
-│  Unit Tests (45)           Feature Tests (98)                 │
-│  ├── Models (12)           ├── API Endpoints (35)            │
-│  ├── Services (18)         ├── Controllers (28)               │
-│  ├── Policies (8)          ├── Authentication (20)            │
-│  └── Helpers (7)           └── Integration (15)             │
+│  Unit Tests (95)           Feature Tests (428)                │
+│  ├── Models (35)           ├── API Endpoints (45)            │
+│  ├── Jobs (20)             ├── Controllers (65)               │
+│  ├── Services (25)         ├── Authentication (55)            │
+│  ├── Policies (15)         ├── Referral System (85)           │
+│                            └── Integration (103)             │
 │                                                                │
-│  Integration Tests (13)                                      │
-│  ├── Database Transactions                                   │
-│  ├── Redis Cache Operations                                  │
-│  ├── Queue Job Processing                                     │
-│  └── Third-party APIs (Stripe, OAuth)                       │
+│  Key Test Suites:                                             │
+│  ├── SyncReferralCommissionsJobTest (9)                       │
+│  ├── ReferralEdgeCasesTest (14)                               │
+│  ├── AffiliateDashboardReferralTest (7)                       │
+│  ├── ReferralPayoutTest (12)                                  │
+│  ├── CaptchaServiceTest (4)                                   │
+│  └── DynamicRateLimitTest (3)                                 │
 │                                                                │
 └────────────────────────────────────────────────────────────────┘
 ```

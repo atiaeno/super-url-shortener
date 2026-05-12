@@ -24,7 +24,7 @@ class SyncReferralCommissionsJob implements ShouldQueue
     public function handle(): void
     {
         $commissionRate = (float) Setting::get('referral_commission_rate', 1.5);
-        
+
         if ($commissionRate <= 0 || $commissionRate > 2) {
             Log::warning('Invalid referral commission rate: ' . $commissionRate);
             return;
@@ -33,7 +33,7 @@ class SyncReferralCommissionsJob implements ShouldQueue
         // Get all affiliates who have referred users
         $referrers = Affiliate::where('is_active', true)
             ->whereHas('referredUsers')
-            ->with(['referredUsers.affiliate'])
+            ->with(['referredUsers.affiliate', 'referredUsers.affiliate.tier'])
             ->get();
 
         foreach ($referrers as $referrer) {
@@ -50,20 +50,30 @@ class SyncReferralCommissionsJob implements ShouldQueue
 
         foreach ($referrer->referredUsers as $referredUser) {
             $referralAffiliate = $referredUser->affiliate;
-            
+
             if (!$referralAffiliate || !$referralAffiliate->is_active) {
                 continue;
             }
 
             // Calculate referral's earnings for the commission date
             $referralEarnings = $this->getReferralEarningsForDate($referralAffiliate, $this->commissionDate);
-            
+
             if ($referralEarnings <= 0) {
                 continue;
             }
 
             $commissionAmount = ($referralEarnings * $commissionRate) / 100;
-            
+
+            // Check if commission already exists for this date
+            $existingCommission = ReferralCommission::where('referrer_affiliate_id', $referrer->id)
+                ->where('referral_affiliate_id', $referralAffiliate->id)
+                ->whereDate('commission_date', $this->commissionDate)
+                ->first();
+
+            if ($existingCommission) {
+                continue;  // Skip if commission already exists
+            }
+
             // Create commission record
             ReferralCommission::create([
                 'referrer_affiliate_id' => $referrer->id,
@@ -99,7 +109,8 @@ class SyncReferralCommissionsJob implements ShouldQueue
 
         // Calculate earnings based on affiliate visits for the date
         // This is a simplified calculation - in production you might want to track daily earnings
-        $dailyVisits = $affiliate->affiliateVisits()
+        $dailyVisits = $affiliate
+            ->affiliateVisits()
             ->whereDate('created_at', $date)
             ->count();
 
@@ -115,7 +126,7 @@ class SyncReferralCommissionsJob implements ShouldQueue
 
         // Calculate earnings based on visits and tier rate
         $earnings = ($dailyVisits / $tier->view_multiplier) * $tier->view_rate;
-        
+
         return round($earnings, 4);
     }
 }

@@ -123,8 +123,10 @@ Route::middleware('auth')->group(function () {
     // Affiliate program (user-facing)
     Route::prefix('affiliate')->name('affiliate.')->group(function () {
         Route::get('/', [AffiliateController::class, 'index'])->name('index');
+        Route::get('/dashboard', [AffiliateController::class, 'index'])->name('dashboard');
         Route::post('/enroll', [AffiliateController::class, 'enroll'])->name('enroll');
         Route::post('/payout', [AffiliateController::class, 'requestPayout'])->name('payout.request');
+        Route::post('/payout/request', [AffiliateController::class, 'requestPayout'])->name('payout.request.alt');
         Route::post('/sync', [AffiliateController::class, 'sync'])->name('sync');
         Route::get('/payouts', [AffiliateController::class, 'payouts'])->name('payouts');
     });
