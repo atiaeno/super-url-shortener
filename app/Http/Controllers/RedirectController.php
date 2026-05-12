@@ -112,7 +112,7 @@ class RedirectController extends Controller
 
         // Check if page is cached — key includes domain to prevent cross-domain collisions
         $cacheKey = "redirect:page:{$domainId}:{$shortCode}";
-        $cacheDays = (int) Setting::get('redirect_cache_days', 7);
+        $cacheDays = (int) Setting::get('cache_ttl_redirect', 7);
         $cachedHtml = Cache::get($cacheKey);
 
         if ($cachedHtml) {

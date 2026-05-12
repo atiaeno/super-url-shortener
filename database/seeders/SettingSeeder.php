@@ -50,7 +50,7 @@ class SettingSeeder extends Seeder
             ['key' => 'affiliate_min_payout', 'value' => '50', 'group' => 'features'],
             ['key' => 'affiliate_payout_methods', 'value' => 'PayPal,Bank Transfer,Crypto', 'group' => 'features'],
             // Cache
-            ['key' => 'cache_ttl_redirect', 'value' => '86400', 'group' => 'cache'],
+            ['key' => 'cache_ttl_redirect', 'value' => '7', 'group' => 'cache'],
             ['key' => 'cache_ttl_analytics', 'value' => '3600', 'group' => 'cache'],
             // Security
             ['key' => 'captcha_enabled', 'value' => 'false', 'group' => 'security'],

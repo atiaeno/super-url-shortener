@@ -26,7 +26,7 @@ class SettingSeeder extends Seeder
             ['key' => 'features_gdpr', 'value' => 'true', 'group' => 'features'],
             ['key' => 'auto_suspend_threshold', 'value' => '5', 'group' => 'features'],
             // Cache settings (optimized for production)
-            ['key' => 'cache_ttl_redirect', 'value' => '86400', 'group' => 'cache'],
+            ['key' => 'cache_ttl_redirect', 'value' => '7', 'group' => 'cache'],
             ['key' => 'cache_ttl_analytics', 'value' => '3600', 'group' => 'cache'],
             // Security settings (disabled by default for production)
             ['key' => 'captcha_enabled', 'value' => 'false', 'group' => 'security'],

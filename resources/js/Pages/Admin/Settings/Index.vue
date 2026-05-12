@@ -644,8 +644,8 @@ const icons = {
                             <div class="panel__body">
                                 <div class="field-grid">
                                     <div class="field">
-                                        <label class="field__label">Redirect Cache TTL (seconds)</label>
-                                        <input v-model="form.cache_ttl_redirect" type="number" min="60"
+                                        <label class="field__label">Redirect Cache TTL (days)</label>
+                                        <input v-model="form.cache_ttl_redirect" type="number" min="1"
                                             class="field__input" />
                                     </div>
                                     <div class="field">
