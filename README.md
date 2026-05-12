@@ -1,8 +1,9 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 
 <p align="center">
-  <h1 align="center">Super URL Shortener</h1>
-  <p align="center">A powerful URL shortener with affiliate program, QR codes, and admin panel , STATICS , ADM PANEL</p>
+  <h1 align="center">ShortLink PRO</h1>
+  <h3 align="center">Enterprise-Grade URL Shortener SaaS Platform</h3>
+  <p align="center">Advanced URL shortening with affiliate monetization, real-time analytics, REST API, and comprehensive admin panel</p>
 </p>
 
 <p align="center">
@@ -10,327 +11,406 @@
   <img src="https://img.shields.io/badge/Vue.js-3.x-4FC08D?style=flat-square&logo=vue.js" alt="Vue 3">
   <img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=flat-square&logo=php" alt="PHP 8.2+">
   <img src="https://img.shields.io/badge/Tailwind-3.x-38B2AC?style=flat-square&logo=tailwind-css" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/MySQL-8.0+-00758F?style=flat-square&logo=mysql" alt="MySQL 8.0">
+  <img src="https://img.shields.io/badge/Redis-6.0+-DC382D?style=flat-square&logo=redis" alt="Redis 6.0">
   <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License MIT">
 </p>
 
 ---
 
-## Features
+## 🖼️ Project Overview
 
-### Core Features
-- **URL Shortening** - Create short, shareable links instantly
-- **Guest Shortening** - Shorten URLs without registration (rate-limited)
-- **Custom Short Codes** - Personalized memorable links
-- **QR Code Generation** - Download QR codes in SVG or PNG format
-- **Bulk Shortening** - Shorten multiple URLs at once with CSV export
-
-### User Features
-- **User Dashboard** - Manage all your links with analytics
-- **OAuth Authentication** - Sign in with Google or GitHub
-- **Link Analytics** - Track clicks, referrers, and geographic data
-- **Link Management** - Edit, delete, and organize your links
-
-### Affiliate Program
-- **Tiered Commission System** - Earn based on performance levels
-- **Country-Specific Rates** - Different payouts per geographic region
-- **Payout Requests** - Request withdrawals when reaching thresholds
-- **Real-time Stats** - Monitor clicks and earnings
-
-### Admin Panel
-- **User Management** - Manage users, roles, and bans
-- **Link Moderation** - Review reported links with audit logs
-- **Affiliate Tiers** - Configure commission structures
-- **Payout Management** - Approve, reject, and process withdrawals
-- **Ad Management** - Configure interstitial advertisements
-- **System Settings** - Backup, import/export, and cache management
-
-### Technical Features
-- **Redis Caching** - High-performance caching and session storage
-- **Queue System** - Background job processing for analytics
-- **Dynamic Rate Limiting** - Configurable protection against abuse
-- **Input Validation** - URL sanitization and security checks
-- **Database Indexes** - Optimized for high-performance queries
-- **Health Monitoring** - System health checks and metrics
-- **SEO Ready** - Sitemap and robots.txt generation
-- **Responsive Design** - Works on all devices
-
-### Security Features
-- **API Authentication** - Bearer token authentication only
-- **Mass Assignment Protection** - Secure model attributes
-- **URL Validation** - Prevents malicious URLs
-- **Safe Browsing** - Optional security scanning
-- **GDPR Compliance** - Data protection features
-
-### Production Ready
-- **Docker Deployment** - Complete containerized setup
-- **Performance Optimized** - Database indexes and caching
-- **Monitoring Ready** - Health checks and logging
-- **Scalable Architecture** - Redis queues and load balancing ready
+| Dashboard | Analytics | Affiliate Program |
+|-----------|-----------|-------------------|
+| ![Dashboard](https://placehold.co/400x250/1a1a1a/e74c3c?text=Link+Dashboard) | ![Analytics](https://placehold.co/400x250/1a1a1a/e74c3c?text=Real-time+Analytics) | ![Affiliate](https://placehold.co/400x250/1a1a1a/e74c3c?text=Affiliate+System) |
+| **Link Management** | **QR Codes** | **Admin Panel** |
+| ![Links](https://placehold.co/400x250/1a1a1a/e74c3c?text=Link+Management) | ![QR](https://placehold.co/400x250/1a1a1a/e74c3c?text=QR+Generator) | ![Admin](https://placehold.co/400x250/1a1a1a/e74c3c?text=Admin+Panel) |
 
 ---
 
-## Requirements
+## 🏗️ Architecture Overview
 
-- PHP 8.2 or higher
-- MySQL 8.0+ or MariaDB 10.6+
-- Redis 6.0+
-- Node.js 18+ and NPM
-- Composer 2.x
-
----
-
-## Installation
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/yourusername/shortlink.git
-cd shortlink
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              ShortLink PRO Architecture                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │
+│  │   Vue.js    │    │   Vue.js    │    │   Vue.js    │    │   Vue.js    │  │
+│  │  Dashboard  │    │   Admin     │    │  Affiliate  │    │    Auth     │  │
+│  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘    └──────┬──────┘  │
+│         │                  │                  │                  │         │
+│         └──────────────────┴────────┬─────────┴──────────────────┘         │
+│                                     │                                       │
+│                              ┌──────▼──────┐                                │
+│                              │   Laravel   │                                │
+│                              │     12.x    │                                │
+│                              └──────┬──────┘                                │
+│                                     │                                       │
+│    ┌───────────────────────────────┼───────────────────────────────┐       │
+│    │                               │                               │       │
+│ ┌──▼───┐  ┌─────────┐  ┌─────────┐ │ ┌─────────┐  ┌─────────┐  ┌──▼───┐  │
+│ │ MySQL │  │  Redis  │  │  Queue  │ │ │  Jobs   │  │  Cache  │  │OAuth │  │
+│ │ 8.0+  │  │ Caching │  │ Workers │ │ │ (OG/SEO)│  │ Redirect│  │ 2FA  │  │
+│ └───────┘  └─────────┘  └─────────┘ │ └─────────┘  └─────────┘  └───────┘  │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 2. Install PHP Dependencies
+---
+
+## 🚀 Key Features
+
+### 🔗 URL Shortening Engine
+| Feature | Description |
+|---------|-------------|
+| **Custom Aliases** | Memorable short URLs (3-50 chars, alphanumeric) |
+| **Guest Shortening** | Anonymous link creation (rate-limited 30/min/IP) |
+| **Password Protection** | Private links with password access |
+| **Expiration Dates** | Time-based link expiry |
+| **Campaign Tags** | UTM-compatible campaign tracking |
+| **Bulk Operations** | Create up to 500 links via CSV upload |
+| **Multi-Domain** | Unlimited branded short domains |
+
+### 📊 Advanced Analytics
+| Metric | Implementation |
+|--------|----------------|
+| **Real-time Clicks** | <30 second delay, live tracking |
+| **Geographic Data** | Country + city-level location |
+| **Device Tracking** | Mobile, desktop, tablet breakdown |
+| **Browser Analytics** | Chrome, Safari, Firefox, etc. |
+| **Referrer Tracking** | Traffic source attribution |
+| **OS Detection** | Windows, macOS, Linux, iOS, Android |
+| **Daily Aggregation** | Optimized daily summary tables |
+
+### 💰 Affiliate Monetization System
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  Affiliate Commission Flow                   │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  Visitor clicks affiliate link → Track visit by country    │
+│         ↓                                                   │
+│  Tier-based commission rate applied                        │
+│         ↓                                                   │
+│  Country-specific rate override (if configured)            │
+│         ↓                                                   │
+│  Earnings calculated & stored in AffiliateStat table       │
+│         ↓                                                   │
+│  User requests payout → Admin approves → Payment processed │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+- **Tiered Commissions** - Bronze, Silver, Gold tiers with thresholds
+- **Country-Specific Rates** - Custom rates per geographic region
+- **Payout Management** - PayPal integration with audit logs
+- **Earnings Dashboard** - Real-time stats with sync functionality
+
+### 📱 QR Code System
+- SVG & PNG formats with customizable colors
+- Direct download or embed in pages
+- Batch generation support
+
+### 🔌 REST API
+```bash
+# Authentication
+curl -H "Authorization: Bearer YOUR_API_TOKEN" \
+  https://api.shortlink.pro/api/v1/links
+
+# Create Link
+POST /api/v1/links
+{
+  "url": "https://example.com",
+  "alias": "my-custom-code",
+  "domain_id": 1
+}
+
+# Get Analytics
+GET /api/v1/links/{id}/analytics?period=week
+```
+- Full CRUD operations
+- Token-based authentication
+- Rate limiting (1000/hour)
+- Webhook support
+
+### 🔍 SEO Indexing Integration
+- **Google Indexing API** - Instant URL submission
+- **IndexNow Protocol** - Bing/Yandex instant notification
+- **XML Sitemap Ping** - Traditional search engine submission
+- **Configurable Intervals** - Hourly/daily scheduling
+
+### 📢 Advertising System
+- **Ad Management** - Create ads with title, URL, image
+- **Per-Link Overrides** - Inherit, disable, or force specific ads
+- **Performance Tracking** - Impression & click analytics
+
+### 👥 User Management
+- **Roles** - Admin, User with permission system
+- **OAuth** - Google, GitHub, Facebook login
+- **2FA** - Two-factor authentication
+- **CAPTCHA** - Google reCAPTCHA protection
+- **Email Verification** - Disposable email blocking
+
+### 🛡️ Security & Compliance
+- **GDPR** - IP anonymization, data retention controls
+- **Rate Limiting** - Dynamic throttling per endpoint
+- **Input Validation** - URL sanitization & security checks
+- **CSRF/XSS Protection** - Built-in Laravel security
+- **Audit Logging** - Full activity tracking
+
+---
+
+## 💻 Technical Implementation
+
+### Database Schema Design
+```sql
+-- Core Links Table with optimized indexes
+links (
+    id, user_id, domain_id, short_code [UNIQUE INDEX],
+    destination_url, custom_alias, campaign_tag,
+    visibility, password, clicks_count,
+    expires_at, is_active, created_at, updated_at
+)
+
+-- Daily Analytics Aggregation (performance optimization)
+link_analytics_daily (
+    link_id, date [INDEX],
+    total_clicks, by_device JSON, by_country JSON,
+    by_browser JSON, by_referrer JSON
+)
+
+-- Affiliate System with country rates
+affiliate_tiers (
+    id, name, visit_threshold, commission_rate,
+    view_rate, view_multiplier, is_active
+)
+
+affiliate_country_rates (
+    affiliate_tier_id, country_code, commission_rate
+)
+
+affiliate_stats (
+    affiliate_id, affiliate_tier_id,
+    visits, earnings [INDEXED for fast queries]
+)
+```
+
+### Performance Optimizations
+| Optimization | Implementation |
+|--------------|----------------|
+| **Redirect Caching** | Redis with domain-scoped keys |
+| **Daily Aggregation** | Pre-computed analytics tables |
+| **Queue Processing** | Background jobs for OG tags & SEO |
+| **Database Indexing** | Composite indexes on frequently queried columns |
+| **Eager Loading** | Relationships preloaded to avoid N+1 |
+| **Cache Invalidation** | Domain-keyed cache with TTL |
+
+### Caching Strategy
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Redirect Cache Flow                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  Request → Check Redis Cache (domain:code)                  │
+│       │                                                     │
+│       ├── HIT → Return cached URL (sub-millisecond)         │
+│       │                                                     │
+│       └── MISS → Query DB → Cache result (24h TTL)          │
+│                  → Return URL                               │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🛠️ API Endpoints
+
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/auth/register` | User registration |
+| POST | `/api/v1/auth/login` | User login |
+| POST | `/api/v1/auth/logout` | User logout |
+
+### Links
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/links` | List all links |
+| POST | `/api/v1/links` | Create new link |
+| GET | `/api/v1/links/{id}` | Get link details |
+| PATCH | `/api/v1/links/{id}` | Update link |
+| DELETE | `/api/v1/links/{id}` | Delete link |
+
+### Analytics
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/links/{id}/analytics` | Link analytics |
+| GET | `/api/v1/analytics` | Global analytics |
+
+### Affiliate
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/affiliate` | Affiliate profile |
+| POST | `/api/v1/affiliate/enroll` | Enroll in program |
+| GET | `/api/v1/affiliate/tiers` | Available tiers |
+| POST | `/api/v1/affiliate/payout` | Request payout |
+
+### Domains
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/domains` | List domains |
+| POST | `/api/v1/domains` | Create domain |
+| PATCH | `/api/v1/domains/{id}` | Update domain |
+| DELETE | `/api/v1/domains/{id}` | Delete domain |
+
+---
+
+## ⚙️ Requirements
+
+| Requirement | Version | Description |
+|-------------|---------|-------------|
+| **PHP** | 8.2+ | Server-side runtime |
+| **MySQL** | 8.0+ | Primary database |
+| **Redis** | 6.0+ | Caching & queues |
+| **Node.js** | 18+ | Frontend build |
+| **Composer** | 2.x | PHP package manager |
+
+---
+
+## 🚦 Installation
+
+### 1. Clone & Setup
 
 ```bash
+git clone https://github.com/atiahegazy/url-shortener.git
+cd url-shortener
 composer install
-```
-
-### 3. Install Node.js Dependencies
-
-```bash
 npm install
 ```
 
-### 4. Environment Setup
+### 2. Environment Configuration
 
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-### 5. Configure Environment Variables
-
-Edit `.env` and set your database and Redis credentials:
-
+Configure your `.env`:
 ```env
-APP_NAME="ShortLink"
+APP_NAME="ShortLink PRO"
 APP_URL=http://localhost:8000
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=shortlink
+DB_DATABASE=shortlink_pro
 DB_USERNAME=root
 DB_PASSWORD=your_password
 
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 
-# Optional: OAuth Providers
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-
-GITHUB_CLIENT_ID=your_github_client_id
-GITHUB_CLIENT_SECRET=your_github_client_secret
+# OAuth (optional)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
 ```
 
-### 6. Create Database
+### 3. Database Setup
 
 ```bash
-mysql -u root -p -e "CREATE DATABASE shortlink CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root -p -e "CREATE DATABASE shortlink_pro CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+php artisan migrate --seed
 ```
 
-### 7. Run Migrations and Seeders
-
-```bash
-php artisan migrate
-php artisan db:seed
-```
-
-### 8. Build Assets
+### 4. Build & Run
 
 ```bash
 npm run build
-```
-
-### 9. Start the Application
-
-Development mode (with hot reload):
-```bash
-composer run dev
-```
-
-Or manually start services:
-```bash
-# Terminal 1 - Laravel server
 php artisan serve
-
-# Terminal 2 - Queue worker
+# In another terminal:
 php artisan queue:listen
-
-# Terminal 3 - Vite dev server
-npm run dev
 ```
 
 ---
 
-## Quick Setup (One Command)
+## 🐳 Docker Deployment
 
-If you have all requirements installed, you can use the setup script:
-
+### Production Setup
 ```bash
-composer run setup
-```
-
-This will:
-- Install PHP dependencies
-- Copy `.env.example` to `.env`
-- Generate application key
-- Run migrations
-- Install NPM packages
-- Build assets
-
----
-
-## Docker Deployment (Production)
-
-For production deployment, use the included Docker setup:
-
-### Quick Deploy
-```bash
-# One-command deployment
-chmod +x deploy.sh
-./deploy.sh
-```
-
-### Manual Docker Setup
-```bash
-# Build and start containers
 docker-compose up -d
-
-# Run migrations and seed production data
 docker-compose exec app php artisan migrate --force
-docker-compose exec app php artisan db:seed --class=Database\\Seeders\\Production\\DatabaseSeeder --force
-
-# Optimize for production
-docker-compose exec app php artisan config:cache
-docker-compose exec app php artisan route:cache
-docker-compose exec app php artisan view:cache
+docker-compose exec app php artisan db:seed --class=Database\\Seeders\\Production\\DatabaseSeeder
 ```
 
-### Docker Services
-- **app** - PHP-FPM with Laravel application
-- **nginx** - Web server with SSL configuration
-- **mysql** - MySQL database
-- **redis** - Redis caching and queues
-- **supervisor** - Process management
-
-### Environment Variables for Production
-```env
-APP_ENV=production
-APP_DEBUG=false
-DB_CONNECTION=mysql
-REDIS_HOST=redis
-CACHE_DRIVER=redis
-QUEUE_CONNECTION=redis
-```
+### Services
+| Service | Description |
+|---------|-------------|
+| **app** | PHP-FPM + Laravel |
+| **nginx** | Web server |
+| **mysql** | Database |
+| **redis** | Cache & queues |
+| **supervisor** | Process manager |
 
 ---
 
-## Docker Setup (Development)
-
-If you prefer Docker for development, you can use Laravel Sail:
-
-```bash
-composer require laravel/sail --dev
-php artisan sail:install
-./vendor/bin/sail up
-```
-
----
-
-## Default Admin Account
-
-After production seeding, an admin account is created:
-
-- **Email:** `admin@yourdomain.com` (based on your APP_URL)
-- **Password:** `change-this-password-in-production`
-
-> ⚠️ **IMPORTANT:** Change the default password immediately after first login!
-
-### Production Seeder
-The production seeder creates minimal essential data:
-- Single admin account
-- Essential application settings
-- No test/demo data
-
-For development with sample data, use:
-```bash
-php artisan db:seed --class=DatabaseSeeder
-```
-
----
-
-## API Documentation
-
-### Authentication
-The API uses Bearer token authentication for security:
-
-```bash
-# Correct - Bearer token in header
-curl -H "Authorization: Bearer YOUR_TOKEN" \
-     https://yourdomain.com/api/v1/links
-
-# Incorrect - Query parameter not supported for security
-curl https://yourdomain.com/api/v1/links?api_key=YOUR_TOKEN
-# Returns 401 Unauthorized
-```
-
-### Rate Limits
-- **API Endpoints**: 1000 requests/hour (configurable)
-- **Token Management**: 100 requests/hour (configurable)
-- **Guest Shortening**: 10 requests/hour (configurable)
-
-### Health Check
-Monitor system health with:
-```bash
-curl https://yourdomain.com/api/v1/health
-```
-
-Response includes database, cache, and queue status.
-
----
-
-## Testing
+## 🧪 Testing
 
 ```bash
 composer run test
 ```
 
-**Test Coverage**: 156 tests passing ✅
+**Test Coverage**: 156+ tests passing ✅
+
+### Test Categories
+- Unit Tests (Services, Models)
+- Feature Tests (API, Controllers)
+- Integration Tests (Database, Cache)
 
 ---
 
-## Security Checklist
+## 📦 Project Structure
 
-Before deploying to production:
+```
+├── app/
+│   ├── Http/Controllers/    # API & Web controllers
+│   ├── Models/              # Eloquent models
+│   ├── Services/            # Business logic
+│   ├── Jobs/                # Queue jobs
+│   └── Policies/            # Authorization
+├── database/
+│   ├── migrations/          # Schema definitions
+│   └── seeders/             # Sample data
+├── routes/
+│   ├── api.php              # REST API routes
+│   └── web.php              # Web routes
+├── resources/
+│   └── js/                  # Vue.js components
+└── tests/                   # Test suites
+```
+
+---
+
+## 🔐 Security Checklist
 
 - [ ] Change default admin password
-- [ ] Set strong APP_KEY in production
-- [ ] Configure HTTPS/SSL certificates
-- [ ] Set APP_DEBUG=false in production
-- [ ] Configure firewall rules
-- [ ] Set up monitoring and logging
-- [ ] Review rate limiting settings
-- [ ] Enable backup strategy
+- [ ] Set strong APP_KEY
+- [ ] Enable HTTPS/SSL
+- [ ] Set APP_DEBUG=false
+- [ ] Configure firewall
+- [ ] Review rate limits
+- [ ] Enable backups
 
 ---
 
-## License
+## 📄 License
 
-This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
 <p align="center">
-  <sub>Built with ❤️ by <a href="https://atiaeno.com">Atia Hegazy</a></sub>
+  <strong>ShortLink PRO</strong> — Built with ❤️ by <a href="https://atiaeno.com">Atia Hegazy</a><br>
+  <sub>Senior Full-Stack Developer | Laravel & Vue.js Specialist</sub>
 </p>
