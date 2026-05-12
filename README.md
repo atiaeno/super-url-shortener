@@ -587,6 +587,17 @@ php artisan about --only=environment
 
 ---
 
+## 🎯 Referral System
+
+Session-based referral tracking that stores affiliate codes on first visit and applies them during registration.
+
+- **Referral Link**: `/?ref=AFFILIATE_CODE`
+- **Session Storage**: Code persists across page navigation
+- **Auto-Apply**: Referral processed during user registration
+- **Cleanup**: Code cleared after successful registration
+
+---
+
 ## 📁 Project Structure
 
 ```
