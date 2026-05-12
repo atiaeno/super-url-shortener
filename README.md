@@ -36,7 +36,7 @@
 ## 🎯 Platform Overview
 
 <div align="center">
-<img src="screenshots/homepage.png" alt="Platform Homepage" width="100%" height="500" style="object-fit: cover; object-position: top;">
+<img src="screenshots/homepage.png" alt="Platform Homepage" width="100%" style="object-fit: cover; object-position: top;">
 <br><br>
 <p><strong>Production-ready URL shortening platform built for scale</strong></p>
 </div>
