@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 class RateLimitRedirects
 {
     private const MAX_REQUESTS = 60;
-
     private const WINDOW_SECONDS = 60;
 
     /**
@@ -22,7 +21,6 @@ class RateLimitRedirects
     public function handle(Request $request, Closure $next): Response
     {
         $key = 'rate_limit:redirect:' . hash('sha256', $request->ip());
-
         $hits = (int) Cache::get($key, 0);
 
         if ($hits >= self::MAX_REQUESTS) {
@@ -42,10 +40,8 @@ class RateLimitRedirects
         }
 
         $response = $next($request);
-
         $response->headers->set('X-RateLimit-Limit', self::MAX_REQUESTS);
         $response->headers->set('X-RateLimit-Remaining', max(0, self::MAX_REQUESTS - $hits - 1));
-
         return $response;
     }
 }

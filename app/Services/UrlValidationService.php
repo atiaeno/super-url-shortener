@@ -59,15 +59,10 @@ class UrlValidationService
 
     public static function sanitizeUrl(string $url): string
     {
-        // Trim whitespace only — FILTER_SANITIZE_URL silently strips characters
-        // (including non-ASCII) rather than encoding them, which would corrupt valid URLs.
-        // Validation is already handled by isValidUrl() / getValidationError() before this
-        // method is called, so we only need to normalise here.
-        $url = trim($url);
 
+        $url = trim($url);
         // Normalize URL
         $url = rtrim($url, '/');
-
         return $url;
     }
 
