@@ -55,4 +55,9 @@ return [
         'site_key' => '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
         'secret_key' => '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
     ],
+    // Cloudflare Turnstile Test Keys
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY', '0x4AAAAAAABkMYinukE8nzP'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY', '0x4AAAAAAABkMYinuC2iX'),
+    ],
 ];

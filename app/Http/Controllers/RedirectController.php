@@ -133,6 +133,11 @@ class RedirectController extends Controller
         $redirectMode = Setting::get('redirect_mode', 'auto');
         $redirectCaptcha = Setting::get('redirect_captcha', false);
 
+        // Get CAPTCHA provider and site key
+        $captcha = app(\App\Services\CaptchaService::class);
+        $captchaProvider = $captcha->getProviderType();
+        $captchaSiteKey = $captcha->siteKey();
+
         // Check for ad to display on the redirect page
         $ad = $this->getAdForLink($link, $request);
         $adContent = '';
@@ -153,7 +158,8 @@ class RedirectController extends Controller
             'countdown' => $countdown,
             'redirectMode' => $redirectMode,
             'redirectCaptcha' => filter_var($redirectCaptcha, FILTER_VALIDATE_BOOLEAN),
-            'captchaSiteKey' => Setting::get('captcha_site_key', ''),
+            'captchaSiteKey' => $captchaSiteKey,
+            'captchaProvider' => $captchaProvider,
             'adContent' => $adContent,
             'adPlacement' => $ad ? $ad->placement : null,
             'adFormat' => $ad ? $ad->format : null,

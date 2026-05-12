@@ -18,12 +18,12 @@ class PasswordResetLinkController extends Controller
      */
     public function create(): Response
     {
-        $captchaEnabled = Setting::get('captcha_enabled', 'true') === 'true';
-        $recaptchaSiteKey = $captchaEnabled ? Setting::get('captcha_site_key', '') : '';
+        $captcha = app(\App\Services\CaptchaService::class);
 
         return Inertia::render('Auth/ForgotPassword', [
             'status' => session('status'),
-            'recaptchaSiteKey' => $recaptchaSiteKey,
+            'recaptchaSiteKey' => $captcha->siteKey(),
+            'captchaProvider' => $captcha->getProviderType(),
         ]);
     }
 

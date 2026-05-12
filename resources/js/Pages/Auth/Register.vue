@@ -1,11 +1,11 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
+import CaptchaWrapper from '@/Components/CaptchaWrapper.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PasswordInput from '@/Components/PasswordInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import Recaptcha from '@/Components/Recaptcha.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
@@ -14,6 +14,10 @@ const props = defineProps({
     recaptchaSiteKey: {
         type: String,
         default: ''
+    },
+    captchaProvider: {
+        type: String,
+        default: 'recaptcha'
     }
 });
 
@@ -41,6 +45,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
+
         <Head title="Apply for Membership" />
 
         <!-- Page Header -->
@@ -55,16 +60,8 @@ const submit = () => {
                 <InputLabel for="name" value="Full Designation" class="field-label" />
                 <div class="input-wrap">
                     <span class="input-icon">&#128100;</span>
-                    <TextInput
-                        id="name"
-                        type="text"
-                        class="auth-input"
-                        v-model="form.name"
-                        required
-                        autofocus
-                        autocomplete="name"
-                        placeholder="Enter your complete name"
-                    />
+                    <TextInput id="name" type="text" class="auth-input" v-model="form.name" required autofocus
+                        autocomplete="name" placeholder="Enter your complete name" />
                 </div>
                 <InputError class="field-error" :message="form.errors.name" />
             </div>
@@ -74,15 +71,8 @@ const submit = () => {
                 <InputLabel for="email" value="Electronic Address" class="field-label" />
                 <div class="input-wrap">
                     <span class="input-icon">@</span>
-                    <TextInput
-                        id="email"
-                        type="email"
-                        class="auth-input"
-                        v-model="form.email"
-                        required
-                        autocomplete="username"
-                        placeholder="correspondent@domain.com"
-                    />
+                    <TextInput id="email" type="email" class="auth-input" v-model="form.email" required
+                        autocomplete="username" placeholder="correspondent@domain.com" />
                 </div>
                 <InputError class="field-error" :message="form.errors.email" />
             </div>
@@ -92,14 +82,8 @@ const submit = () => {
                 <InputLabel for="password" value="Primary Cipher" class="field-label" />
                 <div class="input-wrap">
                     <span class="input-icon">&#128274;</span>
-                    <PasswordInput
-                        id="password"
-                        class="auth-input"
-                        v-model="form.password"
-                        required
-                        autocomplete="new-password"
-                        placeholder="Create a secure passphrase"
-                    />
+                    <PasswordInput id="password" class="auth-input" v-model="form.password" required
+                        autocomplete="new-password" placeholder="Create a secure passphrase" />
                 </div>
                 <p class="field-hint">Minimum 8 characters, include letters and numbers</p>
                 <InputError class="field-error" :message="form.errors.password" />
@@ -110,14 +94,8 @@ const submit = () => {
                 <InputLabel for="password_confirmation" value="Confirm Cipher" class="field-label" />
                 <div class="input-wrap">
                     <span class="input-icon">&#10003;</span>
-                    <PasswordInput
-                        id="password_confirmation"
-                        class="auth-input"
-                        v-model="form.password_confirmation"
-                        required
-                        autocomplete="new-password"
-                        placeholder="Re-enter your passphrase"
-                    />
+                    <PasswordInput id="password_confirmation" class="auth-input" v-model="form.password_confirmation"
+                        required autocomplete="new-password" placeholder="Re-enter your passphrase" />
                 </div>
                 <InputError class="field-error" :message="form.errors.password_confirmation" />
             </div>
@@ -132,30 +110,21 @@ const submit = () => {
                 </p>
             </div>
 
-            <!-- reCAPTCHA -->
+            <!-- CAPTCHA -->
             <div v-if="recaptchaSiteKey" class="recaptcha-field">
-                <Recaptcha
-                    ref="recaptchaRef"
-                    v-model="form.recaptcha_token"
-                    :site-key="recaptchaSiteKey"
-                />
+                <CaptchaWrapper ref="recaptchaRef" v-model="form.recaptcha_token" :site-key="recaptchaSiteKey"
+                    :provider="captchaProvider" />
                 <InputError class="field-error" :message="form.errors.recaptcha_token" />
             </div>
 
             <!-- Actions -->
             <div class="form-actions">
-                <Link
-                    :href="route('login')"
-                    class="secondary-link"
-                >
+                <Link :href="route('login')" class="secondary-link">
                     Return to Entry
                 </Link>
 
-                <PrimaryButton
-                    class="submit-btn"
-                    :class="{ 'processing': form.processing }"
-                    :disabled="form.processing"
-                >
+                <PrimaryButton class="submit-btn" :class="{ 'processing': form.processing }"
+                    :disabled="form.processing">
                     <span v-if="form.processing">Processing...</span>
                     <span v-else>Complete Registration</span>
                 </PrimaryButton>
@@ -242,7 +211,7 @@ const submit = () => {
     font-family: 'Crimson Pro', serif;
     font-size: 16px;
     color: #1a1a1a;
-   
+
     border: 1px solid #e5e5e5;
     border-radius: 0;
     transition: all 200ms ease;

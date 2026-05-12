@@ -52,8 +52,11 @@ const form = useForm({
     maintenance_mode: props.settings.maintenance_mode === 'true',
     maintenance_message: props.settings.maintenance_message,
     captcha_enabled: props.settings.captcha_enabled === 'true',
+    captcha_provider: props.settings.captcha_provider || 'recaptcha',
     captcha_site_key: props.settings.captcha_site_key,
     captcha_secret_key: props.settings.captcha_secret_key,
+    turnstile_site_key: props.settings.turnstile_site_key,
+    turnstile_secret_key: props.settings.turnstile_secret_key,
     safe_browsing_enabled: props.settings.safe_browsing_enabled === 'true',
     safe_browsing_api_key: props.settings.safe_browsing_api_key,
     auto_suspend_threshold: parseInt(props.settings.auto_suspend_threshold),
@@ -504,14 +507,43 @@ const icons = {
                                         <p class="feature-card__desc">Require CAPTCHA on registration and login.</p>
                                     </div>
                                 </div>
-                                <div v-if="form.captcha_enabled" class="field-grid" style="padding-left:28px">
+                                <div v-if="form.captcha_enabled" style="padding-left:28px">
                                     <div class="field">
-                                        <label class="field__label">Site Key</label>
-                                        <input v-model="form.captcha_site_key" type="text" class="field__input" />
+                                        <label class="field__label">CAPTCHA Provider</label>
+                                        <select v-model="form.captcha_provider" class="field__input">
+                                            <option value="recaptcha">Google reCAPTCHA</option>
+                                            <option value="turnstile">Cloudflare Turnstile</option>
+                                            <option value="disabled">Disabled</option>
+                                        </select>
                                     </div>
-                                    <div class="field">
-                                        <label class="field__label">Secret Key</label>
-                                        <input v-model="form.captcha_secret_key" type="password" class="field__input" />
+
+                                    <!-- Google reCAPTCHA Settings -->
+                                    <div v-if="form.captcha_provider === 'recaptcha'" class="field-grid">
+                                        <div class="field">
+                                            <label class="field__label">reCAPTCHA Site Key</label>
+                                            <input v-model="form.captcha_site_key" type="text" class="field__input"
+                                                placeholder="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" />
+                                        </div>
+                                        <div class="field">
+                                            <label class="field__label">reCAPTCHA Secret Key</label>
+                                            <input v-model="form.captcha_secret_key" type="password"
+                                                class="field__input"
+                                                placeholder="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" />
+                                        </div>
+                                    </div>
+
+                                    <!-- Cloudflare Turnstile Settings -->
+                                    <div v-if="form.captcha_provider === 'turnstile'" class="field-grid">
+                                        <div class="field">
+                                            <label class="field__label">Turnstile Site Key</label>
+                                            <input v-model="form.turnstile_site_key" type="text" class="field__input"
+                                                placeholder="0x4AAAAAAABkMYinukE8nzP" />
+                                        </div>
+                                        <div class="field">
+                                            <label class="field__label">Turnstile Secret Key</label>
+                                            <input v-model="form.turnstile_secret_key" type="password"
+                                                class="field__input" placeholder="0x4AAAAAAABkMYinuC2iX" />
+                                        </div>
                                     </div>
                                 </div>
 

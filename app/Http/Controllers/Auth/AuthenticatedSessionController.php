@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Setting;
+use App\Services\CaptchaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,13 +20,13 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): Response
     {
-        $captchaEnabled = Setting::get('captcha_enabled', 'true') === 'true';
-        $recaptchaSiteKey = $captchaEnabled ? Setting::get('captcha_site_key', '') : '';
+        $captcha = app(\App\Services\CaptchaService::class);
 
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
-            'recaptchaSiteKey' => $recaptchaSiteKey,
+            'recaptchaSiteKey' => $captcha->siteKey(),
+            'captchaProvider' => $captcha->getProviderType(),
         ]);
     }
 

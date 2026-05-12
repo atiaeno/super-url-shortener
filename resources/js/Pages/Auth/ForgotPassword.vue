@@ -1,10 +1,10 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
+import CaptchaWrapper from '@/Components/CaptchaWrapper.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import Recaptcha from '@/Components/Recaptcha.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
@@ -16,6 +16,10 @@ const props = defineProps({
     recaptchaSiteKey: {
         type: String,
         default: ''
+    },
+    captchaProvider: {
+        type: String,
+        default: 'recaptcha'
     }
 });
 
@@ -39,6 +43,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
+
         <Head title="Cipher Recovery" />
 
         <!-- Page Header -->
@@ -69,44 +74,27 @@ const submit = () => {
                 <InputLabel for="email" value="Electronic Address" class="field-label" />
                 <div class="input-wrap">
                     <span class="input-icon">@</span>
-                    <TextInput
-                        id="email"
-                        type="email"
-                        class="auth-input"
-                        v-model="form.email"
-                        required
-                        autofocus
-                        autocomplete="username"
-                        placeholder="correspondent@domain.com"
-                    />
+                    <TextInput id="email" type="email" class="auth-input" v-model="form.email" required autofocus
+                        autocomplete="username" placeholder="correspondent@domain.com" />
                 </div>
                 <InputError class="field-error" :message="form.errors.email" />
             </div>
 
-            <!-- reCAPTCHA -->
+            <!-- CAPTCHA -->
             <div v-if="recaptchaSiteKey" class="recaptcha-field">
-                <Recaptcha
-                    ref="recaptchaRef"
-                    v-model="form.recaptcha_token"
-                    :site-key="recaptchaSiteKey"
-                />
+                <CaptchaWrapper ref="recaptchaRef" v-model="form.recaptcha_token" :site-key="recaptchaSiteKey"
+                    :provider="captchaProvider" />
                 <InputError class="field-error" :message="form.errors.recaptcha_token" />
             </div>
 
             <!-- Actions -->
             <div class="form-actions">
-                <Link
-                    :href="route('login')"
-                    class="secondary-link"
-                >
+                <Link :href="route('login')" class="secondary-link">
                     &#8592; Return to Entry
                 </Link>
 
-                <PrimaryButton
-                    class="submit-btn"
-                    :class="{ 'processing': form.processing }"
-                    :disabled="form.processing"
-                >
+                <PrimaryButton class="submit-btn" :class="{ 'processing': form.processing }"
+                    :disabled="form.processing">
                     <span v-if="form.processing">Sending...</span>
                     <span v-else>Dispatch Recovery</span>
                 </PrimaryButton>

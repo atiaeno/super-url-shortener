@@ -30,7 +30,11 @@
         href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap"
         rel="stylesheet">
     @if (!empty($redirectCaptcha) && !empty($captchaSiteKey))
-        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+        @if ($captchaProvider === 'turnstile')
+            <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+        @else
+            <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+        @endif
     @endif
     <link href="{{ asset('css/redirect.css') }}" rel="stylesheet">
 </head>
@@ -134,8 +138,13 @@
                 @endif
                 @if (!empty($redirectCaptcha) && !empty($captchaSiteKey))
                     <div id="captchaWrap" style="display:flex;justify-content:center;margin-bottom:20px">
-                        <div class="g-recaptcha" data-sitekey="{{ $captchaSiteKey }}" data-callback="onCaptchaPass">
-                        </div>
+                        @if ($captchaProvider === 'turnstile')
+                            <div class="cf-turnstile" data-sitekey="{{ $captchaSiteKey }}"
+                                data-callback="onCaptchaPass"></div>
+                        @else
+                            <div class="g-recaptcha" data-sitekey="{{ $captchaSiteKey }}"
+                                data-callback="onCaptchaPass"></div>
+                        @endif
                     </div>
                 @endif
 
