@@ -1,0 +1,973 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Oswald:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --font-display: 'Oswald', sans-serif;
+    --font-body: 'DM Sans', sans-serif !important;
+    --red: #e74c3c;
+    --ink: #000000;
+    --muted: #333333;
+    --border: #e5e5e5;
+    --surface: #fff;
+    --radius: 4px;
+}
+
+.page-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* Material Icons */
+.material-icons {
+    font-size: 20px;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+/* ── Enroll Section ─────────────────────────────── */
+.enroll-section {
+    max-width: 600px;
+    margin: 40px auto;
+    text-align: center;
+}
+
+.enroll-hero {
+    margin-bottom: 32px;
+}
+
+.enroll-icon {
+    font-size: 56px;
+    display: block;
+    margin-bottom: 16px;
+    color: #1a1a1a;
+}
+
+.enroll-title {
+    font-family: var(--font-display);
+    font-size: 38px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 12px 0;
+}
+
+.enroll-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
+    color: #444;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.tiers-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.tier-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.tier-card:hover {
+    border-color: var(--red);
+    transform: translateY(-4px);
+}
+
+.tier-name {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    color: #333;
+}
+
+.tier-rate {
+    font-family: var(--font-display);
+    font-size: 42px;
+    font-weight: 700;
+    color: #c00;
+}
+
+.tier-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
+
+.enroll-action {
+    margin-top: 8px;
+}
+
+.btn-large {
+    padding: 16px 40px;
+    font-size: 18px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
+.btn-large .material-icons,
+.btn-sync .material-icons {
+    font-size: 20px;
+    margin-right: 6px;
+}
+
+/* ── Sync bar ───────────────────────────────── */
+.sync-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: #fafafa;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+}
+
+.sync-note {
+    font-size: 15px;
+    color: #444;
+    margin: 0;
+}
+
+.btn-sync {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: var(--red);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    transition: opacity 200ms;
+}
+
+.btn-sync:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btn-sync:not(:disabled):hover {
+    opacity: 0.75;
+}
+
+/* ── Stat row ─────────────────────────────────── */
+.stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.mini-stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.mini-stat__val {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: 0;
+}
+
+.mini-stat__label {
+    font-size: 12px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
+
+/* ── Grid & Cards ────────────────────────────── */
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+}
+
+.mt {
+    margin-top: 20;
+}
+
+.card-title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    margin-bottom: 18px;
+}
+
+/* ── Tier badge ──────────────────────────────── */
+.tier-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.tier-badge__name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--red);
+}
+
+.tier-badge__rate {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* ── Progress ────────────────────────────────── */
+.progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+
+.progress-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--red);
+    border-radius: 3px;
+    transition: width 600ms ease;
+}
+
+.progress-hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+}
+
+.top-tier-msg {
+    font-size: 12px;
+    color: #22C55E;
+}
+
+/* ── Referral box ────────────────────────────── */
+.referral-box {
+    margin-top: 20px;
+    padding: 14px;
+    background: #fef2f2;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.referral-box__label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
+
+.referral-box__row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.referral-box__code {
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--red);
+    letter-spacing: 0;
+}
+
+.referral-link {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--red);
+    text-decoration: none;
+    word-break: break-all;
+    flex: 1;
+}
+
+.referral-link:hover {
+    text-decoration: underline;
+    color: #c00;
+}
+
+/* ── Payout form ─────────────────────────────── */
+.payout-locked {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.payout-locked p {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.payout-locked strong {
+    color: var(--ink);
+}
+
+.payout-progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.payout-progress-fill {
+    height: 100%;
+    background: #22C55E;
+    border-radius: 2px;
+}
+
+.payout-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.payout-form .field__input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field__label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+}
+
+.field__input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 200ms;
+}
+
+.field__input:focus {
+    border-color: var(--red);
+}
+
+.field__error {
+    font-size: 12px;
+    color: #EF4444;
+}
+
+.payout-history-link {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+/* ── Country rates ───────────────────────────── */
+.rate-grid {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.rate-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+.rate-chip__flag {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.rate-chip__val {
+    font-size: 12px;
+    color: var(--red);
+    font-weight: 700;
+}
+
+/* ── Tiers Table ─────────────────────────────── */
+.tiers-table-wrapper {
+    overflow-x: auto;
+}
+
+.tiers-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tiers-table th,
+.tiers-table td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.tiers-table th {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    color: var(--muted);
+    background: var(--surface);
+}
+
+.tiers-table td {
+    font-size: 12px;
+    color: var(--ink);
+}
+
+.tiers-table tr:hover td {
+    background: #fafafa;
+}
+
+.tier-current td {
+    background: #fef2f2;
+}
+
+.tier-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--red);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tier-badge-current {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    background: var(--red);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 2px;
+}
+
+.countries-list {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.countries-none {
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+}
+
+.current-tier-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.tier-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tier-stat__label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    color: var(--muted);
+}
+
+.tier-stat__value {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.referral-hint {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 12px;
+    line-height: 1.5;
+}
+
+.how-to-use {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-family: 'DM Sans';
+    font-size: 10px;
+}
+
+.how-to-use__title {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.how-to-use__step {
+    font-size: 12px;
+    color: #060606;
+    margin: 0;
+}
+
+.how-to-use__example {
+    font-size: 11px;
+    color: var(--muted);
+    margin: 4px 0 0 0;
+    word-break: break-all;
+}
+
+.inline-code {
+    background: #f0f0f0;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 11px;
+    color: var(--ink);
+    font-family: var(--font-body);
+}
+
+.earned-cell {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--red);
+}
+
+.no-data-cell {
+    text-align: center;
+    padding: 24px;
+    color: var(--muted);
+    font-size: 12px;
+    font-style: italic;
+}
+
+.earning-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.earning-desc {
+    font-size: 12px;
+    color: var(--ink);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.earning-list {
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.earning-list li {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.earning-list strong {
+    color: var(--red);
+}
+
+.earning-tiers {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.earning-tier-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+}
+
+.earning-tier-row:last-child {
+    border-bottom: none;
+}
+
+.earning-tier-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.earning-tier-name {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--red);
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
+
+.earning-tier-countries {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+.earning-tier-rate {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    white-space: nowrap;
+}
+
+.earning-note {
+    font-size: 12px;
+    color: var(--muted);
+    background: #fafafa;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    margin: 0;
+}
+
+/* ── Buttons ─────────────────────────────────── */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 22px;
+    background: var(--red);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 200ms;
+}
+
+.btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btn-primary:not(:disabled):hover {
+    opacity: 0.85;
+}
+
+.btn-ghost-sm {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 200ms;
+}
+
+.btn-ghost-sm:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+}
+
+.link-muted {
+    font-size: 12px;
+    color: #52525B;
+    text-decoration: none;
+}
+
+.link-muted:hover {
+    color: #A1A1AA;
+}
+
+@media (max-width: 768px) {
+    .page-content {
+        padding: 16px;
+        max-width: 100%;
+    }
+
+    * {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .enroll-section {
+        margin: 20px auto;
+    }
+
+    .enroll-hero {
+        padding: 24px 16px;
+    }
+
+    .enroll-title {
+        font-size: 24px;
+    }
+
+    .enroll-desc {
+        font-size: 12px;
+    }
+
+    .tiers-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .tier-card {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 16px 20px;
+    }
+
+    .tier-rate {
+        font-size: 24px;
+    }
+
+    .stat-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .mini-stat {
+        padding: 16px;
+    }
+
+    .mini-stat__val {
+        font-size: 20px;
+    }
+
+    .mini-stat__label {
+        font-size: 11px;
+    }
+
+    .sync-bar {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+    }
+
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .card-title {
+        font-size: 12px;
+    }
+
+    .how-to-use__step {
+        font-size: 12px;
+    }
+
+    .referral-box {
+        padding: 16px;
+    }
+
+    .referral-input {
+        font-size: 12px;
+        padding: 12px;
+    }
+
+    .payout-form {
+        padding: 20px;
+    }
+
+    .field {
+        margin-bottom: 16px;
+    }
+
+    .field__label {
+        font-size: 12px;
+    }
+
+    .field__input {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .toggle-group {
+        flex-direction: column;
+    }
+
+    .toggle-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .amount-display {
+        padding: 20px;
+    }
+
+    .amount-value {
+        font-size: 32px;
+    }
+
+    .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-sync {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .payout-history {
+        padding: 16px;
+    }
+
+    .history-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .history-table table {
+        min-width: 600px;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 12px 8px;
+        font-size: 12px;
+    }
+
+    .status-badge {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+}
+
+/* Referral Section Styles */
+.referral-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.referral-stat {
+    text-align: center;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.referral-stat__val {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+}
+
+.referral-stat__label {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.referral-info {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: var(--radius);
+}
+
+.referral-info__title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 12px 0;
+}
+
+.referral-info__list {
+    margin: 0;
+    padding: 0 0 0 20px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.referral-info__list li {
+    margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+    .referral-stats {
+        grid-template-columns: 1fr;
+    }
+}
