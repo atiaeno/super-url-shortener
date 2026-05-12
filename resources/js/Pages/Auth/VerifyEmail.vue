@@ -41,12 +41,13 @@ const verificationLinkSent = computed(
 
 <template>
     <GuestLayout>
+
         <Head title="Correspondence Verification" />
 
         <!-- Page Header -->
         <div class="page-header">
             <h1 class="page-title">Verify Your Identity</h1>
-            <p class="page-subtitle">Confirm your electronic correspondence channel</p>
+            <p class="page-subtitle">Confirm your email address</p>
         </div>
 
         <!-- Instructions -->
@@ -54,7 +55,7 @@ const verificationLinkSent = computed(
             <div class="info-icon">&#9993;</div>
             <p class="info-text">
                 Welcome to the Bureau! Before accessing the archives, we require
-                verification of your electronic address. Please examine your correspondence
+                verification of your email address. Please examine your correspondence
                 for our authentication directive and follow the enclosed instructions.
             </p>
         </div>
@@ -64,7 +65,7 @@ const verificationLinkSent = computed(
             <span class="success-icon">&#10003;</span>
             <p class="success-text">
                 A fresh authentication directive has been dispatched to your
-                registered electronic address. Please allow several minutes
+                registered email address. Please allow several minutes
                 for delivery.
             </p>
         </div>
@@ -73,29 +74,17 @@ const verificationLinkSent = computed(
         <form @submit.prevent="submit" class="auth-form">
             <!-- reCAPTCHA -->
             <div v-if="recaptchaSiteKey" class="recaptcha-field">
-                <Recaptcha
-                    ref="recaptchaRef"
-                    v-model="form.recaptcha_token"
-                    :site-key="recaptchaSiteKey"
-                />
+                <Recaptcha ref="recaptchaRef" v-model="form.recaptcha_token" :site-key="recaptchaSiteKey" />
                 <InputError class="field-error" :message="form.errors.recaptcha_token" />
             </div>
 
             <div class="form-actions">
-                <Link
-                    :href="route('logout')"
-                    method="post"
-                    as="button"
-                    class="secondary-link"
-                >
+                <Link :href="route('logout')" method="post" as="button" class="secondary-link">
                     Exit Session
                 </Link>
 
-                <PrimaryButton
-                    class="submit-btn"
-                    :class="{ 'processing': form.processing }"
-                    :disabled="form.processing"
-                >
+                <PrimaryButton class="submit-btn" :class="{ 'processing': form.processing }"
+                    :disabled="form.processing">
                     <span v-if="form.processing">Dispatching...</span>
                     <span v-else>Resend Directive</span>
                 </PrimaryButton>
@@ -107,7 +96,7 @@ const verificationLinkSent = computed(
             <h3 class="help-title">Correspondence Not Received?</h3>
             <ul class="help-list">
                 <li>Inspect your correspondence filtering apparatus (spam folder)</li>
-                <li>Confirm your electronic address was entered accurately</li>
+                <li>Confirm your email address was entered accurately</li>
                 <li>Allow up to five minutes for delivery</li>
                 <li>Request another directive using the button above</li>
             </ul>

@@ -71,7 +71,7 @@ const submit = () => {
         <form @submit.prevent="submit" class="auth-form">
             <!-- Email Field -->
             <div class="form-field">
-                <InputLabel for="email" value="Electronic Address" class="field-label" />
+                <InputLabel for="email" value="Email Address" class="field-label" />
                 <div class="input-wrap">
                     <span class="input-icon">@</span>
                     <TextInput id="email" type="email" class="auth-input" v-model="form.email" required autofocus

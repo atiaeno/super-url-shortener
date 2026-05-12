@@ -1,6 +1,11 @@
 <!-- © Atia Hegazy — atiaeno.com -->
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
+const page = usePage();
+const appName = computed(() => page.props.settings?.app_name ?? 'ShortLink');
+const logoUrl = computed(() => page.props.settings?.logo_url ?? '');
 </script>
 
 <template>
@@ -13,7 +18,8 @@ import { Link } from '@inertiajs/vue3';
             <!-- Minimal Masthead -->
             <div class="auth-masthead">
                 <Link href="/" class="logo-link">
-                    <span class="logo-mark">ShortLink</span>
+                    <img v-if="logoUrl" :src="logoUrl" :alt="appName" class="logo-image" />
+                    <span v-else class="logo-mark">{{ appName }}</span>
                 </Link>
             </div>
 
@@ -30,7 +36,6 @@ import { Link } from '@inertiajs/vue3';
 
             <!-- Minimal Footer -->
             <div class="auth-footer">
-                <p class="footer-credit">ShortLink Editorial</p>
             </div>
         </div>
     </div>
@@ -54,13 +59,13 @@ import { Link } from '@inertiajs/vue3';
     padding: 2rem;
 }
 
-/* Subtle Grid */
+/* Subtle Grid with red accent */
 .editorial-grid {
     position: fixed;
     inset: 0;
     background-image:
-        linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+        linear-gradient(rgba(220, 38, 38, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(220, 38, 38, 0.03) 1px, transparent 1px);
     background-size: 60px 60px;
     pointer-events: none;
 }
@@ -88,7 +93,7 @@ import { Link } from '@inertiajs/vue3';
 }
 
 .logo-link:hover {
-    opacity: 0.6;
+    opacity: 0.8;
 }
 
 .logo-mark {
@@ -96,7 +101,13 @@ import { Link } from '@inertiajs/vue3';
     font-size: 28px;
     font-weight: 700;
     letter-spacing: -1px;
-    color: #1a1a1a;
+    color: #dc2626;
+}
+
+.logo-image {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
 }
 
 /* Issue Label - matches Welcome.vue */
@@ -105,7 +116,7 @@ import { Link } from '@inertiajs/vue3';
     font-size: 11px;
     letter-spacing: 4px;
     text-transform: uppercase;
-    color: #999;
+    color: #dc2626;
     margin-bottom: 2rem;
 }
 
@@ -115,8 +126,9 @@ import { Link } from '@inertiajs/vue3';
     width: 100%;
     background: #fff;
     border: 1px solid #e5e5e5;
+    border-top: 3px solid #dc2626;
     padding: 3rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.08);
 }
 
 /* Auth Content */
@@ -136,7 +148,7 @@ import { Link } from '@inertiajs/vue3';
     font-size: 10px;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: #999;
+    color: #dc2626;
 }
 
 /* Responsive */

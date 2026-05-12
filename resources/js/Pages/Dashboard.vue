@@ -254,36 +254,21 @@ const icons = {
                             <span class="chart-card__title">Device Types</span>
                         </div>
                         <div class="chart-card__body">
-                            <div class="pie-chart-container">
-                                <svg class="pie-chart" viewBox="0 0 200 200">
-                                    <!-- Desktop slice -->
-                                    <path d="M 100 100 L 100 20 A 80 80 0 0 1 164 36 Z" fill="#e74c3c" />
-                                    <!-- Mobile slice -->
-                                    <path d="M 100 100 L 164 36 A 80 80 0 0 1 164 164 Z" fill="#3498db" />
-                                    <!-- Tablet slice -->
-                                    <path d="M 100 100 L 164 164 A 80 80 0 0 1 100 20 Z" fill="#2ecc71" />
-                                    <!-- Center circle -->
-                                    <circle cx="100" cy="100" r="40" fill="white" />
-                                    <!-- Center text -->
-                                    <text x="100" y="105" text-anchor="middle" font-family="DM Sans" font-size="14"
-                                        font-weight="600" fill="#1a1a1a">1,910</text>
-                                    <text x="100" y="120" text-anchor="middle" font-family="DM Sans" font-size="10"
-                                        fill="#666">Total</text>
+                            <div v-if="props.stats.total_clicks === 0" class="chart-placeholder">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                                    <line x1="8" y1="21" x2="16" y2="21" />
+                                    <line x1="12" y1="17" x2="12" y2="21" />
                                 </svg>
-                                <div class="pie-legend">
-                                    <div class="legend-item">
-                                        <div class="legend-color" style="background: #e74c3c"></div>
-                                        <span class="legend-text">Desktop (65%)</span>
-                                    </div>
-                                    <div class="legend-item">
-                                        <div class="legend-color" style="background: #3498db"></div>
-                                        <span class="legend-text">Mobile (30%)</span>
-                                    </div>
-                                    <div class="legend-item">
-                                        <div class="legend-color" style="background: #2ecc71"></div>
-                                        <span class="legend-text">Tablet (5%)</span>
-                                    </div>
-                                </div>
+                                <span>No device data yet</span>
+                                <small>Create links and get clicks to see device analytics</small>
+                            </div>
+                            <div v-else class="chart-placeholder">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                                </svg>
+                                <span>Device analytics coming soon</span>
+                                <small>Track clicks by device type</small>
                             </div>
                         </div>
                     </div>
@@ -293,52 +278,29 @@ const icons = {
                             <span class="chart-card__title">Recent Activity</span>
                         </div>
                         <div class="chart-card__body">
-                            <div class="line-chart-container">
-                                <svg class="line-chart" viewBox="0 0 300 120">
-                                    <!-- Grid lines -->
-                                    <line x1="20" y1="20" x2="280" y2="20" stroke="#e5e5e5" stroke-width="1" />
-                                    <line x1="20" y1="40" x2="280" y2="40" stroke="#e5e5e5" stroke-width="1" />
-                                    <line x1="20" y1="60" x2="280" y2="60" stroke="#e5e5e5" stroke-width="1" />
-                                    <line x1="20" y1="80" x2="280" y2="80" stroke="#e5e5e5" stroke-width="1" />
-                                    <line x1="20" y1="100" x2="280" y2="100" stroke="#e5e5e5" stroke-width="1" />
-
-                                    <!-- Activity line -->
-                                    <polyline points="20,90 60,70 100,75 140,40 180,50 220,30 260,45" fill="none"
-                                        stroke="#e74c3c" stroke-width="2" />
-
-                                    <!-- Data points -->
-                                    <circle cx="20" cy="90" r="3" fill="#e74c3c" />
-                                    <circle cx="60" cy="70" r="3" fill="#e74c3c" />
-                                    <circle cx="100" cy="75" r="3" fill="#e74c3c" />
-                                    <circle cx="140" cy="40" r="3" fill="#e74c3c" />
-                                    <circle cx="180" cy="50" r="3" fill="#e74c3c" />
-                                    <circle cx="220" cy="30" r="3" fill="#e74c3c" />
-                                    <circle cx="260" cy="45" r="3" fill="#e74c3c" />
-
-                                    <!-- X-axis labels -->
-                                    <text x="20" y="115" text-anchor="middle" font-family="DM Sans" font-size="8"
-                                        fill="#666">Mon</text>
-                                    <text x="60" y="115" text-anchor="middle" font-family="DM Sans" font-size="8"
-                                        fill="#666">Tue</text>
-                                    <text x="100" y="115" text-anchor="middle" font-family="DM Sans" font-size="8"
-                                        fill="#666">Wed</text>
-                                    <text x="140" y="115" text-anchor="middle" font-family="DM Sans" font-size="8"
-                                        fill="#666">Thu</text>
-                                    <text x="180" y="115" text-anchor="middle" font-family="DM Sans" font-size="8"
-                                        fill="#666">Fri</text>
-                                    <text x="220" y="115" text-anchor="middle" font-family="DM Sans" font-size="8"
-                                        fill="#666">Sat</text>
-                                    <text x="260" y="115" text-anchor="middle" font-family="DM Sans" font-size="8"
-                                        fill="#666">Sun</text>
+                            <div v-if="recentLinks.length === 0" class="chart-placeholder">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                                    <polyline points="17 6 23 6 23 12" />
                                 </svg>
-                                <div class="chart-info">
-                                    <div class="info-item">
-                                        <span class="info-label">Peak:</span>
-                                        <span class="info-value">245 clicks</span>
+                                <span>No activity yet</span>
+                                <small>Your recent link activity will appear here</small>
+                            </div>
+                            <div v-else class="activity-list">
+                                <div v-for="link in recentLinks.slice(0, 5)" :key="link.id" class="activity-item">
+                                    <div class="activity-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                                        </svg>
                                     </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Average:</span>
-                                        <span class="info-value">127 clicks</span>
+                                    <div class="activity-content">
+                                        <span class="activity-text">Created link: {{ link.short_code }}</span>
+                                        <span class="activity-time">{{ formatDate(link.created_at) }}</span>
+                                    </div>
+                                    <div class="activity-count">
+                                        <strong>{{ link.clicks_count }}</strong>
+                                        <small>clicks</small>
                                     </div>
                                 </div>
                             </div>
@@ -931,6 +893,88 @@ const icons = {
     font-size: 12px;
     font-weight: 600;
     color: var(--ink);
+}
+
+/* Activity List */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 28px;
+    height: 28px;
+    background: #fef2f2;
+    color: var(--red);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.activity-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+.activity-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.activity-text {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.activity-time {
+    font-family: var(--font-body);
+    font-size: 10px;
+    color: var(--muted);
+}
+
+.activity-count {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.activity-count strong {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.activity-count small {
+    font-family: var(--font-body);
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
 }
 
 /* Country List */

@@ -49,6 +49,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
+
         <Head title="Establish New Cipher" />
 
         <!-- Page Header -->
@@ -69,34 +70,22 @@ const submit = () => {
         <form @submit.prevent="submit" class="auth-form">
             <!-- Email Field (Read-only) -->
             <div class="form-field">
-                <InputLabel for="email" value="Verified Electronic Address" class="field-label" />
+                <InputLabel for="email" value="Verified Email" class="field-label" />
                 <div class="input-wrap">
                     <span class="input-icon">@</span>
-                    <TextInput
-                        id="email"
-                        type="email"
-                        class="auth-input auth-input--readonly"
-                        v-model="form.email"
-                        readonly
-                        autocomplete="username"
-                    />
+                    <TextInput id="email" type="email" class="auth-input auth-input--readonly" v-model="form.email"
+                        readonly autocomplete="username" />
                 </div>
                 <InputError class="field-error" :message="form.errors.email" />
             </div>
 
             <!-- New Password Field -->
             <div class="form-field">
-                <InputLabel for="password" value="New Primary Cipher" class="field-label" />
+                <InputLabel for="password" value="New Password" class="field-label" />
                 <div class="input-wrap">
                     <span class="input-icon">&#128274;</span>
-                    <PasswordInput
-                        id="password"
-                        class="auth-input"
-                        v-model="form.password"
-                        required
-                        autocomplete="new-password"
-                        placeholder="Create your new passphrase"
-                    />
+                    <PasswordInput id="password" class="auth-input" v-model="form.password" required
+                        autocomplete="new-password" placeholder="Create your new passphrase" />
                 </div>
                 <p class="field-hint">Minimum 8 characters, include letters and numbers</p>
                 <InputError class="field-error" :message="form.errors.password" />
@@ -104,38 +93,25 @@ const submit = () => {
 
             <!-- Confirm Password Field -->
             <div class="form-field">
-                <InputLabel for="password_confirmation" value="Confirm New Cipher" class="field-label" />
+                <InputLabel for="password_confirmation" value="Confirm New Password" class="field-label" />
                 <div class="input-wrap">
                     <span class="input-icon">&#10003;</span>
-                    <PasswordInput
-                        id="password_confirmation"
-                        class="auth-input"
-                        v-model="form.password_confirmation"
-                        required
-                        autocomplete="new-password"
-                        placeholder="Re-enter your new passphrase"
-                    />
+                    <PasswordInput id="password_confirmation" class="auth-input" v-model="form.password_confirmation"
+                        required autocomplete="new-password" placeholder="Re-enter your new passphrase" />
                 </div>
                 <InputError class="field-error" :message="form.errors.password_confirmation" />
             </div>
 
             <!-- reCAPTCHA -->
             <div v-if="recaptchaSiteKey" class="recaptcha-field">
-                <Recaptcha
-                    ref="recaptchaRef"
-                    v-model="form.recaptcha_token"
-                    :site-key="recaptchaSiteKey"
-                />
+                <Recaptcha ref="recaptchaRef" v-model="form.recaptcha_token" :site-key="recaptchaSiteKey" />
                 <InputError class="field-error" :message="form.errors.recaptcha_token" />
             </div>
 
             <!-- Actions -->
             <div class="form-actions">
-                <PrimaryButton
-                    class="submit-btn submit-btn--full"
-                    :class="{ 'processing': form.processing }"
-                    :disabled="form.processing"
-                >
+                <PrimaryButton class="submit-btn submit-btn--full" :class="{ 'processing': form.processing }"
+                    :disabled="form.processing">
                     <span v-if="form.processing">Establishing...</span>
                     <span v-else>Establish New Cipher</span>
                 </PrimaryButton>
