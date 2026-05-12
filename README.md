@@ -241,17 +241,17 @@ GROUP BY link_id, DATE(created_at);
 <table>
 <tr>
 <td width="33%" valign="top">
-<img src="screenshots/Admin-Dashboard.png" width="100%" height="280" style="object-fit: cover;">
+<img src="screenshots/Admin-Dashboard.png" width="100%" height="240" style="object-fit: cover;">
 <br><b>Admin Overview</b><br>
 <small>System metrics, user stats, revenue tracking</small>
 </td>
 <td width="33%" valign="top">
-<img src="screenshots/Admin-All-Links-.png" width="100%" height="280" style="object-fit: cover;">
+<img src="screenshots/Admin-All-Links-.png" width="100%" height="240" style="object-fit: cover;">
 <br><b>Link Administration</b><br>
 <small>Global link management, moderation, bulk actions</small>
 </td>
 <td width="33%" valign="top">
-<img src="screenshots/Admin-Link.png" width="100%" height="280" style="object-fit: cover;">
+<img src="screenshots/Admin-Link.png" width="100%" height="240" style="object-fit: cover;">
 <br><b>Link Details</b><br>
 <small>Edit links, view full analytics, manage settings</small>
 </td>
@@ -285,17 +285,17 @@ GROUP BY link_id, DATE(created_at);
 <table>
 <tr>
 <td width="33%" valign="top">
-<img src="screenshots/Admin-Report-Queue.png" width="100%" height="280" style="object-fit: cover;">
+<img src="screenshots/Admin-Report-Queue.png" width="100%" height="175" style="object-fit: cover;">
 <br><b>Report Queue</b><br>
 <small>User reports, abuse handling, moderation workflow</small>
 </td>
 <td width="33%" valign="top">
-<img src="screenshots/Admin-SEO-Indexer.png" width="100%" height="280" style="object-fit: cover;">
+<img src="screenshots/Admin-SEO-Indexer.png" width="100%" height="175" style="object-fit: cover;">
 <br><b>SEO Indexer</b><br>
 <small>Google Indexing API, IndexNow, sitemap management</small>
 </td>
 <td width="33%" valign="top">
-<img src="screenshots/Admin-Settings.png" width="100%" height="280" style="object-fit: cover;">
+<img src="screenshots/Admin-Settings.png" width="100%" height="175" style="object-fit: cover;">
 <br><b>System Settings</b><br>
 <small>Platform configuration, rate limits, feature toggles</small>
 </td>
@@ -307,7 +307,7 @@ GROUP BY link_id, DATE(created_at);
 ## 🔌 API & Documentation
 
 <div align="center">
-<img src="screenshots/API-Documentation.png" alt="API Documentation" width="85%" height="400" style="object-fit: cover;">
+<img src="screenshots/API-Documentation.png" alt="API Documentation" width="85%"   style="object-fit: cover;">
 <br><br>
 </div>
 
@@ -593,7 +593,7 @@ shortlink-pro/
 
 <img src="screenshots/cta.png" alt="Get Started" width="100%">
 
-**[View Live Demo](https://shortlink.pro)** • **[API Docs](https://docs.shortlink.pro)** • **[Report Issue](https://github.com/atiaeno/shortlink-pro/issues)**
+**[View Live Demo](#)** • **[API Docs](#)** • **[Report Issue](https://github.com/atiaeno/shortlink-pro/issues)**
 
 ---
 
