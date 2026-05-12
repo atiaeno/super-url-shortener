@@ -45,12 +45,18 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        // Verify CAPTCHA token if enabled
+        // Verify CAPTCHA token only if login CAPTCHA is enabled
         $captcha = app(CaptchaService::class);
-        if (!$captcha->verify($this->input('recaptcha_token'), $this->ip())) {
-            throw ValidationException::withMessages([
-                'recaptcha_token' => 'CAPTCHA verification failed. Please try again.',
-            ]);
+        $loginCaptchaSetting = \App\Models\Setting::get('captcha_login', 'false');
+        $loginCaptchaEnabled = filter_var($loginCaptchaSetting, FILTER_VALIDATE_BOOLEAN);
+
+        // Only verify CAPTCHA if both global and login-specific are enabled
+        if ($captcha->isEnabled() && $loginCaptchaEnabled) {
+            if (!$captcha->verify($this->input('recaptcha_token'), $this->ip())) {
+                throw ValidationException::withMessages([
+                    'recaptcha_token' => 'CAPTCHA verification failed. Please try again.',
+                ]);
+            }
         }
 
         if (!Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {

@@ -31,7 +31,8 @@ class RegisteredUserController extends Controller
 
         // Simplified logic: Show CAPTCHA only if global CAPTCHA is enabled AND register page checkbox is checked
         $globalCaptchaEnabled = $captcha->isEnabled();
-        $registerCaptchaEnabled = Setting::get('captcha_register', false);
+        $registerCaptchaSetting = Setting::get('captcha_register', 'false');
+        $registerCaptchaEnabled = filter_var($registerCaptchaSetting, FILTER_VALIDATE_BOOLEAN);
         $showCaptcha = $globalCaptchaEnabled && $registerCaptchaEnabled;
 
         return Inertia::render('Auth/Register', [

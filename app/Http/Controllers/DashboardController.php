@@ -3,10 +3,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Click;
 use App\Models\Link;
 use App\Models\LinkAnalyticsDaily;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -21,7 +23,9 @@ class DashboardController extends Controller
 
         $totalLinks = Link::forUser($userId)->count();
         $activeLinks = Link::forUser($userId)->active()->count();
-        $totalClicks = Link::forUser($userId)->sum('clicks_count');
+
+        // Get fresh total clicks directly from database
+        $totalClicks = Link::forUser($userId)->selectRaw('SUM(clicks_count) as total')->first()->total ?? 0;
 
         // Get user's link IDs
         $linkIds = Link::forUser($userId)->pluck('id');
@@ -38,7 +42,13 @@ class DashboardController extends Controller
         $recentLinks = Link::forUser($userId)
             ->latest()
             ->limit(5)
-            ->get(['id', 'short_code', 'destination_url', 'clicks_count', 'is_active', 'created_at']);
+            ->get(['id', 'short_code', 'destination_url', 'is_active', 'created_at'])
+            ->map(function ($link) use ($userId) {
+                // Get fresh click count directly from database with user filter
+                $freshData = Link::forUser($userId)->where('id', $link->id)->first(['clicks_count']);
+                $link->clicks_count = $freshData->clicks_count ?? 0;
+                return $link;
+            });
 
         // Chart data: clicks over last 7 days from summary
         $clicksData = $summaries->where('date', '>=', $weekAgo)->keyBy(fn($r) => $r->date->toDateString());
@@ -61,6 +71,19 @@ class DashboardController extends Controller
             'count' => $count,
         ])->sortByDesc('count')->take(5)->values();
 
+        // Device analytics from clicks
+        $devices = Click::whereIn('link_id', $linkIds)
+            ->where('created_at', '>=', now()->subDays(30))
+            ->selectRaw('device_type, COUNT(*) as count')
+            ->groupBy('device_type')
+            ->orderByDesc('count')
+            ->get();
+
+        $deviceStats = $devices->map(fn($device) => [
+            'device' => ucfirst($device->device_type),
+            'count' => $device->count,
+        ])->values();
+
         return Inertia::render('Dashboard', [
             'stats' => [
                 'total_links' => $totalLinks,
@@ -72,6 +95,7 @@ class DashboardController extends Controller
             'charts' => [
                 'clicks_over_time' => $clicksOverTime,
                 'top_countries' => $topCountries,
+                'device_stats' => $deviceStats,
             ],
         ]);
     }

@@ -125,6 +125,7 @@ class RedirectController extends Controller
             );
             // Still dispatch click tracking even for cached pages
             LogClickJob::dispatch($link->id, $this->getClickData($request))->onQueue('default');
+            $link->incrementClicks();
             return response($cachedHtml, 200)->header('Content-Type', 'text/html; charset=utf-8');
         }
 
@@ -183,6 +184,7 @@ class RedirectController extends Controller
 
         // Dispatch click tracking for first-time visits
         LogClickJob::dispatch($link->id, $this->getClickData($request))->onQueue('default');
+        $link->incrementClicks();
 
         // Return a view response so tests can use assertViewHas()
         return response()->view('redirect', $viewData);

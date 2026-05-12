@@ -101,8 +101,8 @@ const submit = () => {
             <div v-if="recaptchaSiteKey" class="recaptcha-field">
                 <CaptchaWrapper ref="recaptchaRef" v-model="form.recaptcha_token" :site-key="recaptchaSiteKey"
                     :provider="captchaProvider" />
-                <InputError class="field-error" :message="form.errors.recaptcha_token" />
             </div>
+            <InputError v-if="form.errors.recaptcha_token" class="field-error" :message="form.errors.recaptcha_token" />
 
             <!-- Actions -->
             <div class="form-actions">

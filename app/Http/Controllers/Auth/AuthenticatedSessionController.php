@@ -24,7 +24,8 @@ class AuthenticatedSessionController extends Controller
 
         // Simplified logic: Show CAPTCHA only if global CAPTCHA is enabled AND login page checkbox is checked
         $globalCaptchaEnabled = $captcha->isEnabled();
-        $loginCaptchaEnabled = Setting::get('captcha_login', false);
+        $loginCaptchaSetting = Setting::get('captcha_login', 'false');
+        $loginCaptchaEnabled = filter_var($loginCaptchaSetting, FILTER_VALIDATE_BOOLEAN);
         $showCaptcha = $globalCaptchaEnabled && $loginCaptchaEnabled;
 
         return Inertia::render('Auth/Login', [

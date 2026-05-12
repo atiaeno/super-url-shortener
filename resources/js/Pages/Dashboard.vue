@@ -43,6 +43,12 @@ const hasClicksData = computed(() => {
 
 const charts = computed(() => props.charts || { clicks_over_time: [], top_countries: [] });
 
+const getDevicePercentage = (count) => {
+    const deviceStats = props.charts?.device_stats || [];
+    const total = deviceStats.reduce((sum, device) => sum + device.count, 0);
+    return total > 0 ? Math.round((count / total) * 100) : 0;
+};
+
 // Mock data for new charts
 const mockDeviceData = [
     { type: 'Desktop', icon: '🖥️', count: 1245, percentage: 65 },
@@ -254,7 +260,7 @@ const icons = {
                             <span class="chart-card__title">Device Types</span>
                         </div>
                         <div class="chart-card__body">
-                            <div v-if="props.stats.total_clicks === 0" class="chart-placeholder">
+                            <div v-if="props.charts.device_stats.length === 0" class="chart-placeholder">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                     <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
                                     <line x1="8" y1="21" x2="16" y2="21" />
@@ -263,12 +269,20 @@ const icons = {
                                 <span>No device data yet</span>
                                 <small>Create links and get clicks to see device analytics</small>
                             </div>
-                            <div v-else class="chart-placeholder">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-                                </svg>
-                                <span>Device analytics coming soon</span>
-                                <small>Track clicks by device type</small>
+                            <div v-else class="device-chart">
+                                <div class="device-list">
+                                    <div v-for="device in props.charts.device_stats" :key="device.device"
+                                        class="device-item">
+                                        <div class="device-info">
+                                            <span class="device-name">{{ device.device }}</span>
+                                            <span class="device-count">{{ device.count }}</span>
+                                        </div>
+                                        <div class="device-bar">
+                                            <div class="device-bar-fill"
+                                                :style="{ width: getDevicePercentage(device.count) + '%' }"></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1347,5 +1361,54 @@ const icons = {
     .link-row__actions {
         justify-content: flex-start;
     }
+}
+
+/* ── Device Chart ───────────────────────────── */
+.device-chart {
+    padding: 8px 0;
+}
+
+.device-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.device-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.device-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.device-name {
+    font-weight: 500;
+    color: #374151;
+}
+
+.device-count {
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.device-bar {
+    width: 100%;
+    height: 6px;
+    background: #f3f4f6;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.device-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+    border-radius: 3px;
+    transition: width 0.3s ease;
 }
 </style>
